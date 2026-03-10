@@ -6,7 +6,9 @@ export interface ProductMeasurements {
 }
 
 export interface Product {
-  id: number;
+  id?: number;
+  slug?: string;
+  stock?: number;
   name: string;
   price: number;
   originalPrice?: number;
@@ -25,6 +27,8 @@ export interface Product {
   material?: string;
   usageCount?: string;
   soldOut?: boolean;
+  featured?: boolean;
+  trending?: boolean;
 }
 
 export interface CartItem extends Product {

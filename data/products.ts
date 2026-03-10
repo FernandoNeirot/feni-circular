@@ -5,7 +5,9 @@ export const allProducts: Product[] = [
   {
     id: 1,
     name: "Vestido Lavanda con Botones",
+    slug: "vestido-lavanda-con-botones",
     price: 1200,
+    stock: 1,
     originalPrice: 4500,
     images: ["/images/product-1.jpg", "/images/product-2.jpg"],
     image: "/images/product-1.jpg",
@@ -26,6 +28,8 @@ export const allProducts: Product[] = [
   {
     id: 2,
     name: "Romper Durazno con Volados",
+    slug: "romper-durazno-con-volados",
+    stock: 1,
     price: 900,
     originalPrice: 3200,
     images: ["/images/product-2.jpg", "/images/product-1.jpg"],
@@ -47,6 +51,8 @@ export const allProducts: Product[] = [
   {
     id: 3,
     name: "Remera Celeste con Estampado",
+    slug: "remera-celeste-con-estampado",
+    stock: 1,
     price: 600,
     originalPrice: 2000,
     images: ["/images/product-3.jpg"],
@@ -68,6 +74,8 @@ export const allProducts: Product[] = [
   {
     id: 4,
     name: "Overol Rosa con Bolsillos",
+    slug: "overol-rosa-con-bolsillos",
+    stock: 1,
     price: 1100,
     originalPrice: 3800,
     images: ["/images/product-4.jpg"],
@@ -89,6 +97,8 @@ export const allProducts: Product[] = [
   {
     id: 5,
     name: "Campera Pastel Multicolor",
+    slug: "campera-pastel-multicolor",
+    stock: 1,
     price: 1500,
     originalPrice: 5500,
     images: ["/images/product-5.jpg"],
@@ -110,6 +120,8 @@ export const allProducts: Product[] = [
   {
     id: 6,
     name: "Zapatitos Lavanda",
+    slug: "zapatitos-lavanda",
+    stock: 1,
     price: 700,
     originalPrice: 2800,
     images: ["/images/product-6.jpg"],
