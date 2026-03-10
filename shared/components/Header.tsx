@@ -1,0 +1,250 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Cart } from "./Cart";
+import Image from "next/image";
+import { allProducts } from "@/data/products";
+import { Search, X, Menu } from "lucide-react";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/shared/components/ui/sheet";
+
+const navLinks = [
+  { label: "Inicio", href: "/" },
+  { label: "Productos", href: "/buscar" },
+  { label: "¿Cómo funciona?", href: "/como-funciona" },
+  { label: "Vendé con nosotros", href: "/vender" },
+  { label: "FAQ", href: "/faq" },
+];
+
+export function Header() {
+  const pathname = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isSearchPage = pathname === "/buscar";
+
+  useEffect(() => {
+    if (searchOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  const suggestions =
+    query.length >= 2
+      ? allProducts
+          .filter(
+            (p) =>
+              p.name.toLowerCase().includes(query.toLowerCase()) ||
+              p.category.toLowerCase().includes(query.toLowerCase()) ||
+              p.brand.toLowerCase().includes(query.toLowerCase()),
+          )
+          .slice(0, 4)
+      : [];
+
+  return (
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image
+            src="/images/feni-logo.png"
+            alt="FENI Logo"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+          />
+          <div className="hidden sm:block text-left">
+            <h1 className="text-lg font-bold leading-tight">FENI</h1>
+            <p className="text-[10px] text-muted-foreground leading-none">
+              Ropa Infantil
+            </p>
+          </div>
+        </Link>
+
+        <nav className="hidden lg:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                pathname === link.href
+                  ? "bg-primary/10 text-primary font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {!isSearchPage && (
+          <div className="hidden md:block flex-1 max-w-xs relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && query.length >= 3) {
+                  window.location.href = `/buscar?q=${encodeURIComponent(query)}`;
+                }
+                if (e.key === "Escape") {
+                  setSearchOpen(false);
+                  setQuery("");
+                }
+              }}
+              placeholder="Buscar..."
+              className="pl-9 pr-8 h-9 rounded-full border-2 border-primary/20 focus-visible:ring-primary/30 bg-muted/50 text-sm"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {suggestions.length > 0 && query.length >= 2 && (
+              <div className="absolute top-full mt-2 left-0 right-0 bg-card border rounded-xl shadow-lg overflow-hidden z-50">
+                {suggestions.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/producto/${p.id}`}
+                    onClick={() => setQuery("")}
+                    className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-lg object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-medium line-clamp-1">{p.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {p.brand} · ${p.price}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+                <Link
+                  href={`/buscar?q=${encodeURIComponent(query)}`}
+                  onClick={() => setQuery("")}
+                  className="w-full p-3 text-sm text-primary font-medium hover:bg-muted/50 border-t block"
+                >
+                  Ver todos los resultados →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          {!isSearchPage && (
+            <button
+              onClick={() => {
+                if (searchOpen && query) setQuery("");
+                setSearchOpen(!searchOpen);
+              }}
+              className="md:hidden p-2 rounded-full hover:bg-muted transition-colors"
+            >
+              {searchOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Search className="h-5 w-5" />
+              )}
+            </button>
+          )}
+
+          <Cart />
+
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <button className="lg:hidden p-2 rounded-full hover:bg-muted transition-colors">
+                <Menu className="h-5 w-5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72 pt-12">
+              <nav className="flex flex-col gap-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`px-4 py-3 text-left rounded-xl transition-colors ${
+                      pathname === link.href
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+
+      {searchOpen && !isSearchPage && (
+        <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top-2 duration-200">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && query.length >= 3) {
+                  window.location.href = `/buscar?q=${encodeURIComponent(query)}`;
+                }
+                if (e.key === "Escape") {
+                  setSearchOpen(false);
+                  setQuery("");
+                }
+              }}
+              placeholder="Buscar productos..."
+              className="pl-10 h-10 rounded-full border-2 border-primary/20 focus-visible:ring-primary/30 bg-muted/50"
+            />
+          </div>
+          {suggestions.length > 0 && query.length >= 2 && (
+            <div className="mt-2 bg-card border rounded-xl shadow-lg overflow-hidden">
+              {suggestions.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/producto/${p.id}`}
+                  onClick={() => {
+                    setQuery("");
+                    setSearchOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
+                >
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-lg object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-medium line-clamp-1">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {p.brand} · ${p.price}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </header>
+  );
+}
