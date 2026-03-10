@@ -21,7 +21,7 @@ export async function createProductWithData(
     return false;
   }
 }
-
+ 
 export async function getAllProducts(): Promise<Product[] | null> {
   try {
     const res = await fetch(`${getApiBase()}/api/productos`, {
