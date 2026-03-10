@@ -11,6 +11,7 @@ import { Input } from "@/shared/components/ui/input";
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
 
@@ -172,6 +173,7 @@ export function Header() {
               </button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72 pt-12">
+              <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
               <nav className="flex flex-col gap-1">
                 {navLinks.map((link) => (
                   <Link

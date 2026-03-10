@@ -55,7 +55,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           `• ${item.name} (Talle: ${item.size})\n  Cantidad: ${item.quantity} - $${item.price * item.quantity}`,
       )
       .join("\n\n")}\n\n*Total: $${total}*`;
-    const whatsappNumber = "+5491139009696";
+    const whatsappNumber = "+541133150864";
     window.open(
       `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
       "_blank",

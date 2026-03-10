@@ -172,7 +172,7 @@ export default function FAQPage() {
             className="rounded-full gap-2"
             onClick={() =>
               window.open(
-                "https://wa.me/+5491139009696?text=Hola! Tengo una consulta sobre FENI",
+                "https://wa.me/+541133150864?text=Hola! Tengo una consulta sobre FENI",
                 "_blank",
               )
             }

@@ -1,5 +1,10 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 import Pageclient from "./page.client";
-import { getAllProducts } from "@/shared/serverActions/productos";
+import { productsQueryOptions } from "@/shared/queries/productos";
 
 const ageFilters = [
   { label: "0-12m", emoji: "👶", filter: "0" },
@@ -27,17 +32,18 @@ const testimonials = [
 ];
 
 export default async function Home() {
-  const products = await getAllProducts();
-  console.log(products);
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery(productsQueryOptions);
+
   return (
     <div className="min-h-screen bg-linear-to-b from-background via-muted/30 to-background">
       <main>
-        <Pageclient
-          ageFilters={ageFilters}
-          featuredProducts={products?.sort((a, b) => a.featured ? -1 : b.featured ? 1 : 0).slice(0, 4) ?? []}
-          trendingProducts={products?.sort((a, b) => a.trending ? -1 : b.trending ? 1 : 0).slice(0, 4) ?? []}
-          testimonials={testimonials}
-        />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <Pageclient
+            ageFilters={ageFilters}
+            testimonials={testimonials}
+          />
+        </HydrationBoundary>
       </main>
     </div>
   );

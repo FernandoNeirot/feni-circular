@@ -1,27 +1,34 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import { HeroCarousel } from '@/shared/components/HeroCarousel'
 import { ProductGrid } from '@/shared/components/ProductGrid'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
-import { Product } from '@/shared/types/product'
+import { productsQueryOptions } from '@/shared/queries/productos'
 import { Droplets, Heart, Instagram, Leaf, Recycle, Star } from 'lucide-react'
+
 interface PageclientProps {
   ageFilters: {
     label: string
     emoji: string
     filter: string
   }[]
-  featuredProducts: Product[]
-  trendingProducts: Product[]
   testimonials: {
     name: string
     text: string
     rating: number
   }[]
 }
-const Pageclient = ({ ageFilters, featuredProducts, trendingProducts, testimonials }: PageclientProps) => {
+
+const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
+  const { data: products = [] } = useQuery(productsQueryOptions)
+  const featuredProducts = [...products].sort((a, b) => (a.featured ? -1 : b.featured ? 1 : 0)).slice(0, 4)
+  const trendingProducts = [...products].sort((a, b) => (a.trending ? -1 : b.trending ? 1 : 0)).slice(0, 4)
+  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+    `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ''}`
+  )}`
   return (
     <>
       <HeroCarousel />
@@ -165,11 +172,11 @@ const Pageclient = ({ ageFilters, featuredProducts, trendingProducts, testimonia
       variant="outline"
       className="rounded-full gap-2 border-accent/40 text-accent hover:bg-accent/10"
       onClick={() =>
-        window.open("https://instagram.com/feni.kids", "_blank")
+        window.open("https://www.instagram.com/fenicircular/", "_blank")
       }
     >
       <Instagram className="h-4 w-4" />
-      @feni.kids
+      @fenicircular
     </Button>
   </div>
 </section>
@@ -205,10 +212,10 @@ const Pageclient = ({ ageFilters, featuredProducts, trendingProducts, testimonia
       <div>
         <h4 className="font-semibold mb-3">Contacto</h4>
         <p className="text-sm text-muted-foreground">
-          WhatsApp: +54 9 11 1234-5678
+          WhatsApp: <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors">+54 11-3315-0864</a>
         </p>
         <p className="text-sm text-muted-foreground">
-          Instagram: @feni.kids
+          Instagram: @fenicircular
         </p>
       </div>
     </div>

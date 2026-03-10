@@ -60,18 +60,25 @@ export default function SellWithUsPage() {
     }
 
     const message =
-      `¡Hola! Quiero vender/consignar ropa infantil 👶\n\n` +
-      `👤 ${formData.name.trim()}\n📱 ${formData.phone.trim()}\n📍 ${formData.city.trim() || "No especificó"}\n\n` +
-      `👕 Marca: ${formData.brand || "Varias"}\n` +
-      `📏 Edad: ${formData.ageRange || "No especificó"}\n` +
-      `✨ Estado: ${formData.condition || "No especificó"}\n\n` +
-      `📝 ${formData.description.trim() || "Sin descripción adicional"}`;
+      "¡Hola! Quiero vender/consignar ropa infantil.\n\n" +
+      "Nombre: " +
+      formData.name.trim() +
+      "\nTeléfono: " +
+      formData.phone.trim() +
+      "\nCiudad: " +
+      (formData.city.trim() || "No especificó") +
+      "\n\nMarca: " +
+      (formData.brand || "Varias") +
+      "\nEdad: " +
+      (formData.ageRange || "No especificó") +
+      "\nEstado: " +
+      (formData.condition || "No especificó") +
+      "\n\n" +
+      (formData.description.trim() || "Sin descripción adicional");
 
-    const whatsappNumber = "+5491139009696";
-    window.open(
-      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
-      "_blank",
-    );
+    const whatsappNumber = "+541133150864";
+    const url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
+    window.open(url, "_blank");
     toast.success("Redirigiendo a WhatsApp...");
   };
 
