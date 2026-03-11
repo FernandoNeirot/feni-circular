@@ -2,6 +2,13 @@ import { initializeApp, getApps, cert, type App } from "firebase-admin/app";
 import { getStorage, type Storage } from "firebase-admin/storage";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
+const PEM_BEGIN = "-----BEGIN PRIVATE KEY-----";
+const PEM_END = "-----END PRIVATE KEY-----";
+
+/**
+ * Normaliza la clave privada para evitar error DECODER routines::unsupported (OpenSSL 3).
+ * Reconstruye el PEM con líneas de 64 caracteres.
+ */
 function normalizePrivateKey(key: string): string {
   let out = key
     .replace(/\\\\n/g, "\\n")
@@ -10,14 +17,15 @@ function normalizePrivateKey(key: string): string {
     .replace(/\r/g, "\n")
     .trim();
 
-  const begin = "-----BEGIN PRIVATE KEY-----";
-  const end = "-----END PRIVATE KEY-----";
-  if (out.includes(begin) && out.includes(end) && !out.includes("\n")) {
-    const base64 = out.slice(out.indexOf(begin) + begin.length, out.indexOf(end)).replace(/\s/g, "");
-    const lines = base64.match(/.{1,64}/g) || [];
-    out = `${begin}\n${lines.join("\n")}\n${end}`;
-  }
-  return out;
+  if (!out.includes(PEM_BEGIN) || !out.includes(PEM_END)) return out;
+
+  const start = out.indexOf(PEM_BEGIN) + PEM_BEGIN.length;
+  const end = out.indexOf(PEM_END);
+  const base64 = out.slice(start, end).replace(/\s/g, "");
+  if (!base64 || !/^[A-Za-z0-9+/=]+$/.test(base64)) return out;
+
+  const lines = base64.match(/.{1,64}/g) ?? [base64];
+  return `${PEM_BEGIN}\n${lines.join("\n")}\n${PEM_END}\n`;
 }
 
 let adminApp: App;
@@ -35,6 +43,7 @@ export function initializeAdminApp(): App {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
   const jsonKey = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  let parsedServiceAccount: Record<string, string> | null = null;
   if (jsonKey) {
     try {
       let raw: string = typeof jsonKey === "string" ? jsonKey : JSON.stringify(jsonKey);
@@ -49,6 +58,9 @@ export function initializeAdminApp(): App {
       projectId = projectId || parsed.project_id;
       clientEmail = clientEmail || parsed.client_email;
       privateKey = parsed.private_key ?? privateKey;
+      if (parsed.private_key && parsed.project_id) {
+        parsedServiceAccount = { ...parsed, private_key: normalizePrivateKey(parsed.private_key) };
+      }
     } catch {
       // ignorar, usar env vars individuales
     }
@@ -62,7 +74,6 @@ export function initializeAdminApp(): App {
   
   if (clientEmail && privateKey) {
     privateKey = privateKey.trim();
-    // Si viene en base64 (sin -----BEGIN), decodificar
     if (!privateKey.includes("-----BEGIN")) {
       try {
         const decoded = Buffer.from(privateKey, "base64").toString("utf-8");
@@ -74,14 +85,12 @@ export function initializeAdminApp(): App {
     privateKey = normalizePrivateKey(privateKey);
   }
 
-  if (clientEmail && privateKey) {
+  const credential = parsedServiceAccount ?? (clientEmail && privateKey ? { projectId, clientEmail, privateKey } : null);
+
+  if (credential) {
     try {
       adminApp = initializeApp({
-        credential: cert({
-          projectId,
-          clientEmail,
-          privateKey,
-        }),
+        credential: cert(credential),
         storageBucket,
       });
       return adminApp;
@@ -92,8 +101,8 @@ export function initializeAdminApp(): App {
       if (isDecoderError) {
         throw new Error(
           "Firebase Admin: la clave privada no pudo decodificarse (DECODER unsupported). " +
-            "Comprueba que FIREBASE_PRIVATE_KEY use newlines reales o que FIREBASE_SERVICE_ACCOUNT_JSON esté bien formado. " +
-            "En Google Cloud (Cloud Run) puedes omitir FIREBASE_PRIVATE_KEY y FIREBASE_CLIENT_EMAIL y usar Application Default Credentials (cuenta de servicio del recurso)."
+            "Usa FIREBASE_SERVICE_ACCOUNT_JSON con el JSON completo en base64, o en .env pon FIREBASE_PRIVATE_KEY entre comillas con \\n para saltos de línea. " +
+            "En Cloud Run puedes usar Application Default Credentials (sin variables de clave)."
         );
       }
       throw new Error(
