@@ -71,7 +71,7 @@ export function initializeAdminApp(): App {
       "NEXT_PUBLIC_FIREBASE_PROJECT_ID y NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET deben estar configurados"
     );
   }
-  
+
   if (clientEmail && privateKey) {
     privateKey = privateKey.trim();
     if (!privateKey.includes("-----BEGIN")) {
@@ -85,7 +85,9 @@ export function initializeAdminApp(): App {
     privateKey = normalizePrivateKey(privateKey);
   }
 
-  const credential = parsedServiceAccount ?? (clientEmail && privateKey ? { projectId, clientEmail, privateKey } : null);
+  const credential =
+    parsedServiceAccount ??
+    (clientEmail && privateKey ? { projectId, clientEmail, privateKey } : null);
 
   if (credential) {
     try {
@@ -96,7 +98,9 @@ export function initializeAdminApp(): App {
       return adminApp;
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      const isDecoderError = /DECODER routines::unsupported|1E08010C|ERR_OSSL_UNSUPPORTED/i.test(msg);
+      const isDecoderError = /DECODER routines::unsupported|1E08010C|ERR_OSSL_UNSUPPORTED/i.test(
+        msg
+      );
       console.error("[Firebase Admin] Error al inicializar con credenciales:", error);
       if (isDecoderError) {
         throw new Error(
@@ -105,9 +109,7 @@ export function initializeAdminApp(): App {
             "En Cloud Run puedes usar Application Default Credentials (sin variables de clave)."
         );
       }
-      throw new Error(
-        "Error al configurar Firebase Admin SDK con las credenciales proporcionadas"
-      );
+      throw new Error("Error al configurar Firebase Admin SDK con las credenciales proporcionadas");
     }
   }
 
