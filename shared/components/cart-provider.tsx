@@ -7,8 +7,8 @@ import { toast } from "sonner";
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  removeItem: (id: number) => void;
+  updateQuantity: (id: number | undefined, quantity: number) => void;
+  removeItem: (id: number | undefined) => void;
   checkout: () => void;
 }
 
@@ -32,13 +32,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const updateQuantity = useCallback((id: number, quantity: number) => {
+  const updateQuantity = useCallback((id: number | undefined, quantity: number) => {
+    if (id == null) return;
     setCartItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
     );
   }, []);
 
-  const removeItem = useCallback((id: number) => {
+  const removeItem = useCallback((id: number | undefined) => {
+    if (id == null) return;
     setCartItems((prev) => prev.filter((item) => item.id !== id));
     toast.info("Producto eliminado del carrito");
   }, []);
