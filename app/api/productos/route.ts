@@ -6,30 +6,28 @@ const COLLECTION = "feni-circular-products";
 
 export async function GET() {
   try {
+    console.log("----> GET /api/productos");
     const db = getAdminFirestore();
     const snapshot = await db.collection(COLLECTION).get();
-    const data = snapshot.docs.map((doc) => doc.data() as Product);
+    const data = snapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() }) as Product & { id: string }
+    );
     return NextResponse.json(data);
   } catch (err) {
     console.error("[GET /api/productos]", err);
-    return NextResponse.json(
-      { error: "Error al obtener productos" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error al obtener productos" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("POST /api/productos");
     const body = (await request.json()) as Product;
     const db = getAdminFirestore();
     await db.collection(COLLECTION).add(body);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[POST /api/productos]", err);
-    return NextResponse.json(
-      { success: false, error: "Error al crear producto" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Error al crear producto" }, { status: 500 });
   }
 }

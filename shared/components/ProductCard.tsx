@@ -16,7 +16,6 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const isSoldOut = product.soldOut;
-
   return (
     <Link href={`/producto/${product.id}`}>
       <Card
@@ -24,6 +23,14 @@ export function ProductCard({ product }: ProductCardProps) {
       >
         <CardContent className="p-0">
           <div className="relative overflow-hidden aspect-square bg-muted">
+            {isSoldOut && (
+              <div
+                className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-gradient-to-br from-destructive to-destructive/90 px-10 py-2 text-center text-sm font-bold uppercase tracking-[0.2em] text-white shadow-lg ring-2 ring-white/30"
+                aria-hidden
+              >
+                <span className="drop-shadow-sm">Vendido</span>
+              </div>
+            )}
             <Image
               src={product.image}
               alt={product.name}
@@ -31,18 +38,11 @@ export function ProductCard({ product }: ProductCardProps) {
               height={400}
               className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isSoldOut ? "grayscale" : ""}`}
             />
-            {isSoldOut ? (
-              <Badge className="absolute top-3 left-3 bg-destructive text-destructive-foreground">
-                Agotado
-              </Badge>
-            ) : (
+            {isSoldOut ? null : (
               <Badge className="absolute top-3 left-3 bg-info">{product.condition}</Badge>
             )}
             {product.brand && (
-              <Badge
-                variant="outline"
-                className="absolute top-3 right-3 bg-background/80 text-xs"
-              >
+              <Badge variant="outline" className="absolute top-3 right-3 bg-background/80 text-xs">
                 {product.brand}
               </Badge>
             )}
@@ -66,7 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
               {isSoldOut ? (
                 <Badge variant="outline" className="text-muted-foreground">
-                  Agotado
+                  Vendido
                 </Badge>
               ) : (
                 <Button

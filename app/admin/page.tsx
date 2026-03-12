@@ -1,0 +1,164 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import type { Product } from "@/shared/types/product";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/shared/components/ui/input";
+import { Plus, Pencil, Search, ArrowLeft, Package } from "lucide-react";
+
+type ProductWithId = Product & { id: string };
+
+export default function AdminPage() {
+  const [products, setProducts] = useState<ProductWithId[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch("/api/productos")
+      .then((res) => res.json())
+      .then((data) => setProducts(Array.isArray(data) ? data : []))
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.brand ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (p.category ?? "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-card sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-bold">Admin — Productos</h1>
+            </div>
+          </div>
+          <Button asChild className="gap-2">
+            <Link href="/admin/producto/nuevo">
+              <Plus className="h-4 w-4" />
+              Nuevo producto
+            </Link>
+          </Button>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nombre, marca o categoría..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {loading ? (
+          <p className="text-muted-foreground">Cargando productos...</p>
+        ) : (
+          <>
+            <div className="flex gap-4 text-sm text-muted-foreground">
+              <span>{products.length} productos totales</span>
+              <span>·</span>
+              <span>{products.filter((p) => p.soldOut).length} vendidos</span>
+              <span>·</span>
+              <span>{products.filter((p) => !p.soldOut).length} disponibles</span>
+            </div>
+
+            <div className="border rounded-xl overflow-hidden bg-card">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-muted/40 border-b">
+                      <th className="w-16 text-left p-3 text-sm font-medium">Foto</th>
+                      <th className="text-left p-3 text-sm font-medium">Nombre</th>
+                      <th className="hidden md:table-cell text-left p-3 text-sm font-medium">Marca</th>
+                      <th className="hidden md:table-cell text-left p-3 text-sm font-medium">Categoría</th>
+                      <th className="text-left p-3 text-sm font-medium">Talle</th>
+                      <th className="text-right p-3 text-sm font-medium">Precio</th>
+                      <th className="text-center p-3 text-sm font-medium">Estado</th>
+                      <th className="w-12 p-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((product) => (
+                      <tr
+                        key={product.id}
+                        className="cursor-pointer hover:bg-muted/30 border-b last:border-0"
+                      >
+                        <td className="p-3">
+                          <Link href={`/admin/producto/${product.id}`} className="block">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className={`w-12 h-12 rounded-lg object-cover ${product.soldOut ? "grayscale opacity-60" : ""}`}
+                            />
+                          </Link>
+                        </td>
+                        <td className="p-3 font-medium">
+                          <Link href={`/admin/producto/${product.id}`}>{product.name}</Link>
+                        </td>
+                        <td className="hidden md:table-cell p-3 text-muted-foreground">
+                          {product.brand}
+                        </td>
+                        <td className="hidden md:table-cell p-3 text-muted-foreground">
+                          {product.category}
+                        </td>
+                        <td className="p-3">
+                          <Badge variant="outline" className="text-xs">
+                            {product.size}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-right font-semibold">${product.price}</td>
+                        <td className="p-3 text-center">
+                          {product.soldOut ? (
+                            <Badge variant="destructive" className="text-xs">
+                              Vendido
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-primary/15 text-primary border-0 text-xs">
+                              Disponible
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                            <Link href={`/admin/producto/${product.id}`}>
+                              <Pencil className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                    {filtered.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="text-center py-12 text-muted-foreground"
+                        >
+                          No se encontraron productos
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}

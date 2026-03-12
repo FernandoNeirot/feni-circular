@@ -5,9 +5,7 @@ function getApiBase(): string {
   return process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 }
 
-export async function createProductWithData(
-  data: Product
-): Promise<boolean | null> {
+export async function createProductWithData(data: Product): Promise<boolean | null> {
   try {
     const res = await fetch(`${getApiBase()}/api/productos`, {
       method: "POST",
@@ -21,11 +19,11 @@ export async function createProductWithData(
     return false;
   }
 }
- 
+
 export async function getAllProducts(): Promise<Product[] | null> {
   try {
     const res = await fetch(`${getApiBase()}/api/productos`, {
-      // next: { revalidate: 86400 },
+      next: { revalidate: 120 },
     });
     if (!res.ok) return null;
     const data = await res.json();
