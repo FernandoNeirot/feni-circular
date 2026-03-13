@@ -167,9 +167,13 @@ export function Cart() {
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 rounded-full hover:bg-background"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
+                            disabled={
+                              item.stock != null && item.quantity >= item.stock
                             }
+                            onClick={() => {
+                              if (item.stock != null && item.quantity >= item.stock) return;
+                              updateQuantity(item.id, item.quantity + 1);
+                            }}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>

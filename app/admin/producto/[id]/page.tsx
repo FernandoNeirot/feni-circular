@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product, ProductMeasurements } from "@/shared/types/product";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -20,8 +22,14 @@ import {
 import { ArrowLeft, Save, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { productsQueryKey } from "@/shared/queries/productos";
+import { productsQueryKey, productsQueryOptions } from "@/shared/queries/productos";
 import { uploadProductImage } from "@/shared/serverActions/uploadImage";
+import {
+  productFormSchema,
+  type ProductFormValues,
+  defaultProductFormValues,
+  normalizeSlug,
+} from "./product-form-schema";
 
 const categories = [
   "Vestidos",
@@ -38,6 +46,12 @@ const genders: Array<{ value: "niña" | "niño" | "unisex"; label: string }> = [
   { value: "niño", label: "Niño" },
   { value: "unisex", label: "Unisex" },
 ];
+const ageRanges = [
+  { value: "0-12m", label: "👶 0-12m" },
+  { value: "1-3 años", label: "🧒 1-3 años" },
+  { value: "3-6 años", label: "👦 3-6 años" },
+  { value: "6+ años", label: "🎒 6+ años" },
+];
 
 const emptyMeasurements: ProductMeasurements = {
   largo: 0,
@@ -46,6 +60,39 @@ const emptyMeasurements: ProductMeasurements = {
   entrepierna: undefined,
 };
 
+function buildProductFromForm(data: ProductFormValues, imageUrls: string[]): Product {
+  const measurements: ProductMeasurements = {
+    ...emptyMeasurements,
+    largo: Number(data.largo) || 0,
+    ancho: Number(data.ancho) || 0,
+    manga: data.manga ? Number(data.manga) : undefined,
+    entrepierna: data.entrepierna ? Number(data.entrepierna) : undefined,
+  };
+  const images = imageUrls.length > 0 ? imageUrls : ["/images/placeholder.jpg"];
+  const image = images[0]!;
+  return {
+    name: data.name.trim(),
+    slug: data.slug?.trim() || undefined,
+    price: Number(data.price) || 0,
+    originalPrice: data.originalPrice ? Number(data.originalPrice) : undefined,
+    category: data.category,
+    size: data.size,
+    brand: data.brand,
+    condition: data.condition,
+    conditionDetail: data.conditionDetail?.trim() || undefined,
+    description: data.description?.trim() ?? "",
+    color: data.color?.trim() ?? "",
+    ageRange: data.ageRange?.trim() ?? "",
+    gender: data.gender,
+    material: data.material?.trim() || undefined,
+    usageCount: data.usageCount?.trim() || undefined,
+    soldOut: data.soldOut,
+    image,
+    images,
+    measurements,
+  };
+}
+
 export default function AdminProductFormPage() {
   const router = useRouter();
   const params = useParams();
@@ -53,169 +100,118 @@ export default function AdminProductFormPage() {
   const id = params?.id as string | undefined;
   const isEditing = id && id !== "nuevo";
 
-  const [loading, setLoading] = useState<boolean>(Boolean(isEditing));
-  const [form, setForm] = useState({
-    name: "",
-    slug: "",
-    price: "",
-    originalPrice: "",
-    category: "",
-    size: "",
-    brand: "",
-    condition: "",
-    conditionDetail: "",
-    description: "",
-    color: "",
-    ageRange: "",
-    gender: "unisex" as "niña" | "niño" | "unisex",
-    material: "",
-    usageCount: "",
-    soldOut: false,
-    images: [] as (string | File)[],
-    largo: "",
-    ancho: "",
-    manga: "",
-    entrepierna: "",
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: defaultProductFormValues,
   });
+
+  const [loading, setLoading] = useState<boolean>(Boolean(isEditing));
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const blobUrlsRef = useRef<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  const images = form.watch("images");
+
   useEffect(() => {
     blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
     blobUrlsRef.current = [];
-    const urls = form.images.map((item) =>
+    const urls = images.map((item: string | File) =>
       typeof item === "string" ? item : URL.createObjectURL(item)
     );
-    blobUrlsRef.current = urls.filter((u) => u.startsWith("blob:"));
+    blobUrlsRef.current = urls.filter((u: string) => u.startsWith("blob:"));
     setPreviewUrls(urls);
     return () => {
       blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
       blobUrlsRef.current = [];
     };
-  }, [form.images]);
+  }, [images]);
 
   useEffect(() => {
-    if (!isEditing) return;
-    fetch(`/api/productos/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("No encontrado");
-        return res.json();
-      })
-      .then((p: Product & { id: string }) => {
-        const images: string[] =
-          Array.isArray(p.images) && p.images.length > 0 ? p.images : p.image ? [p.image] : [];
-        setForm({
-          name: p.name,
-          slug: p.slug ?? "",
-          price: String(p.price),
-          originalPrice: p.originalPrice ? String(p.originalPrice) : "",
-          category: p.category,
-          size: p.size,
-          brand: p.brand,
-          condition: p.condition,
-          conditionDetail: p.conditionDetail || "",
-          description: p.description,
-          color: p.color,
-          ageRange: p.ageRange ?? "",
-          gender: p.gender,
-          material: p.material || "",
-          usageCount: p.usageCount || "",
-          soldOut: p.soldOut ?? false,
-          images,
-          largo: String(p.measurements?.largo ?? ""),
-          ancho: String(p.measurements?.ancho ?? ""),
-          manga: p.measurements?.manga != null ? String(p.measurements.manga) : "",
-          entrepierna:
-            p.measurements?.entrepierna != null ? String(p.measurements.entrepierna) : "",
-        });
-      })
-      .catch(() => toast.error("Error al cargar el producto"))
-      .finally(() => setLoading(false));
+    if (!isEditing || !id) return;
+
+    function fillFormWithProduct(p: Product & { id: string }) {
+      const imagesData: string[] =
+        Array.isArray(p.images) && p.images.length > 0 ? p.images : p.image ? [p.image] : [];
+      form.reset({
+        name: p.name,
+        slug: p.slug ?? "",
+        price: String(p.price),
+        originalPrice: p.originalPrice ? String(p.originalPrice) : "",
+        category: p.category,
+        size: p.size,
+        brand: p.brand,
+        condition: p.condition,
+        conditionDetail: p.conditionDetail || "",
+        description: p.description,
+        color: p.color,
+        ageRange: p.ageRange ?? "",
+        gender: p.gender,
+        material: p.material || "",
+        usageCount: p.usageCount || "",
+        soldOut: p.soldOut ?? false,
+        images: imagesData,
+        largo: String(p.measurements?.largo ?? ""),
+        ancho: String(p.measurements?.ancho ?? ""),
+        manga: p.measurements?.manga != null ? String(p.measurements.manga) : "",
+        entrepierna: p.measurements?.entrepierna != null ? String(p.measurements.entrepierna) : "",
+      });
+    }
+
+    const cached = queryClient.getQueryData<(Product & { id: string })[]>(productsQueryKey);
+    const productFromCache = cached?.find((item) => item.id === id);
+
+    if (productFromCache) {
+      fillFormWithProduct(productFromCache);
+      setLoading(false);
+      return;
+    }
+
+    queryClient.fetchQuery(productsQueryOptions).then((data) => {
+      const list = (data ?? []) as (Product & { id: string })[];
+      const product = list.find((item) => item.id === id);
+      if (product) {
+        fillFormWithProduct(product);
+      } else {
+        toast.error("Producto no encontrado");
+      }
+      setLoading(false);
+    }).catch(() => {
+      toast.error("Error al cargar el producto");
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- form/queryClient stable, only re-run when id/isEditing changes
   }, [id, isEditing]);
-
-  const updateField = (field: string, value: string | boolean | string[]) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const normalizeSlug = (value: string) => value.replace(/[^a-zA-Z0-9-]/g, "");
 
   const addImageUrl = (url: string) => {
     const trimmed = url.trim();
-    if (!trimmed || form.images.length >= 3) return;
-    setForm((prev) => ({ ...prev, images: [...prev.images, trimmed] }));
+    if (!trimmed || images.length >= 3) return;
+    form.setValue("images", [...images, trimmed]);
   };
 
   const removeImage = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }));
+    form.setValue(
+      "images",
+      images.filter((_: string | File, i: number) => i !== index)
+    );
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
-    const remaining = 3 - form.images.length;
+    const remaining = 3 - images.length;
     if (remaining <= 0) {
       toast.error("Máximo 3 imágenes");
       e.target.value = "";
       return;
     }
     const toAdd = Array.from(files).slice(0, remaining);
-    setForm((prev) => ({ ...prev, images: [...prev.images, ...toAdd] }));
+    form.setValue("images", [...images, ...toAdd]);
     e.target.value = "";
   };
 
-  const buildProduct = (imageUrls: string[]): Product => {
-    const measurements: ProductMeasurements = {
-      ...emptyMeasurements,
-      largo: Number(form.largo) || 0,
-      ancho: Number(form.ancho) || 0,
-      manga: form.manga ? Number(form.manga) : undefined,
-      entrepierna: form.entrepierna ? Number(form.entrepierna) : undefined,
-    };
-    const images = imageUrls.length > 0 ? imageUrls : ["/images/placeholder.jpg"];
-    const image = images[0]!;
-    return {
-      name: form.name.trim(),
-      slug: form.slug.trim() || undefined,
-      price: Number(form.price) || 0,
-      originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
-      category: form.category,
-      size: form.size,
-      brand: form.brand,
-      condition: form.condition,
-      conditionDetail: form.conditionDetail || undefined,
-      description: form.description.trim(),
-      color: form.color.trim(),
-      ageRange: form.ageRange.trim(),
-      gender: form.gender,
-      material: form.material || undefined,
-      usageCount: form.usageCount || undefined,
-      soldOut: form.soldOut,
-      image,
-      images,
-      measurements,
-    };
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !form.name.trim() ||
-      !form.price ||
-      !form.category ||
-      !form.size ||
-      !form.brand ||
-      !form.condition
-    ) {
-      toast.error("Completá los campos obligatorios");
-      return;
-    }
-
-    const existingUrls = form.images.filter((x): x is string => typeof x === "string");
-    const pendingFiles = form.images.filter((x): x is File => x instanceof File);
+  const onSubmit = async (data: ProductFormValues) => {
+    const existingUrls = data.images.filter((x): x is string => typeof x === "string");
+    const pendingFiles = data.images.filter((x): x is File => x instanceof File);
 
     setLoading(true);
     try {
@@ -234,21 +230,16 @@ export default function AdminProductFormPage() {
           for (const file of pendingFiles) {
             const fd = new FormData();
             fd.append("image", file);
-            const res = await fetch("/api/images?folder=products", {
-              method: "POST",
-              body: fd,
-            });
-            const data = await res.json();
-            if (!res.ok || !data.data?.url) {
-              throw new Error(data.error || "Error al subir imagen");
-            }
-            uploadedUrls.push(data.data.url);
+            const res = await fetch("/api/images?folder=products", { method: "POST", body: fd });
+            const json = await res.json();
+            if (!res.ok || !json.data?.url) throw new Error(json.error || "Error al subir imagen");
+            uploadedUrls.push(json.data.url);
           }
         }
       }
 
       const finalImages = [...existingUrls, ...uploadedUrls];
-      const body = buildProduct(finalImages);
+      const body = buildProductFromForm(data, finalImages);
 
       if (isEditing && id) {
         const res = await fetch(`/api/productos/${id}`, {
@@ -256,19 +247,17 @@ export default function AdminProductFormPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        const data = await res.json();
-        if (data.success !== false) {
+        const resData = await res.json();
+        if (resData.success !== false) {
           queryClient.setQueryData(
             productsQueryKey,
             (prev: (Product & { id: string })[] | undefined) =>
-              prev
-                ? prev.map((p) => (p.id === id ? { ...body, id } : p))
-                : prev
+              prev ? prev.map((p) => (p.id === id ? { ...body, id } : p)) : prev
           );
           toast.success("Producto actualizado");
           router.push("/admin");
         } else {
-          toast.error(data.error || "Error al actualizar");
+          toast.error(resData.error || "Error al actualizar");
         }
       } else {
         const res = await fetch("/api/productos", {
@@ -276,19 +265,19 @@ export default function AdminProductFormPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        const data = await res.json();
-        if (data.success !== false) {
-          if (data.product) {
+        const resData = await res.json();
+        if (resData.success !== false) {
+          if (resData.product) {
             queryClient.setQueryData(
               productsQueryKey,
               (prev: (Product & { id: string })[] | undefined) =>
-                prev ? [...prev, data.product] : [data.product]
+                prev ? [...prev, resData.product] : [resData.product]
             );
           }
           toast.success("Producto creado");
           router.push("/admin");
         } else {
-          toast.error(data.error || "Error al crear");
+          toast.error(resData.error || "Error al crear");
         }
       }
     } catch (err) {
@@ -298,7 +287,7 @@ export default function AdminProductFormPage() {
     }
   };
 
-  if (isEditing && loading && !form.name) {
+  if (isEditing && loading && !form.getValues("name")) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Cargando producto...</p>
@@ -320,7 +309,12 @@ export default function AdminProductFormPage() {
               {isEditing ? "Editar producto" : "Nuevo producto"}
             </h1>
           </div>
-          <Button onClick={handleSubmit} disabled={loading || !form.name.trim()} className="gap-2">
+          <Button
+            type="button"
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={loading || !form.watch("name")?.trim()}
+            className="gap-2"
+          >
             <Save className="h-4 w-4" />
             Guardar
           </Button>
@@ -328,7 +322,7 @@ export default function AdminProductFormPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Información básica</CardTitle>
@@ -338,29 +332,39 @@ export default function AdminProductFormPage() {
                 <Label htmlFor="name">Nombre del producto *</Label>
                 <Input
                   id="name"
-                  value={form.name}
-                  onChange={(e) => updateField("name", e.target.value)}
+                  {...form.register("name")}
                   placeholder="Ej: Vestido Lavanda con Botones"
                   maxLength={100}
                 />
+                {form.formState.errors.name && (
+                  <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  value={form.slug}
-                  onChange={(e) => updateField("slug", normalizeSlug(e.target.value))}
-                  placeholder="solo-letras-numeros-y-guiones"
-                  maxLength={120}
+                <Controller
+                  name="slug"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Input
+                      id="slug"
+                      {...field}
+                      onChange={(e) => field.onChange(normalizeSlug(e.target.value))}
+                      placeholder="solo-letras-numeros-y-guiones"
+                      maxLength={120}
+                    />
+                  )}
                 />
+                {form.formState.errors.slug && (
+                  <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
+                )}
                 <p className="text-xs text-muted-foreground">Solo letras, números y guiones</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Descripción</Label>
                 <Textarea
                   id="description"
-                  value={form.description}
-                  onChange={(e) => updateField("description", e.target.value)}
+                  {...form.register("description")}
                   placeholder="Describí la prenda, su historia, detalles..."
                   rows={3}
                   maxLength={500}
@@ -371,18 +375,19 @@ export default function AdminProductFormPage() {
                   <Label htmlFor="brand">Marca *</Label>
                   <Input
                     id="brand"
-                    value={form.brand}
-                    onChange={(e) => updateField("brand", e.target.value)}
+                    {...form.register("brand")}
                     placeholder="Ej: Mimo & Co"
                     maxLength={50}
                   />
+                  {form.formState.errors.brand && (
+                    <p className="text-sm text-destructive">{form.formState.errors.brand.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="color">Color</Label>
                   <Input
                     id="color"
-                    value={form.color}
-                    onChange={(e) => updateField("color", e.target.value)}
+                    {...form.register("color")}
                     placeholder="Ej: Lavanda"
                     maxLength={30}
                   />
@@ -392,8 +397,7 @@ export default function AdminProductFormPage() {
                 <Label htmlFor="material">Material</Label>
                 <Input
                   id="material"
-                  value={form.material}
-                  onChange={(e) => updateField("material", e.target.value)}
+                  {...form.register("material")}
                   placeholder="Ej: 100% Algodón"
                   maxLength={50}
                 />
@@ -413,10 +417,12 @@ export default function AdminProductFormPage() {
                     id="price"
                     type="number"
                     min={0}
-                    value={form.price}
-                    onChange={(e) => updateField("price", e.target.value)}
+                    {...form.register("price")}
                     placeholder="1200"
                   />
+                  {form.formState.errors.price && (
+                    <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="originalPrice">Precio original</Label>
@@ -424,8 +430,7 @@ export default function AdminProductFormPage() {
                     id="originalPrice"
                     type="number"
                     min={0}
-                    value={form.originalPrice}
-                    onChange={(e) => updateField("originalPrice", e.target.value)}
+                    {...form.register("originalPrice")}
                     placeholder="4500"
                   />
                 </div>
@@ -441,33 +446,48 @@ export default function AdminProductFormPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Categoría *</Label>
-                  <Select value={form.category} onValueChange={(v) => updateField("category", v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="category"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {form.formState.errors.category && (
+                    <p className="text-sm text-destructive">{form.formState.errors.category.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Género *</Label>
-                  <Select value={form.gender} onValueChange={(v) => updateField("gender", v)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {genders.map((g) => (
-                        <SelectItem key={g.value} value={g.value}>
-                          {g.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="gender"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {genders.map((g) => (
+                            <SelectItem key={g.value} value={g.value}>
+                              {g.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -475,20 +495,33 @@ export default function AdminProductFormPage() {
                   <Label htmlFor="size">Talle *</Label>
                   <Input
                     id="size"
-                    value={form.size}
-                    onChange={(e) => updateField("size", e.target.value)}
+                    {...form.register("size")}
                     placeholder="Ej: 2-3 años"
                     maxLength={20}
                   />
+                  {form.formState.errors.size && (
+                    <p className="text-sm text-destructive">{form.formState.errors.size.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="ageRange">Rango de edad</Label>
-                  <Input
-                    id="ageRange"
-                    value={form.ageRange}
-                    onChange={(e) => updateField("ageRange", e.target.value)}
-                    placeholder="Ej: 2 a 3 años"
-                    maxLength={20}
+                  <Label>Rango de edad</Label>
+                  <Controller
+                    name="ageRange"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value || undefined} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ageRanges.map((a) => (
+                            <SelectItem key={a.value} value={a.value}>
+                              {a.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
                 </div>
               </div>
@@ -503,25 +536,33 @@ export default function AdminProductFormPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Estado *</Label>
-                  <Select value={form.condition} onValueChange={(v) => updateField("condition", v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {conditions.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="condition"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {conditions.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {form.formState.errors.condition && (
+                    <p className="text-sm text-destructive">{form.formState.errors.condition.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="usageCount">Cantidad de usos</Label>
                   <Input
                     id="usageCount"
-                    value={form.usageCount}
-                    onChange={(e) => updateField("usageCount", e.target.value)}
+                    {...form.register("usageCount")}
                     placeholder="Ej: Usado 2 veces"
                     maxLength={30}
                   />
@@ -529,12 +570,12 @@ export default function AdminProductFormPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="conditionDetail">Detalle del estado</Label>
-                <Input
+                <Textarea
                   id="conditionDetail"
-                  value={form.conditionDetail}
-                  onChange={(e) => updateField("conditionDetail", e.target.value)}
+                  {...form.register("conditionDetail")}
                   placeholder="Ej: Sin manchas ni roturas"
-                  maxLength={100}
+                  rows={3}
+                  maxLength={300}
                 />
               </div>
             </CardContent>
@@ -548,43 +589,19 @@ export default function AdminProductFormPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="largo">Largo *</Label>
-                  <Input
-                    id="largo"
-                    type="number"
-                    min={0}
-                    value={form.largo}
-                    onChange={(e) => updateField("largo", e.target.value)}
-                  />
+                  <Input id="largo" type="number" min={0} {...form.register("largo")} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ancho">Ancho *</Label>
-                  <Input
-                    id="ancho"
-                    type="number"
-                    min={0}
-                    value={form.ancho}
-                    onChange={(e) => updateField("ancho", e.target.value)}
-                  />
+                  <Input id="ancho" type="number" min={0} {...form.register("ancho")} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="manga">Manga</Label>
-                  <Input
-                    id="manga"
-                    type="number"
-                    min={0}
-                    value={form.manga}
-                    onChange={(e) => updateField("manga", e.target.value)}
-                  />
+                  <Input id="manga" type="number" min={0} {...form.register("manga")} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="entrepierna">Entrepierna</Label>
-                  <Input
-                    id="entrepierna"
-                    type="number"
-                    min={0}
-                    value={form.entrepierna}
-                    onChange={(e) => updateField("entrepierna", e.target.value)}
-                  />
+                  <Input id="entrepierna" type="number" min={0} {...form.register("entrepierna")} />
                 </div>
               </div>
             </CardContent>
@@ -624,8 +641,38 @@ export default function AdminProductFormPage() {
                   ))}
                 </div>
               )}
-              {form.images.length < 3 && (
+              {images.length < 3 && (
                 <>
+                  <div className="space-y-2">
+                    <Label htmlFor="imageUrl">Agregar por URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="imageUrl"
+                        placeholder="https://... o /images/..."
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const input = e.target as HTMLInputElement;
+                            addImageUrl(input.value);
+                            input.value = "";
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          const input = document.getElementById("imageUrl") as HTMLInputElement;
+                          if (input) {
+                            addImageUrl(input.value);
+                            input.value = "";
+                          }
+                        }}
+                      >
+                        Agregar
+                      </Button>
+                    </div>
+                  </div>
                   <input
                     ref={imageInputRef}
                     type="file"
@@ -643,7 +690,7 @@ export default function AdminProductFormPage() {
                   >
                     <ImagePlus className="h-8 w-8 mx-auto" />
                     <p className="text-sm">
-                      Hacé clic para elegir hasta {3 - form.images.length} imagen(es) (se subirán al
+                      Hacé clic para elegir hasta {3 - images.length} imagen(es) (se subirán al
                       guardar)
                     </p>
                   </div>
@@ -664,7 +711,13 @@ export default function AdminProductFormPage() {
                     El producto aparecerá como no disponible
                   </p>
                 </div>
-                <Switch checked={form.soldOut} onCheckedChange={(v) => updateField("soldOut", v)} />
+                <Controller
+                  name="soldOut"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  )}
+                />
               </div>
             </CardContent>
           </Card>

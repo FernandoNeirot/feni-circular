@@ -22,9 +22,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCartItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        toast.success("Cantidad actualizada");
+        const maxQty = product.stock ?? Infinity;
+        if (existing.quantity >= maxQty) return prev;
+        const newQty = Math.min(existing.quantity + 1, maxQty);
+        if (newQty > existing.quantity) toast.success("Cantidad actualizada");
+        else if (maxQty !== Infinity) toast.info("No hay más stock disponible");
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
+          item.id === product.id ? { ...item, quantity: newQty } : item,
         );
       }
       toast.success(`${product.name} agregado al carrito`);
@@ -35,7 +39,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const updateQuantity = useCallback((id: number | undefined, quantity: number) => {
     if (id == null) return;
     setCartItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        const maxQty = item.stock ?? Infinity;
+        const clamped = Math.max(1, Math.min(quantity, maxQty));
+        return { ...item, quantity: clamped };
+      }),
     );
   }, []);
 

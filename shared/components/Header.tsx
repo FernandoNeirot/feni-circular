@@ -6,8 +6,17 @@ import { usePathname } from "next/navigation";
 import { Cart } from "./Cart";
 import Image from "next/image";
 import { allProducts } from "@/data/products";
-import { Search, X, Menu } from "lucide-react";
+import { Search, X, Menu, LogIn } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
+import { Label } from "@/shared/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 import {
   Sheet,
   SheetContent,
@@ -28,7 +37,18 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginUser, setLoginUser] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: conectar con tu backend de auth
+    setLoginOpen(false);
+    setLoginUser("");
+    setLoginPassword("");
+  };
 
   const isSearchPage = pathname === "/buscar";
 
@@ -164,6 +184,15 @@ export function Header() {
             </button>
           )}
 
+          <button
+            type="button"
+            onClick={() => setLoginOpen(true)}
+            className="p-2 rounded-full hover:bg-muted transition-colors"
+            aria-label="Iniciar sesión"
+          >
+            <LogIn className="h-5 w-5" />
+          </button>
+
           <Cart />
 
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -194,6 +223,44 @@ export function Header() {
           </Sheet>
         </div>
       </div>
+
+      <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Iniciar sesión</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="login-user">Usuario</Label>
+              <Input
+                id="login-user"
+                type="text"
+                value={loginUser}
+                onChange={(e) => setLoginUser(e.target.value)}
+                placeholder="Usuario o email"
+                autoComplete="username"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="login-password">Contraseña</Label>
+              <Input
+                id="login-password"
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Contraseña"
+                autoComplete="current-password"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setLoginOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">Entrar</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {searchOpen && !isSearchPage && (
         <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top-2 duration-200">
