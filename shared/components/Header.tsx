@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Cart } from "./Cart";
 import Image from "next/image";
 import { allProducts } from "@/data/products";
-import { Search, X, Menu, LogIn } from "lucide-react";
+import { Search, X, Menu, User } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -23,6 +23,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
+import { loginWithEmailPassword } from "@/shared/serverActions/auth";
+import { toast } from "sonner";
 
 const navLinks = [
   { label: "Inicio", href: "/" },
@@ -37,17 +46,44 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
+  const [session, setSession] = useState<{ user: { uid: string; email: string | null } } | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [loginUser, setLoginUser] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setSession(data?.user ? data : null))
+      .catch(() => setSession(null));
+  }, [loginOpen]);
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: conectar con tu backend de auth
-    setLoginOpen(false);
-    setLoginUser("");
-    setLoginPassword("");
+    if (!loginEmail.trim() || !loginPassword) {
+      toast.error("Ingresá email y contraseña");
+      return;
+    }
+    setLoginLoading(true);
+    try {
+      const result = await loginWithEmailPassword(loginEmail, loginPassword);
+      if (result.success) {
+        setLoginOpen(false);
+        setLoginEmail("");
+        setLoginPassword("");
+        toast.success("Sesión iniciada");
+        router.push("/admin");
+      } else {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Error al iniciar sesión");
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const isSearchPage = pathname === "/buscar";
@@ -184,16 +220,56 @@ export function Header() {
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={() => setLoginOpen(true)}
-            className="p-2 rounded-full hover:bg-muted transition-colors"
-            aria-label="Iniciar sesión"
-          >
-            <LogIn className="h-5 w-5" />
-          </button>
-
           <Cart />
+
+          {session?.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  aria-label="Cuenta"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">Ir al panel</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/auth", { method: "DELETE", credentials: "include" });
+                      if (res.ok) {
+                        setSession(null);
+                        router.refresh();
+                        toast.success("Sesión cerrada");
+                      } else {
+                        const data = await res.json().catch(() => ({}));
+                        toast.error((data as { error?: string }).error ?? "Error al cerrar sesión");
+                      }
+                    } catch {
+                      toast.error("Error al cerrar sesión");
+                    }
+                  }}
+                >
+                  Cerrar sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setLoginOpen(true)}
+              className="p-2 rounded-full hover:bg-muted transition-colors"
+              aria-label="Iniciar sesión"
+            >
+              <User className="h-5 w-5" />
+            </button>
+          )}
 
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -231,14 +307,14 @@ export function Header() {
           </DialogHeader>
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="login-user">Usuario</Label>
+              <Label htmlFor="login-email">Email</Label>
               <Input
-                id="login-user"
-                type="text"
-                value={loginUser}
-                onChange={(e) => setLoginUser(e.target.value)}
-                placeholder="Usuario o email"
-                autoComplete="username"
+                id="login-email"
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="tu@email.com"
+                autoComplete="email"
               />
             </div>
             <div className="space-y-2">
@@ -253,10 +329,17 @@ export function Header() {
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setLoginOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setLoginOpen(false)}
+                disabled={loginLoading}
+              >
                 Cancelar
               </Button>
-              <Button type="submit">Entrar</Button>
+              <Button type="submit" disabled={loginLoading}>
+                {loginLoading ? "Entrando..." : "Entrar"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
