@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import type { Product, ProductMeasurements } from "@/shared/types/product";
@@ -17,8 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { ArrowLeft, Save, ImagePlus } from "lucide-react";
+import { ArrowLeft, Save, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { productsQueryKey } from "@/shared/queries/productos";
+import { uploadProductImage } from "@/shared/serverActions/uploadImage";
 
 const categories = [
   "Vestidos",
@@ -46,12 +49,14 @@ const emptyMeasurements: ProductMeasurements = {
 export default function AdminProductFormPage() {
   const router = useRouter();
   const params = useParams();
+  const queryClient = useQueryClient();
   const id = params?.id as string | undefined;
   const isEditing = id && id !== "nuevo";
 
   const [loading, setLoading] = useState<boolean>(Boolean(isEditing));
   const [form, setForm] = useState({
     name: "",
+    slug: "",
     price: "",
     originalPrice: "",
     category: "",
@@ -66,12 +71,29 @@ export default function AdminProductFormPage() {
     material: "",
     usageCount: "",
     soldOut: false,
-    image: "",
+    images: [] as (string | File)[],
     largo: "",
     ancho: "",
     manga: "",
     entrepierna: "",
   });
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const blobUrlsRef = useRef<string[]>([]);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
+    blobUrlsRef.current = [];
+    const urls = form.images.map((item) =>
+      typeof item === "string" ? item : URL.createObjectURL(item)
+    );
+    blobUrlsRef.current = urls.filter((u) => u.startsWith("blob:"));
+    setPreviewUrls(urls);
+    return () => {
+      blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
+      blobUrlsRef.current = [];
+    };
+  }, [form.images]);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -81,8 +103,11 @@ export default function AdminProductFormPage() {
         return res.json();
       })
       .then((p: Product & { id: string }) => {
+        const images: string[] =
+          Array.isArray(p.images) && p.images.length > 0 ? p.images : p.image ? [p.image] : [];
         setForm({
           name: p.name,
+          slug: p.slug ?? "",
           price: String(p.price),
           originalPrice: p.originalPrice ? String(p.originalPrice) : "",
           category: p.category,
@@ -97,7 +122,7 @@ export default function AdminProductFormPage() {
           material: p.material || "",
           usageCount: p.usageCount || "",
           soldOut: p.soldOut ?? false,
-          image: p.image || (p.images?.[0] ?? ""),
+          images,
           largo: String(p.measurements?.largo ?? ""),
           ancho: String(p.measurements?.ancho ?? ""),
           manga: p.measurements?.manga != null ? String(p.measurements.manga) : "",
@@ -109,11 +134,40 @@ export default function AdminProductFormPage() {
       .finally(() => setLoading(false));
   }, [id, isEditing]);
 
-  const updateField = (field: string, value: string | boolean) => {
+  const updateField = (field: string, value: string | boolean | string[]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const buildProduct = (): Product => {
+  const normalizeSlug = (value: string) => value.replace(/[^a-zA-Z0-9-]/g, "");
+
+  const addImageUrl = (url: string) => {
+    const trimmed = url.trim();
+    if (!trimmed || form.images.length >= 3) return;
+    setForm((prev) => ({ ...prev, images: [...prev.images, trimmed] }));
+  };
+
+  const removeImage = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    const remaining = 3 - form.images.length;
+    if (remaining <= 0) {
+      toast.error("Máximo 3 imágenes");
+      e.target.value = "";
+      return;
+    }
+    const toAdd = Array.from(files).slice(0, remaining);
+    setForm((prev) => ({ ...prev, images: [...prev.images, ...toAdd] }));
+    e.target.value = "";
+  };
+
+  const buildProduct = (imageUrls: string[]): Product => {
     const measurements: ProductMeasurements = {
       ...emptyMeasurements,
       largo: Number(form.largo) || 0,
@@ -121,9 +175,11 @@ export default function AdminProductFormPage() {
       manga: form.manga ? Number(form.manga) : undefined,
       entrepierna: form.entrepierna ? Number(form.entrepierna) : undefined,
     };
-    const image = form.image.trim() || "/images/placeholder.jpg";
+    const images = imageUrls.length > 0 ? imageUrls : ["/images/placeholder.jpg"];
+    const image = images[0]!;
     return {
       name: form.name.trim(),
+      slug: form.slug.trim() || undefined,
       price: Number(form.price) || 0,
       originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
       category: form.category,
@@ -139,12 +195,12 @@ export default function AdminProductFormPage() {
       usageCount: form.usageCount || undefined,
       soldOut: form.soldOut,
       image,
-      images: [image],
+      images,
       measurements,
     };
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !form.name.trim() ||
@@ -158,43 +214,87 @@ export default function AdminProductFormPage() {
       return;
     }
 
-    const body = buildProduct();
-    setLoading(true);
+    const existingUrls = form.images.filter((x): x is string => typeof x === "string");
+    const pendingFiles = form.images.filter((x): x is File => x instanceof File);
 
-    if (isEditing) {
-      fetch(`/api/productos/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success !== false) {
-            toast.success("Producto actualizado");
-            router.push("/admin");
-          } else {
-            toast.error(data.error || "Error al actualizar");
+    setLoading(true);
+    try {
+      let uploadedUrls: string[] = [];
+
+      if (pendingFiles.length > 0) {
+        if (isEditing && id) {
+          for (const file of pendingFiles) {
+            const fd = new FormData();
+            fd.append("image", file);
+            const result = await uploadProductImage(id, fd);
+            if (!result.success) throw new Error(result.error);
+            uploadedUrls.push(result.data.url);
           }
-        })
-        .catch(() => toast.error("Error al actualizar producto"))
-        .finally(() => setLoading(false));
-    } else {
-      fetch("/api/productos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success !== false) {
-            toast.success("Producto creado");
-            router.push("/admin");
-          } else {
-            toast.error(data.error || "Error al crear");
+        } else {
+          for (const file of pendingFiles) {
+            const fd = new FormData();
+            fd.append("image", file);
+            const res = await fetch("/api/images?folder=products", {
+              method: "POST",
+              body: fd,
+            });
+            const data = await res.json();
+            if (!res.ok || !data.data?.url) {
+              throw new Error(data.error || "Error al subir imagen");
+            }
+            uploadedUrls.push(data.data.url);
           }
-        })
-        .catch(() => toast.error("Error al crear producto"))
-        .finally(() => setLoading(false));
+        }
+      }
+
+      const finalImages = [...existingUrls, ...uploadedUrls];
+      const body = buildProduct(finalImages);
+
+      if (isEditing && id) {
+        const res = await fetch(`/api/productos/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.success !== false) {
+          queryClient.setQueryData(
+            productsQueryKey,
+            (prev: (Product & { id: string })[] | undefined) =>
+              prev
+                ? prev.map((p) => (p.id === id ? { ...body, id } : p))
+                : prev
+          );
+          toast.success("Producto actualizado");
+          router.push("/admin");
+        } else {
+          toast.error(data.error || "Error al actualizar");
+        }
+      } else {
+        const res = await fetch("/api/productos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.success !== false) {
+          if (data.product) {
+            queryClient.setQueryData(
+              productsQueryKey,
+              (prev: (Product & { id: string })[] | undefined) =>
+                prev ? [...prev, data.product] : [data.product]
+            );
+          }
+          toast.success("Producto creado");
+          router.push("/admin");
+        } else {
+          toast.error(data.error || "Error al crear");
+        }
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al guardar el producto");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -243,6 +343,17 @@ export default function AdminProductFormPage() {
                   placeholder="Ej: Vestido Lavanda con Botones"
                   maxLength={100}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={form.slug}
+                  onChange={(e) => updateField("slug", normalizeSlug(e.target.value))}
+                  placeholder="solo-letras-numeros-y-guiones"
+                  maxLength={120}
+                />
+                <p className="text-xs text-muted-foreground">Solo letras, números y guiones</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Descripción</Label>
@@ -481,32 +592,63 @@ export default function AdminProductFormPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Imagen</CardTitle>
+              <CardTitle className="text-lg">Imágenes (máx. 3)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="image">URL de imagen</Label>
-                <Input
-                  id="image"
-                  value={form.image}
-                  onChange={(e) => updateField("image", e.target.value)}
-                  placeholder="https://... o /images/..."
-                />
-              </div>
-              {form.image && (
-                <img
-                  src={form.image}
-                  alt="Vista previa"
-                  className="w-20 h-20 rounded-lg object-cover border"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
+              {previewUrls.length > 0 && (
+                <div className="flex flex-wrap gap-3">
+                  {previewUrls.map((url, index) => (
+                    <div
+                      key={`preview-${index}`}
+                      className="relative group w-24 h-24 rounded-lg overflow-hidden border bg-muted shrink-0"
+                    >
+                      <img
+                        src={url}
+                        alt={`Vista previa ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6 opacity-90 group-hover:opacity-100"
+                        onClick={() => removeImage(index)}
+                        aria-label="Quitar imagen"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               )}
-              <div className="border-2 border-dashed rounded-xl p-8 text-center text-muted-foreground space-y-2">
-                <ImagePlus className="h-8 w-8 mx-auto" />
-                <p className="text-sm">Subir imágenes (próximamente)</p>
-              </div>
+              {form.images.length < 3 && (
+                <>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => imageInputRef.current?.click()}
+                    onKeyDown={(e) => e.key === "Enter" && imageInputRef.current?.click()}
+                    className="border-2 border-dashed rounded-xl p-8 text-center text-muted-foreground space-y-2 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
+                  >
+                    <ImagePlus className="h-8 w-8 mx-auto" />
+                    <p className="text-sm">
+                      Hacé clic para elegir hasta {3 - form.images.length} imagen(es) (se subirán al
+                      guardar)
+                    </p>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -522,10 +664,7 @@ export default function AdminProductFormPage() {
                     El producto aparecerá como no disponible
                   </p>
                 </div>
-                <Switch
-                  checked={form.soldOut}
-                  onCheckedChange={(v) => updateField("soldOut", v)}
-                />
+                <Switch checked={form.soldOut} onCheckedChange={(v) => updateField("soldOut", v)} />
               </div>
             </CardContent>
           </Card>

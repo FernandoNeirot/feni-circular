@@ -33,3 +33,24 @@ export async function getAllProducts(): Promise<Product[] | null> {
     return null;
   }
 }
+
+export type DeleteProductResult = { success: true } | { success: false; error: string };
+
+export async function deleteProduct(productId: string): Promise<DeleteProductResult> {
+  try {
+    const res = await fetch(`${getApiBase()}/api/productos/${productId}`, {
+      method: "DELETE",
+    });
+    const data = (await res.json()) as { success?: boolean; error?: string };
+    if (!res.ok) {
+      return { success: false, error: data.error ?? "Error al eliminar" };
+    }
+    return { success: true };
+  } catch (err) {
+    console.error("[deleteProduct]", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Error al eliminar el producto",
+    };
+  }
+}

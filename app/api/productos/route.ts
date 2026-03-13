@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
     console.log("POST /api/productos");
     const body = (await request.json()) as Product;
     const db = getAdminFirestore();
-    await db.collection(COLLECTION).add(body);
-    return NextResponse.json({ success: true });
+    const docRef = await db.collection(COLLECTION).add(body);
+    const product = { id: docRef.id, ...body } as Product & { id: string };
+    return NextResponse.json({ success: true, id: docRef.id, product });
   } catch (err) {
     console.error("[POST /api/productos]", err);
     return NextResponse.json({ success: false, error: "Error al crear producto" }, { status: 500 });
