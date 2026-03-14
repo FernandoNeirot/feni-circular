@@ -30,7 +30,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { loginWithEmailPassword } from "@/shared/serverActions/auth";
 import { toast } from "sonner";
 
 const navLinks = [
@@ -69,15 +68,28 @@ export function Header() {
     }
     setLoginLoading(true);
     try {
-      const result = await loginWithEmailPassword(loginEmail, loginPassword);
-      if (result.success) {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: loginEmail.trim(),
+          password: loginPassword,
+          action: "login",
+        }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (res.ok) {
         setLoginOpen(false);
         setLoginEmail("");
         setLoginPassword("");
         toast.success("Sesión iniciada");
+        const sessionRes = await fetch("/api/auth/session", { credentials: "include" });
+        const sessionData = await sessionRes.json();
+        setSession(sessionData?.user ? sessionData : null);
         router.push("/admin");
       } else {
-        toast.error(result.error);
+        toast.error(data.error ?? "Error al iniciar sesión");
       }
     } catch {
       toast.error("Error al iniciar sesión");
