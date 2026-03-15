@@ -31,7 +31,7 @@ import {
   type ProductFormValues,
   defaultProductFormValues,
   normalizeSlug,
-} from "./product-form-schema";
+} from "@/features/admin";
 
 const categories = [
   "Abrigos",

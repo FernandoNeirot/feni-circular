@@ -1,4 +1,17 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FENI Circular
+
+E-commerce de ropa infantil circular (segunda vida). Next.js (App Router), React Query, Firebase/Firestore.
+
+## Arquitectura
+
+El proyecto está organizado por **funcionalidades** y principios de **clean code**:
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Capas, flujos de datos y convenciones.
+- **`app/`** — Rutas (Next.js App Router).
+- **`features/`** — Lógica por feature (products, cart, favorites, auth, admin).
+- **`shared/`** — Código transversal (ui, lib, config, types, hooks).
+
+Ver también [features/README.md](./features/README.md) para el uso de cada feature.
 
 ## Getting Started
 
