@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { useWhatsAppVisibility } from "@/shared/components/WhatsAppVisibilityContext";
 
 const navLinks = [
   { label: "Inicio", href: "/" },
@@ -51,6 +52,16 @@ export function Header() {
   const [loginLoading, setLoginLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: products = [] } = useQuery(productsQueryOptions);
+  const { setSearchOpen: setVisibilitySearch, setMenuOpen: setVisibilityMenu } =
+    useWhatsAppVisibility();
+
+  useEffect(() => {
+    setVisibilitySearch(searchOpen);
+  }, [searchOpen, setVisibilitySearch]);
+
+  useEffect(() => {
+    setVisibilityMenu(menuOpen);
+  }, [menuOpen, setVisibilityMenu]);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -98,6 +109,8 @@ export function Header() {
   };
 
   const isSearchPage = pathname === "/buscar";
+  const isAdminSection = pathname?.startsWith("/admin") ?? false;
+  const navLinksToShow = isAdminSection ? navLinks.filter((l) => l.href === "/") : navLinks;
 
   useEffect(() => {
     if (searchOpen && inputRef.current) {
@@ -134,8 +147,12 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => (
+        <nav
+          className={
+            isAdminSection ? "flex items-center gap-1" : "hidden lg:flex items-center gap-1"
+          }
+        >
+          {navLinksToShow.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -150,7 +167,7 @@ export function Header() {
           ))}
         </nav>
 
-        {!isSearchPage && (
+        {!isSearchPage && !isAdminSection && (
           <div className="hidden md:block flex-1 max-w-xs relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -213,7 +230,7 @@ export function Header() {
         )}
 
         <div className="flex items-center gap-2">
-          {!isSearchPage && (
+          {!isSearchPage && !isAdminSection && (
             <button
               onClick={() => {
                 if (searchOpen && query) setQuery("");
@@ -225,7 +242,7 @@ export function Header() {
             </button>
           )}
 
-          <Cart />
+          {!isAdminSection && <Cart />}
 
           {session?.user ? (
             <DropdownMenu>
@@ -279,32 +296,34 @@ export function Header() {
             </button>
           )}
 
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger asChild>
-              <button className="lg:hidden p-2 rounded-full hover:bg-muted transition-colors">
-                <Menu className="h-5 w-5" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 pt-12">
-              <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
-              <nav className="flex flex-col gap-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`px-4 py-3 text-left rounded-xl transition-colors ${
-                      pathname === link.href
-                        ? "bg-primary/10 text-primary font-semibold"
-                        : "text-foreground hover:bg-muted/50"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+          {!isAdminSection && (
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <button className="lg:hidden p-2 rounded-full hover:bg-muted transition-colors">
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 pt-12">
+                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+                <nav className="flex flex-col gap-1">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={`px-4 py-3 text-left rounded-xl transition-colors ${
+                        pathname === link.href
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </div>
 
@@ -361,7 +380,7 @@ export function Header() {
         </DialogContent>
       </Dialog>
 
-      {searchOpen && !isSearchPage && (
+      {searchOpen && !isSearchPage && !isAdminSection && (
         <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top-2 duration-200">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

@@ -1,6 +1,9 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import { useContext } from "react";
+import { WhatsAppVisibilityContext } from "@/shared/components/WhatsAppVisibilityContext";
 
 const WHATSAPP_NUMBER = "541133150864";
 const BASE_MESSAGE = "Hola, queria hacerte unas consultas por las prendas de Feni";
@@ -8,12 +11,20 @@ const BASE_MESSAGE = "Hola, queria hacerte unas consultas por las prendas de Fen
 const FALLBACK_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(BASE_MESSAGE)}`;
 
 export function WhatsAppFloatButton() {
+  const pathname = usePathname();
+  const visibility = useContext(WhatsAppVisibilityContext);
+  const isAdmin = pathname?.startsWith("/admin") ?? false;
+  const shouldHide =
+    visibility?.shouldHideButton(isAdmin) ?? isAdmin;
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const message = `${BASE_MESSAGE}\n\n${typeof window !== "undefined" ? window.location.origin : ""}`;
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  if (shouldHide) return null;
 
   return (
     <a

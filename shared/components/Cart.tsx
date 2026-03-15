@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/shared/components/ui/button";
@@ -19,10 +19,16 @@ import { ShoppingCart, Trash2, Send, ShoppingBag, Sparkles, Package, Gift } from
 import type { CartItem } from "@/shared/types/product";
 import { useCart } from "@/shared/components/cart-provider";
 import { productsQueryOptions } from "@/shared/queries/productos";
+import { useWhatsAppVisibility } from "@/shared/components/WhatsAppVisibilityContext";
 
 export function Cart() {
   const [isOpen, setIsOpen] = useState(false);
   const { cartItems: items, removeItem, checkout } = useCart();
+  const { setCartOpen } = useWhatsAppVisibility();
+
+  useEffect(() => {
+    setCartOpen(isOpen);
+  }, [isOpen, setCartOpen]);
   const { data: products = [] } = useQuery(productsQueryOptions);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);

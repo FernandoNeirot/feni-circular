@@ -86,9 +86,9 @@ export function ZoomableImage({
           <DialogHeader className="shrink-0">
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <div className="flex-1 min-h-0 overflow-auto flex items-start justify-start p-4 bg-muted/50 rounded-lg">
+          <div className="flex-1 min-h-0 overflow-auto flex items-start justify-center p-4 bg-muted/50 rounded-lg">
             <div
-              className="inline-block"
+              className="inline-block shrink-0"
               style={
                 imgSize
                   ? {
@@ -101,12 +101,13 @@ export function ZoomableImage({
               <img
                 src={src}
                 alt={alt}
-                className="max-w-full h-auto block"
+                className="max-w-full h-auto block object-contain"
                 style={
                   imgSize
                     ? {
                         width: imgSize.w,
                         height: imgSize.h,
+                        objectFit: "contain",
                         transform: `scale(${zoom})`,
                         transformOrigin: "top left",
                       }
