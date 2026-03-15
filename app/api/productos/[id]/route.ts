@@ -10,9 +10,29 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: idOrSlug } = await params;
     const db = getAdminFirestore();
-    const doc = await db.collection(COLLECTION).doc(id).get();
+    const docRef = db.collection(COLLECTION).doc(idOrSlug);
+    let doc = await docRef.get();
+    if (!doc.exists) {
+      const bySlug = await db
+        .collection(COLLECTION)
+        .where("slug", "==", idOrSlug)
+        .limit(1)
+        .get();
+      if (!bySlug.empty) {
+        doc = bySlug.docs[0];
+      }
+    }
+    if (!doc.exists) {
+      const slugLower = idOrSlug.toLowerCase().trim();
+      const all = await db.collection(COLLECTION).get();
+      const found = all.docs.find((d) => {
+        const s = d.data()?.slug;
+        return typeof s === "string" && s.toLowerCase().trim() === slugLower;
+      });
+      if (found) doc = found;
+    }
     if (!doc.exists) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }

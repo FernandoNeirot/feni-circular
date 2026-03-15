@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const isSoldOut = product.soldOut;
   return (
-    <Link href={`/producto/${product.id}`}>
+    <Link href={`/producto/${product.slug || product.id}`}>
       <Card
         className={`group overflow-hidden border-2 hover:border-primary transition-all duration-300 hover:shadow-lg cursor-pointer ${isSoldOut ? "opacity-70" : ""}`}
       >

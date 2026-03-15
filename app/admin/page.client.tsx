@@ -68,22 +68,25 @@ export default function AdminPageClient({ initialProducts }: AdminPageClientProp
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-2 min-w-0 shrink">
+            <Button variant="ghost" size="icon" className="shrink-0" asChild>
               <Link href="/">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <h1 className="text-xl font-bold">Admin — Productos</h1>
+            <div className="flex items-center gap-2 min-w-0">
+              <Package className="h-5 w-5 text-primary shrink-0" />
+              <h1 className="text-base sm:text-xl font-bold truncate">
+                <span className="hidden sm:inline">Admin — </span>Productos
+              </h1>
             </div>
           </div>
-          <Button asChild className="gap-2">
+          <Button asChild className="gap-2 shrink-0">
             <Link href="/admin/producto/nuevo">
               <Plus className="h-4 w-4" />
-              Nuevo producto
+              <span className="sm:hidden">Nuevo</span>
+              <span className="hidden sm:inline">Nuevo producto</span>
             </Link>
           </Button>
         </div>
@@ -100,15 +103,81 @@ export default function AdminPageClient({ initialProducts }: AdminPageClientProp
           />
         </div>
 
-        <div className="flex gap-4 text-sm text-muted-foreground">
-          <span>{products.length} productos totales</span>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+          <span>{products.length} totales</span>
           <span>·</span>
           <span>{products.filter((p) => p.soldOut).length} vendidos</span>
           <span>·</span>
           <span>{products.filter((p) => !p.soldOut).length} disponibles</span>
         </div>
 
-        <div className="border rounded-xl overflow-hidden bg-card">
+        {/* Cards — solo móvil */}
+        <div className="block md:hidden space-y-3">
+          {filtered.map((product) => (
+            <div
+              key={product.id}
+              className="border rounded-xl overflow-hidden bg-card flex gap-3 p-3"
+            >
+              <Link href={`/admin/producto/${product.id}`} className="shrink-0">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className={`w-16 h-16 rounded-lg object-cover ${product.soldOut ? "grayscale opacity-60" : ""}`}
+                />
+              </Link>
+              <div className="flex-1 min-w-0">
+                <Link href={`/admin/producto/${product.id}`}>
+                  <p className="font-medium truncate">{product.name}</p>
+                </Link>
+                <p className="text-xs text-muted-foreground truncate">
+                  {[product.brand, product.category].filter(Boolean).join(" · ")}
+                </p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <Badge variant="outline" className="text-xs">
+                    {product.size}
+                  </Badge>
+                  <span className="text-sm font-semibold">${product.price}</span>
+                  {product.soldOut ? (
+                    <Badge variant="destructive" className="text-xs">
+                      Vendido
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-primary/15 text-primary border-0 text-xs">
+                      Disponible
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col justify-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                  <Link href={`/admin/producto/${product.id}`}>
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setProductToDelete(product);
+                  }}
+                  aria-label="Eliminar producto"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <p className="text-center py-12 text-muted-foreground">
+              No se encontraron productos
+            </p>
+          )}
+        </div>
+
+        {/* Tabla — solo desktop */}
+        <div className="hidden md:block border rounded-xl overflow-hidden bg-card">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>

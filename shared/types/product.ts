@@ -1,7 +1,8 @@
 export interface ProductMeasurements {
-  largo: number;
-  ancho: number;
   manga?: number;
+  ancho: number;
+  largo: number;
+  anchoCintura?: number;
   entrepierna?: number;
 }
 

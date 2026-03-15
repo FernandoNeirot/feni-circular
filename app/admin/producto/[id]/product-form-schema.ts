@@ -4,7 +4,11 @@ const slugRegex = /^[a-zA-Z0-9-]*$/;
 
 export const productFormSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(100),
-  slug: z.string().max(120).refine((v) => v === "" || slugRegex.test(v), "Solo letras, números y guiones"),
+  slug: z
+    .string()
+    .min(1, "El slug es obligatorio")
+    .max(120)
+    .refine((v) => slugRegex.test(v), "Solo letras, números y guiones"),
   price: z.string().min(1, "El precio es obligatorio").refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Precio inválido"),
   originalPrice: z.string().optional(),
   category: z.string().min(1, "Seleccioná una categoría"),
@@ -23,6 +27,7 @@ export const productFormSchema = z.object({
   largo: z.string().optional(),
   ancho: z.string().optional(),
   manga: z.string().optional(),
+  anchoCintura: z.string().optional(),
   entrepierna: z.string().optional(),
 });
 
@@ -49,6 +54,7 @@ export const defaultProductFormValues: ProductFormValues = {
   largo: "",
   ancho: "",
   manga: "",
+  anchoCintura: "",
   entrepierna: "",
 };
 

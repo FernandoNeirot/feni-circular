@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -14,32 +15,21 @@ import {
 } from "@/shared/components/ui/sheet";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
-import {
-  ShoppingCart,
-  Trash2,
-  Plus,
-  Minus,
-  Send,
-  ShoppingBag,
-  Sparkles,
-  Package,
-  Gift,
-} from "lucide-react";
+import { ShoppingCart, Trash2, Send, ShoppingBag, Sparkles, Package, Gift } from "lucide-react";
 import type { CartItem } from "@/shared/types/product";
-import { allProducts } from "@/data/products";
 import { useCart } from "@/shared/components/cart-provider";
+import { productsQueryOptions } from "@/shared/queries/productos";
 
 export function Cart() {
   const [isOpen, setIsOpen] = useState(false);
-  const { cartItems: items, updateQuantity, removeItem, checkout } = useCart();
+  const { cartItems: items, removeItem, checkout } = useCart();
+  const { data: products = [] } = useQuery(productsQueryOptions);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const cartIds = new Set(items.map((i) => i.id));
-  const upsellProduct = allProducts.find(
-    (p) => !cartIds.has(p.id) && !p.soldOut && p.price <= 800,
-  );
+  const upsellProduct = products.find((p) => !cartIds.has(p.id) && !p.soldOut && p.price <= 15000);
 
   const handleCheckout = () => {
     checkout();
@@ -137,9 +127,7 @@ export function Cart() {
                           </Button>
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-muted-foreground">
-                            Talle: {item.size}
-                          </span>
+                          <span className="text-xs text-muted-foreground">Talle: {item.size}</span>
                           {item.brand && (
                             <>
                               <span className="text-muted-foreground/40">•</span>
@@ -149,35 +137,7 @@ export function Cart() {
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 rounded-full hover:bg-background"
-                            onClick={() =>
-                              updateQuantity(item.id, Math.max(1, item.quantity - 1))
-                            }
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-6 text-center text-sm font-semibold text-foreground">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 rounded-full hover:bg-background"
-                            disabled={
-                              item.stock != null && item.quantity >= item.stock
-                            }
-                            onClick={() => {
-                              if (item.stock != null && item.quantity >= item.stock) return;
-                              updateQuantity(item.id, item.quantity + 1);
-                            }}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        <span className="text-sm text-muted-foreground">1 unidad</span>
                         <span className="font-bold text-primary text-sm">
                           ${(item.price * item.quantity).toLocaleString()}
                         </span>
@@ -187,14 +147,17 @@ export function Cart() {
                 ))}
 
                 {upsellProduct && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/5 border border-secondary/20">
+                  <Link
+                    href={`/producto/${upsellProduct.slug || upsellProduct.id}`}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-secondary/5 border border-secondary/20 hover:border-secondary/40 hover:bg-secondary/10 transition-colors cursor-pointer"
+                  >
                     <Gift className="h-5 w-5 text-secondary shrink-0" />
                     <p className="text-xs text-muted-foreground flex-1">
-                      ¡Agregá{" "}
-                      <strong className="text-foreground">{upsellProduct.name}</strong> por
+                      ¡Agregá <strong className="text-foreground">{upsellProduct.name}</strong> por
                       solo <strong className="text-primary">${upsellProduct.price}</strong>!
                     </p>
-                  </div>
+                  </Link>
                 )}
               </div>
             </ScrollArea>

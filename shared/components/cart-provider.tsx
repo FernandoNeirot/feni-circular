@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type { CartItem, Product } from "@/shared/types/product";
 import { toast } from "sonner";
+
+const CART_STORAGE_KEY = "feni-cart";
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -14,25 +16,42 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+function loadCartFromStorage(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setCartItems(loadCartFromStorage());
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+  }, [cartItems, isHydrated]);
 
   const addToCart = useCallback((product: Product) => {
     if (product.soldOut) return;
     setCartItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        const maxQty = product.stock ?? Infinity;
-        if (existing.quantity >= maxQty) return prev;
-        const newQty = Math.min(existing.quantity + 1, maxQty);
-        if (newQty > existing.quantity) toast.success("Cantidad actualizada");
-        else if (maxQty !== Infinity) toast.info("No hay más stock disponible");
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: newQty } : item,
-        );
+        toast.info("Solo podés llevar 1 unidad de cada producto");
+        return prev;
       }
       toast.success(`${product.name} agregado al carrito`);
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: 1, stock: 1 }];
     });
   }, []);
 
@@ -41,8 +60,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCartItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
-        const maxQty = item.stock ?? Infinity;
-        const clamped = Math.max(1, Math.min(quantity, maxQty));
+        const clamped = Math.max(1, Math.min(quantity, 1));
         return { ...item, quantity: clamped };
       }),
     );

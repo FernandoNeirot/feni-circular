@@ -3,10 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Cart } from "./Cart";
 import Image from "next/image";
-import { allProducts } from "@/data/products";
 import { Search, X, Menu, User } from "lucide-react";
+import { productsQueryOptions } from "@/shared/queries/productos";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -52,6 +53,7 @@ export function Header() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: products = [] } = useQuery(productsQueryOptions);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -108,7 +110,7 @@ export function Header() {
 
   const suggestions =
     query.length >= 2
-      ? allProducts
+      ? products
           .filter(
             (p) =>
               p.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -184,7 +186,7 @@ export function Header() {
                 {suggestions.map((p) => (
                   <Link
                     key={p.id}
-                    href={`/producto/${p.id}`}
+                    href={`/producto/${p.slug || p.id}`}
                     onClick={() => setQuery("")}
                     className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
                   >
@@ -383,7 +385,7 @@ export function Header() {
               {suggestions.map((p) => (
                 <Link
                   key={p.id}
-                  href={`/producto/${p.id}`}
+                  href={`/producto/${p.slug || p.id}`}
                   onClick={() => {
                     setQuery("");
                     setSearchOpen(false);

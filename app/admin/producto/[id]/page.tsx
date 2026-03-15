@@ -32,14 +32,58 @@ import {
 } from "./product-form-schema";
 
 const categories = [
-  "Vestidos",
-  "Enteritos",
-  "Remeras",
-  "Pantalones",
   "Abrigos",
-  "Calzado",
-  "Accesorios",
+  "Bolsos",
+  "Calzados",
+  "Enteritos",
+  "Pantalones",
+  "Remeras",
+  "Vestidos",
 ];
+
+/** Campos de medidas por categoría. Claves: manga (A), ancho (B), largo (C), anchoCintura (D), entrepierna (E) */
+const categoryMeasurementFields: Record<
+  string,
+  Array<{ key: "manga" | "ancho" | "largo" | "anchoCintura" | "entrepierna"; label: string }>
+> = {
+  Abrigos: [
+    { key: "manga", label: "A - Largo manga" },
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+    { key: "anchoCintura", label: "D - Ancho cintura" },
+  ],
+  Bolsos: [
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+  ],
+  Enteritos: [
+    { key: "manga", label: "A - Largo manga" },
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+    { key: "anchoCintura", label: "D - Ancho cintura" },
+  ],
+  Calzados: [
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+  ],
+  Pantalones: [
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+    { key: "entrepierna", label: "E - Entrepierna" },
+  ],
+  Remeras: [
+    { key: "manga", label: "A - Largo manga" },
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+  ],
+  Vestidos: [
+    { key: "manga", label: "A - Largo manga" },
+    { key: "ancho", label: "B - Ancho" },
+    { key: "largo", label: "C - Alto" },
+    { key: "anchoCintura", label: "D - Ancho cintura" },
+  ],
+};
+
 const conditions = ["Como nuevo", "Excelente", "Muy bueno", "Bueno"];
 const genders: Array<{ value: "niña" | "niño" | "unisex"; label: string }> = [
   { value: "niña", label: "Niña" },
@@ -57,6 +101,7 @@ const emptyMeasurements: ProductMeasurements = {
   largo: 0,
   ancho: 0,
   manga: undefined,
+  anchoCintura: undefined,
   entrepierna: undefined,
 };
 
@@ -66,6 +111,7 @@ function buildProductFromForm(data: ProductFormValues, imageUrls: string[]): Pro
     largo: Number(data.largo) || 0,
     ancho: Number(data.ancho) || 0,
     manga: data.manga ? Number(data.manga) : undefined,
+    anchoCintura: data.anchoCintura ? Number(data.anchoCintura) : undefined,
     entrepierna: data.entrepierna ? Number(data.entrepierna) : undefined,
   };
   const images = imageUrls.length > 0 ? imageUrls : ["/images/placeholder.jpg"];
@@ -153,6 +199,8 @@ export default function AdminProductFormPage() {
         largo: String(p.measurements?.largo ?? ""),
         ancho: String(p.measurements?.ancho ?? ""),
         manga: p.measurements?.manga != null ? String(p.measurements.manga) : "",
+        anchoCintura:
+          p.measurements?.anchoCintura != null ? String(p.measurements.anchoCintura) : "",
         entrepierna: p.measurements?.entrepierna != null ? String(p.measurements.entrepierna) : "",
       });
     }
@@ -166,19 +214,22 @@ export default function AdminProductFormPage() {
       return;
     }
 
-    queryClient.fetchQuery(productsQueryOptions).then((data) => {
-      const list = (data ?? []) as (Product & { id: string })[];
-      const product = list.find((item) => item.id === id);
-      if (product) {
-        fillFormWithProduct(product);
-      } else {
-        toast.error("Producto no encontrado");
-      }
-      setLoading(false);
-    }).catch(() => {
-      toast.error("Error al cargar el producto");
-      setLoading(false);
-    });
+    queryClient
+      .fetchQuery(productsQueryOptions)
+      .then((data) => {
+        const list = (data ?? []) as (Product & { id: string })[];
+        const product = list.find((item) => item.id === id);
+        if (product) {
+          fillFormWithProduct(product);
+        } else {
+          toast.error("Producto no encontrado");
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error("Error al cargar el producto");
+        setLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- form/queryClient stable, only re-run when id/isEditing changes
   }, [id, isEditing]);
 
@@ -210,6 +261,21 @@ export default function AdminProductFormPage() {
   };
 
   const onSubmit = async (data: ProductFormValues) => {
+    const slugToSave = data.slug?.trim();
+    if (!slugToSave) return;
+
+    const allProducts =
+      queryClient.getQueryData<(Product & { id: string })[]>(productsQueryKey) ??
+      (await queryClient.fetchQuery(productsQueryOptions)) ??
+      [];
+    const slugExists = allProducts.some(
+      (p) => p.slug?.toLowerCase() === slugToSave.toLowerCase() && p.id !== id
+    );
+    if (slugExists) {
+      toast.error("Ese slug ya está usado por otro producto. Elegí uno distinto.");
+      return;
+    }
+
     const existingUrls = data.images.filter((x): x is string => typeof x === "string");
     const pendingFiles = data.images.filter((x): x is File => x instanceof File);
 
@@ -380,7 +446,9 @@ export default function AdminProductFormPage() {
                     maxLength={50}
                   />
                   {form.formState.errors.brand && (
-                    <p className="text-sm text-destructive">{form.formState.errors.brand.message}</p>
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.brand.message}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -421,7 +489,9 @@ export default function AdminProductFormPage() {
                     placeholder="1200"
                   />
                   {form.formState.errors.price && (
-                    <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.price.message}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -465,7 +535,9 @@ export default function AdminProductFormPage() {
                     )}
                   />
                   {form.formState.errors.category && (
-                    <p className="text-sm text-destructive">{form.formState.errors.category.message}</p>
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.category.message}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -555,7 +627,9 @@ export default function AdminProductFormPage() {
                     )}
                   />
                   {form.formState.errors.condition && (
-                    <p className="text-sm text-destructive">{form.formState.errors.condition.message}</p>
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.condition.message}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -585,24 +659,45 @@ export default function AdminProductFormPage() {
             <CardHeader>
               <CardTitle className="text-lg">Medidas (cm)</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="largo">Largo *</Label>
-                  <Input id="largo" type="number" min={0} {...form.register("largo")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ancho">Ancho *</Label>
-                  <Input id="ancho" type="number" min={0} {...form.register("ancho")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="manga">Manga</Label>
-                  <Input id="manga" type="number" min={0} {...form.register("manga")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="entrepierna">Entrepierna</Label>
-                  <Input id="entrepierna" type="number" min={0} {...form.register("entrepierna")} />
-                </div>
+            <CardContent className="space-y-4">
+              {(() => {
+                const category = form.watch("category");
+                const fields = category ? categoryMeasurementFields[category] : null;
+                if (!fields?.length) {
+                  return (
+                    <p className="text-sm text-muted-foreground">
+                      Seleccioná una categoría para cargar los campos de medidas.
+                    </p>
+                  );
+                }
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {fields.map(({ key, label }) => (
+                      <div key={key} className="space-y-2">
+                        <Label htmlFor={`measure-${key}`}>{label}</Label>
+                        <div className="relative">
+                          <Input
+                            id={`measure-${key}`}
+                            type="number"
+                            min={0}
+                            className="pr-10"
+                            {...form.register(key)}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                            cm
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+              <div className="pt-2">
+                <img
+                  src="/images/REFERENCIA_MEDIDAS.png"
+                  alt="Referencia de medidas"
+                  className="max-w-full h-auto rounded-lg border bg-muted"
+                />
               </div>
             </CardContent>
           </Card>
@@ -643,36 +738,6 @@ export default function AdminProductFormPage() {
               )}
               {images.length < 3 && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="imageUrl">Agregar por URL</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="imageUrl"
-                        placeholder="https://... o /images/..."
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            const input = e.target as HTMLInputElement;
-                            addImageUrl(input.value);
-                            input.value = "";
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          const input = document.getElementById("imageUrl") as HTMLInputElement;
-                          if (input) {
-                            addImageUrl(input.value);
-                            input.value = "";
-                          }
-                        }}
-                      >
-                        Agregar
-                      </Button>
-                    </div>
-                  </div>
                   <input
                     ref={imageInputRef}
                     type="file"
