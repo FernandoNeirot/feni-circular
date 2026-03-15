@@ -7,10 +7,10 @@ import Pageclient from "./page.client";
 import { productsQueryOptions } from "@/shared/queries/productos";
 
 const ageFilters = [
-  { label: "0-12m", emoji: "👶", filter: "0" },
-  { label: "1-3 años", emoji: "🧒", filter: "1" },
-  { label: "3-6 años", emoji: "👦", filter: "3" },
-  { label: "6+ años", emoji: "🎒", filter: "6" },
+  { label: "0-12m", emoji: "👶", filter: "0-12m" },
+  { label: "1-3 años", emoji: "🧒", filter: "1-3 años" },
+  { label: "3-6 años", emoji: "👦", filter: "3-6 años" },
+  { label: "6+ años", emoji: "🎒", filter: "6+ años" },
 ];
 
 const testimonials = [

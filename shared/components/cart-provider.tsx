@@ -78,12 +78,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
+    const homeUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_BASE_URL ?? "";
     const message = `¡Hola! Me interesa realizar un pedido:\n\n${cartItems
       .map(
         (item) =>
           `• ${item.name} (Talle: ${item.size})\n  Cantidad: ${item.quantity} - $${item.price * item.quantity}`,
       )
-      .join("\n\n")}\n\n*Total: $${total}*`;
+      .join("\n\n")}\n\n*Total: $${total}*\n\n_Pedido desde:_ ${homeUrl}`;
     const whatsappNumber = "+541133150864";
     window.open(
       `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,

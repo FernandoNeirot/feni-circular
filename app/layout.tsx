@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/shared/components/providers";
 import { CartProvider } from "@/shared/components/cart-provider";
 import { Header } from "@/shared/components/Header";
+import { WhatsAppFloatButton } from "@/shared/components/WhatsAppFloatButton";
 
 const quicksand = Quicksand({
   variable: "--font-quicksand",
@@ -28,6 +29,7 @@ export default function RootLayout({
           <CartProvider>
             <Header />
             {children}
+            <WhatsAppFloatButton />
           </CartProvider>
         </Providers>
       </body>

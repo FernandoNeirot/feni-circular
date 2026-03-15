@@ -38,7 +38,7 @@ const navLinks = [
   { label: "Productos", href: "/buscar" },
   { label: "¿Cómo funciona?", href: "/como-funciona" },
   { label: "Vendé con nosotros", href: "/vender" },
-  { label: "FAQ", href: "/faq" },
+  { label: "Preguntas frecuentes", href: "/faq" },
 ];
 
 export function Header() {

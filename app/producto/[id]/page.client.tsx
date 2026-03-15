@@ -37,7 +37,7 @@ export default function ProductDetailClient({
   slug,
   initialProduct,
 }: ProductDetailClientProps) {
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const { data: products = [], isPending } = useQuery(productsQueryOptions);
   const productFromCache = slug
     ? (products as (Product & { id: string })[]).find(
@@ -45,6 +45,7 @@ export default function ProductDetailClient({
       ) ?? null
     : null;
   const product = productFromCache ?? initialProduct;
+  const isInCart = product ? cartItems.some((item) => item.id === product.id) : false;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -99,7 +100,7 @@ export default function ProductDetailClient({
         : "bg-secondary";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
+    <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background pb-20 lg:pb-0">
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-10">
         <Link
           href="/"
@@ -110,7 +111,7 @@ export default function ProductDetailClient({
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-4">
+          <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
               {product.soldOut && (
                 <div
@@ -266,16 +267,33 @@ export default function ProductDetailClient({
                 <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-muted-foreground/30 bg-muted/50 py-3 text-base font-medium text-muted-foreground">
                   Vendido
                 </div>
+              ) : isInCart ? (
+                <Button size="lg" className="flex-1 gap-2 text-base" disabled>
+                  <ShoppingCart className="h-5 w-5" />
+                  En el carrito
+                </Button>
               ) : (
                 <Button size="lg" className="flex-1 gap-2 text-base" onClick={handleAddToCart}>
                   <ShoppingCart className="h-5 w-5" />
                   Agregar al carrito
                 </Button>
               )}
-              <Button size="lg" variant="outline" className="px-4">
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-4 opacity-60 cursor-not-allowed"
+                disabled
+                aria-label="Próximamente"
+              >
                 <Heart className="h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="px-4">
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-4 opacity-60 cursor-not-allowed"
+                disabled
+                aria-label="Próximamente"
+              >
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
@@ -340,6 +358,47 @@ export default function ProductDetailClient({
           </div>
         </div>
       </main>
+
+      {/* Barra flotante móvil: agregar, like, compartir */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center gap-2 border-t bg-background/95 p-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        {product.soldOut ? (
+          <div className="flex-1 py-3 text-center text-sm font-medium text-muted-foreground">
+            Vendido
+          </div>
+        ) : isInCart ? (
+          <Button size="lg" className="flex-1 gap-2" disabled>
+            <ShoppingCart className="h-5 w-5" />
+            En el carrito
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            className="flex-1 gap-2"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            Agregar al carrito
+          </Button>
+        )}
+        <Button
+          size="lg"
+          variant="outline"
+          className="shrink-0 px-4 opacity-60"
+          disabled
+          aria-label="Próximamente"
+        >
+          <Heart className="h-5 w-5" />
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          className="shrink-0 px-4 opacity-60"
+          disabled
+          aria-label="Próximamente"
+        >
+          <Share2 className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 }

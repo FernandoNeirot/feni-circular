@@ -72,7 +72,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
       {ageFilters.map((af) => (
         <Link
           key={af.filter}
-          href={`/buscar?age=${af.filter}`}
+          href={`/buscar?ageRange=${encodeURIComponent(af.filter)}`}
           className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-card border-2 border-transparent hover:border-primary/40 hover:shadow-md transition-all group"
         >
           <span className="text-3xl" suppressHydrationWarning>{af.emoji}</span>
@@ -197,7 +197,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
             { label: "Productos", href: "/buscar" },
             { label: "¿Cómo funciona?", href: "/como-funciona" },
             { label: "Vendé con nosotros", href: "/vender" },
-            { label: "FAQ", href: "/faq" },
+            { label: "Preguntas frecuentes", href: "/faq" },
           ].map((l) => (
             <Link
               key={l.href}

@@ -98,34 +98,28 @@ export function Cart() {
                     key={item.id}
                     className="group relative flex gap-3 p-3 rounded-xl bg-card border border-border/60 hover:border-primary/30 hover:shadow-sm transition-all"
                   >
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {item.condition && (
-                        <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded-full bg-primary/90 text-primary-foreground font-medium">
-                          {item.condition}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-semibold text-sm text-foreground line-clamp-1">
-                            {item.name}
-                          </h4>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
-                            onClick={() => removeItem(item.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
+                    <Link
+                      href={`/producto/${item.slug || item.id}`}
+                      onClick={() => setIsOpen(false)}
+                      className="flex flex-1 min-w-0 gap-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2"
+                    >
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                        {item.condition && (
+                          <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded-full bg-primary/90 text-primary-foreground font-medium">
+                            {item.condition}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <h4 className="font-semibold text-sm text-foreground line-clamp-1">
+                          {item.name}
+                        </h4>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-muted-foreground">Talle: {item.size}</span>
                           {item.brand && (
@@ -135,14 +129,28 @@ export function Cart() {
                             </>
                           )}
                         </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm text-muted-foreground">1 unidad</span>
+                          <span className="font-bold text-primary text-sm">
+                            ${(item.price * item.quantity).toLocaleString()}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-sm text-muted-foreground">1 unidad</span>
-                        <span className="font-bold text-primary text-sm">
-                          ${(item.price * item.quantity).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1.5 px-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeItem(item.id);
+                      }}
+                      aria-label="Eliminar del carrito"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="text-xs font-medium">Eliminar</span>
+                    </Button>
                   </div>
                 ))}
 

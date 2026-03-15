@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/shared/components/ProductCard";
 import type { Product } from "@/shared/types/product";
@@ -23,9 +23,11 @@ interface SearchContentProps {
 export function SearchContent({ initialProducts }: SearchContentProps) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
+  const initialAgeRange = searchParams.get("ageRange") || "all";
   const [query, setQuery] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
+  const [selectedAgeRange, setSelectedAgeRange] = useState(initialAgeRange);
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -58,6 +60,12 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
       results = results.filter((p) => p.gender === selectedGender);
     }
 
+    if (selectedAgeRange !== "all") {
+      results = results.filter(
+        (p) => (p.ageRange?.trim() || "").toLowerCase() === selectedAgeRange.toLowerCase()
+      );
+    }
+
     switch (sortBy) {
       case "price-asc":
         results = [...results].sort((a, b) => a.price - b.price);
@@ -75,7 +83,7 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
     }
 
     return results;
-  }, [initialProducts, query, selectedCategory, selectedGender, sortBy]);
+  }, [initialProducts, query, selectedCategory, selectedGender, selectedAgeRange, sortBy]);
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
@@ -94,13 +102,36 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
   const clearFilters = () => {
     setSelectedCategory("all");
     setSelectedGender("all");
+    setSelectedAgeRange("all");
     setSortBy("relevance");
   };
 
   const hasActiveFilters =
     selectedCategory !== "all" ||
     selectedGender !== "all" ||
+    selectedAgeRange !== "all" ||
     sortBy !== "relevance";
+
+  const ageRangeOptions = [
+    { value: "all", label: "Todas las edades" },
+    { value: "0-12m", label: "0-12m" },
+    { value: "1-3 años", label: "1-3 años" },
+    { value: "3-6 años", label: "3-6 años" },
+    { value: "6+ años", label: "6+ años" },
+  ];
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedAgeRange !== "all") {
+      params.set("ageRange", selectedAgeRange);
+    } else {
+      params.delete("ageRange");
+    }
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+    window.history.replaceState(null, "", newUrl);
+  }, [selectedAgeRange, searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
@@ -148,6 +179,15 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
                   {selectedCategory} <X className="h-3 w-3" />
                 </Badge>
               )}
+              {selectedAgeRange !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="gap-1 cursor-pointer"
+                  onClick={() => setSelectedAgeRange("all")}
+                >
+                  Edad: {selectedAgeRange} <X className="h-3 w-3" />
+                </Badge>
+              )}
               {selectedGender !== "all" && (
                 <Badge
                   variant="secondary"
@@ -178,7 +218,23 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
         </div>
 
         {showFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 p-4 rounded-xl bg-card border shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 p-4 rounded-xl bg-card border shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Rango de edad</label>
+              <Select value={selectedAgeRange} onValueChange={setSelectedAgeRange}>
+                <SelectTrigger className="rounded-lg">
+                  <SelectValue placeholder="Todas las edades" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ageRangeOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <label className="text-sm font-medium mb-1.5 block">Categoría</label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
