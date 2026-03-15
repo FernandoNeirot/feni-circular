@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Cart } from "./Cart";
 import Image from "next/image";
-import { Search, X, Menu, User } from "lucide-react";
+import { Search, X, Menu, User, ShieldCheck } from "lucide-react";
 import { productsQueryOptions } from "@/shared/queries/productos";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
@@ -18,12 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/shared/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/shared/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/shared/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,7 +42,9 @@ export function Header() {
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
-  const [session, setSession] = useState<{ user: { uid: string; email: string | null } } | null>(null);
+  const [session, setSession] = useState<{ user: { uid: string; email: string | null } } | null>(
+    null
+  );
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -115,7 +112,7 @@ export function Header() {
             (p) =>
               p.name.toLowerCase().includes(query.toLowerCase()) ||
               p.category.toLowerCase().includes(query.toLowerCase()) ||
-              p.brand.toLowerCase().includes(query.toLowerCase()),
+              p.brand.toLowerCase().includes(query.toLowerCase())
           )
           .slice(0, 4)
       : [];
@@ -133,9 +130,7 @@ export function Header() {
           />
           <div className="hidden sm:block text-left">
             <h1 className="text-lg font-bold leading-tight">FENI</h1>
-            <p className="text-[10px] text-muted-foreground leading-none">
-              Ropa Infantil
-            </p>
+            <p className="text-[10px] text-muted-foreground leading-none">Ropa Infantil</p>
           </div>
         </Link>
 
@@ -226,11 +221,7 @@ export function Header() {
               }}
               className="md:hidden p-2 rounded-full hover:bg-muted transition-colors"
             >
-              {searchOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Search className="h-5 w-5" />
-              )}
+              {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
             </button>
           )}
 
@@ -256,7 +247,10 @@ export function Header() {
                   className="text-destructive focus:text-destructive"
                   onClick={async () => {
                     try {
-                      const res = await fetch("/api/auth", { method: "DELETE", credentials: "include" });
+                      const res = await fetch("/api/auth", {
+                        method: "DELETE",
+                        credentials: "include",
+                      });
                       if (res.ok) {
                         setSession(null);
                         router.refresh();
@@ -316,18 +310,26 @@ export function Header() {
 
       <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Iniciar sesión</DialogTitle>
-          </DialogHeader>
+          <div className="flex flex-col items-center text-center pt-2 pb-1">
+            <div className="rounded-full bg-primary/10 p-3 mb-3">
+              <ShieldCheck className="h-8 w-8 text-primary" aria-hidden />
+            </div>
+            <DialogHeader className="space-y-1.5">
+              <DialogTitle>Iniciar sesión</DialogTitle>
+              <p className="text-sm text-muted-foreground font-normal">
+                Acceso solo para administradores. Si no tenés permisos, no necesitás iniciar sesión para comprar.
+              </p>
+            </DialogHeader>
+          </div>
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="login-email">Email</Label>
+              <Label htmlFor="login-email">Email de administrador</Label>
               <Input
                 id="login-email"
                 type="email"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="tu@email.com"
+                placeholder="admin@ejemplo.com"
                 autoComplete="email"
               />
             </div>

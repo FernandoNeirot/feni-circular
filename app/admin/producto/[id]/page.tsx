@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { productsQueryKey, productsQueryOptions } from "@/shared/queries/productos";
 import { uploadProductImage } from "@/shared/serverActions/uploadImage";
+import { cn } from "@/shared/lib/utils";
+import { ZoomableImage } from "@/shared/components/ZoomableImage";
 import {
   productFormSchema,
   type ProductFormValues,
@@ -133,6 +135,8 @@ function buildProductFromForm(data: ProductFormValues, imageUrls: string[]): Pro
     material: data.material?.trim() || undefined,
     usageCount: data.usageCount?.trim() || undefined,
     soldOut: data.soldOut,
+    featured: data.featured,
+    trending: data.trending,
     image,
     images,
     measurements,
@@ -195,6 +199,8 @@ export default function AdminProductFormPage() {
         material: p.material || "",
         usageCount: p.usageCount || "",
         soldOut: p.soldOut ?? false,
+        featured: p.featured ?? false,
+        trending: p.trending ?? false,
         images: imagesData,
         largo: String(p.measurements?.largo ?? ""),
         ancho: String(p.measurements?.ancho ?? ""),
@@ -260,9 +266,35 @@ export default function AdminProductFormPage() {
     e.target.value = "";
   };
 
+  const fieldLabels: Record<string, string> = {
+    name: "Nombre",
+    slug: "URL",
+    price: "Precio",
+    category: "Categoría",
+    size: "Talle",
+    brand: "Marca",
+    condition: "Estado",
+    gender: "Género",
+    ageRange: "Rango de edad",
+  };
+
+  const onInvalid = (errors: Record<string, { message?: string }>) => {
+    const firstKey = Object.keys(errors)[0];
+    const firstError = firstKey ? errors[firstKey] : null;
+    const label = fieldLabels[firstKey ?? ""];
+    let message = firstError?.message ?? "Revisá los campos del formulario";
+    if (message === "Required" && label) {
+      message = `${label} es obligatorio`;
+    }
+    toast.error(message);
+  };
+
   const onSubmit = async (data: ProductFormValues) => {
     const slugToSave = data.slug?.trim();
-    if (!slugToSave) return;
+    if (!slugToSave) {
+      toast.error("La URL es obligatoria");
+      return;
+    }
 
     const allProducts =
       queryClient.getQueryData<(Product & { id: string })[]>(productsQueryKey) ??
@@ -272,7 +304,7 @@ export default function AdminProductFormPage() {
       (p) => p.slug?.toLowerCase() === slugToSave.toLowerCase() && p.id !== id
     );
     if (slugExists) {
-      toast.error("Ese slug ya está usado por otro producto. Elegí uno distinto.");
+      toast.error("Esta URL ya está en uso por otro producto. Elegí otra.");
       return;
     }
 
@@ -377,7 +409,7 @@ export default function AdminProductFormPage() {
           </div>
           <Button
             type="button"
-            onClick={form.handleSubmit(onSubmit)}
+            onClick={form.handleSubmit(onSubmit, onInvalid)}
             disabled={loading || !form.watch("name")?.trim()}
             className="gap-2"
           >
@@ -388,7 +420,7 @@ export default function AdminProductFormPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Información básica</CardTitle>
@@ -398,6 +430,7 @@ export default function AdminProductFormPage() {
                 <Label htmlFor="name">Nombre del producto *</Label>
                 <Input
                   id="name"
+                  className={cn(form.formState.errors.name && "border-destructive focus-visible:ring-destructive")}
                   {...form.register("name")}
                   placeholder="Ej: Vestido Lavanda con Botones"
                   maxLength={100}
@@ -407,16 +440,17 @@ export default function AdminProductFormPage() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
+                <Label htmlFor="slug">URL</Label>
                 <Controller
                   name="slug"
                   control={form.control}
                   render={({ field }) => (
                     <Input
                       id="slug"
+                      className={cn(form.formState.errors.slug && "border-destructive focus-visible:ring-destructive")}
                       {...field}
                       onChange={(e) => field.onChange(normalizeSlug(e.target.value))}
-                      placeholder="solo-letras-numeros-y-guiones"
+                      placeholder="url-del-producto"
                       maxLength={120}
                     />
                   )}
@@ -441,6 +475,7 @@ export default function AdminProductFormPage() {
                   <Label htmlFor="brand">Marca *</Label>
                   <Input
                     id="brand"
+                    className={cn(form.formState.errors.brand && "border-destructive focus-visible:ring-destructive")}
                     {...form.register("brand")}
                     placeholder="Ej: Mimo & Co"
                     maxLength={50}
@@ -485,6 +520,7 @@ export default function AdminProductFormPage() {
                     id="price"
                     type="number"
                     min={0}
+                    className={cn(form.formState.errors.price && "border-destructive focus-visible:ring-destructive")}
                     {...form.register("price")}
                     placeholder="1200"
                   />
@@ -521,7 +557,9 @@ export default function AdminProductFormPage() {
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger
+                          className={cn(form.formState.errors.category && "border-destructive focus-visible:ring-destructive")}
+                        >
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
                         <SelectContent>
@@ -547,8 +585,10 @@ export default function AdminProductFormPage() {
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue />
+                        <SelectTrigger
+                          className={cn(form.formState.errors.gender && "border-destructive focus-visible:ring-destructive")}
+                        >
+                          <SelectValue placeholder="Seleccionar género" />
                         </SelectTrigger>
                         <SelectContent>
                           {genders.map((g) => (
@@ -567,6 +607,7 @@ export default function AdminProductFormPage() {
                   <Label htmlFor="size">Talle *</Label>
                   <Input
                     id="size"
+                    className={cn(form.formState.errors.size && "border-destructive focus-visible:ring-destructive")}
                     {...form.register("size")}
                     placeholder="Ej: 2-3 años"
                     maxLength={20}
@@ -576,13 +617,15 @@ export default function AdminProductFormPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label>Rango de edad</Label>
+                  <Label>Rango de edad *</Label>
                   <Controller
                     name="ageRange"
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value || undefined} onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger
+                          className={cn(form.formState.errors.ageRange && "border-destructive focus-visible:ring-destructive")}
+                        >
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
                         <SelectContent>
@@ -595,6 +638,11 @@ export default function AdminProductFormPage() {
                       </Select>
                     )}
                   />
+                  {form.formState.errors.ageRange && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.ageRange.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -613,7 +661,9 @@ export default function AdminProductFormPage() {
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger
+                          className={cn(form.formState.errors.condition && "border-destructive focus-visible:ring-destructive")}
+                        >
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
                         <SelectContent>
@@ -693,10 +743,11 @@ export default function AdminProductFormPage() {
                 );
               })()}
               <div className="pt-2">
-                <img
+                <ZoomableImage
                   src="/images/REFERENCIA_MEDIDAS.png"
-                  alt="Referencia de medidas"
-                  className="max-w-full h-auto rounded-lg border bg-muted"
+                  alt="Referencia de medidas (clic para ampliar)"
+                  modalTitle="Referencia de medidas"
+                  className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                 />
               </div>
             </CardContent>
@@ -766,12 +817,42 @@ export default function AdminProductFormPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Stock</CardTitle>
+              <CardTitle className="text-lg">Visibilidad y estado</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Marcar como vendido</Label>
+                  <Label>Destacado</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Mostrar en sección de productos destacados
+                  </p>
+                </div>
+                <Controller
+                  name="featured"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  )}
+                />
+              </div>
+              <div className="flex items-center justify-between border-t pt-4">
+                <div>
+                  <Label>Lo más visto de la semana</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Incluir en la sección de tendencias
+                  </p>
+                </div>
+                <Controller
+                  name="trending"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  )}
+                />
+              </div>
+              <div className="flex items-center justify-between border-t pt-4">
+                <div>
+                  <Label>Vendido</Label>
                   <p className="text-sm text-muted-foreground">
                     El producto aparecerá como no disponible
                   </p>

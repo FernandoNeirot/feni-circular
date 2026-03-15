@@ -6,7 +6,7 @@ export const productFormSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(100),
   slug: z
     .string()
-    .min(1, "El slug es obligatorio")
+    .min(1, "La URL es obligatoria")
     .max(120)
     .refine((v) => slugRegex.test(v), "Solo letras, números y guiones"),
   price: z.string().min(1, "El precio es obligatorio").refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Precio inválido"),
@@ -18,11 +18,15 @@ export const productFormSchema = z.object({
   conditionDetail: z.string().max(300).optional(),
   description: z.string().max(500).optional(),
   color: z.string().max(30).optional(),
-  ageRange: z.string().optional(),
-  gender: z.enum(["niña", "niño", "unisex"]),
+  ageRange: z.string().min(1, "Seleccioná un rango de edad"),
+  gender: z.enum(["niña", "niño", "unisex"], {
+    errorMap: () => ({ message: "Seleccioná un género" }),
+  }),
   material: z.string().max(50).optional(),
   usageCount: z.string().max(30).optional(),
   soldOut: z.boolean(),
+  featured: z.boolean(),
+  trending: z.boolean(),
   images: z.array(z.union([z.string(), z.instanceof(File)])).max(3).default([]),
   largo: z.string().optional(),
   ancho: z.string().optional(),
@@ -50,6 +54,8 @@ export const defaultProductFormValues: ProductFormValues = {
   material: "",
   usageCount: "",
   soldOut: false,
+  featured: false,
+  trending: false,
   images: [],
   largo: "",
   ancho: "",

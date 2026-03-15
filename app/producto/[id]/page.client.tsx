@@ -24,25 +24,32 @@ import {
 } from "lucide-react";
 import type { Product } from "@/shared/types/product";
 import { useCart } from "@/shared/components/cart-provider";
+import { useFavorites } from "@/shared/components/favorites-provider";
+import { useShare } from "@/shared/hooks/useShare";
 import { toast } from "sonner";
 import Image from "next/image";
 import { productsQueryOptions } from "@/shared/queries/productos";
+import { ZoomableImage } from "@/shared/components/ZoomableImage";
 
 interface ProductDetailClientProps {
   slug: string;
   initialProduct: (Product & { id: string }) | null;
 }
 
-export default function ProductDetailClient({
-  slug,
-  initialProduct,
-}: ProductDetailClientProps) {
+export default function ProductDetailClient({ slug, initialProduct }: ProductDetailClientProps) {
   const { addToCart, cartItems } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { share } = useShare(
+    {},
+    {
+      onCopyFallback: () => toast.success("Enlace copiado"),
+      onError: () => toast.error("No se pudo compartir"),
+    }
+  );
   const { data: products = [], isPending } = useQuery(productsQueryOptions);
   const productFromCache = slug
-    ? (products as (Product & { id: string })[]).find(
-        (p) => (p.slug ?? String(p.id)) === slug
-      ) ?? null
+    ? ((products as (Product & { id: string })[]).find((p) => (p.slug ?? String(p.id)) === slug) ??
+      null)
     : null;
   const product = productFromCache ?? initialProduct;
   const isInCart = product ? cartItems.some((item) => item.id === product.id) : false;
@@ -83,6 +90,12 @@ export default function ProductDetailClient({
     toast.success(`${product.name} agregado al carrito`);
   };
 
+  const handleToggleFavorite = () => {
+    const wasFavorite = isFavorite(product.id);
+    toggleFavorite(product.id);
+    toast.success(wasFavorite ? "Eliminado de favoritos" : "Agregado a favoritos");
+  };
+
   const images = product.images?.length ? product.images : [product.image];
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -111,7 +124,7 @@ export default function ProductDetailClient({
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
               {product.soldOut && (
                 <div
@@ -233,11 +246,11 @@ export default function ProductDetailClient({
                 {(() => {
                   const m = product.measurements;
                   const entries: Array<{ label: string; value: number }> = [
-                    { label: "Largo", value: m?.largo ?? 0 },
-                    { label: "Ancho", value: m?.ancho ?? 0 },
-                    { label: "Largo manga", value: m?.manga ?? 0 },
-                    { label: "Ancho cintura", value: m?.anchoCintura ?? 0 },
-                    { label: "Entrepierna", value: m?.entrepierna ?? 0 },
+                    { label: "C - Largo", value: m?.largo ?? 0 },
+                    { label: "B - Ancho", value: m?.ancho ?? 0 },
+                    { label: "A - Largo manga", value: m?.manga ?? 0 },
+                    { label: "D - Ancho cintura", value: m?.anchoCintura ?? 0 },
+                    { label: "E - Entrepierna", value: m?.entrepierna ?? 0 },
                   ].filter((e) => e.value > 0);
                   return (
                     <>
@@ -250,10 +263,13 @@ export default function ProductDetailClient({
                         ))}
                       </div>
                       <div className="mt-4 pt-2">
-                        <img
+                        <ZoomableImage
                           src="/images/REFERENCIA_MEDIDAS.png"
                           alt="Referencia de medidas"
+                          modalTitle="Referencia de medidas"
                           className="max-w-full h-auto rounded-lg border bg-muted"
+                          showZoomHint
+                          zoomHintText="Clic para ampliar"
                         />
                       </div>
                     </>
@@ -281,18 +297,26 @@ export default function ProductDetailClient({
               <Button
                 size="lg"
                 variant="outline"
-                className="px-4 opacity-60 cursor-not-allowed"
-                disabled
-                aria-label="Próximamente"
+                className={
+                  isFavorite(product.id) ? "px-4 text-destructive border-destructive/50" : "px-4"
+                }
+                aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                onClick={handleToggleFavorite}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="px-4 opacity-60 cursor-not-allowed"
-                disabled
-                aria-label="Próximamente"
+                className="px-4"
+                aria-label="Compartir"
+                onClick={() =>
+                  share({
+                    title: product.name,
+                    text: `Mirá "${product.name}" (${product.brand}) en FENI Circular`,
+                    url: typeof window !== "undefined" ? window.location.href : undefined,
+                  })
+                }
               >
                 <Share2 className="h-5 w-5" />
               </Button>
@@ -371,11 +395,7 @@ export default function ProductDetailClient({
             En el carrito
           </Button>
         ) : (
-          <Button
-            size="lg"
-            className="flex-1 gap-2"
-            onClick={handleAddToCart}
-          >
+          <Button size="lg" className="flex-1 gap-2" onClick={handleAddToCart}>
             <ShoppingCart className="h-5 w-5" />
             Agregar al carrito
           </Button>
@@ -383,18 +403,28 @@ export default function ProductDetailClient({
         <Button
           size="lg"
           variant="outline"
-          className="shrink-0 px-4 opacity-60"
-          disabled
-          aria-label="Próximamente"
+          className={
+            isFavorite(product.id)
+              ? "shrink-0 px-4 text-destructive border-destructive/50"
+              : "shrink-0 px-4"
+          }
+          aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+          onClick={handleToggleFavorite}
         >
-          <Heart className="h-5 w-5" />
+          <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
         </Button>
         <Button
           size="lg"
           variant="outline"
-          className="shrink-0 px-4 opacity-60"
-          disabled
-          aria-label="Próximamente"
+          className="shrink-0 px-4"
+          aria-label="Compartir"
+          onClick={() =>
+            share({
+              title: product.name,
+              text: `Mirá "${product.name}" (${product.brand}) en FENI Circular`,
+              url: typeof window !== "undefined" ? window.location.href : undefined,
+            })
+          }
         >
           <Share2 className="h-5 w-5" />
         </Button>

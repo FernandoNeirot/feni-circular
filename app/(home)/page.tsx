@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   dehydrate,
   HydrationBoundary,
@@ -5,6 +6,58 @@ import {
 } from "@tanstack/react-query";
 import Pageclient from "./page.client";
 import { productsQueryOptions } from "@/shared/queries/productos";
+import {
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  LOCALE,
+  TWITTER_HANDLE,
+  canonicalUrl,
+  ogImageUrl,
+} from "@/shared/configs/seo";
+
+const OG_IMAGE = "/images/feni-logo.png";
+
+export const metadata: Metadata = {
+  title: {
+    default: `${SITE_NAME} - Ropa Infantil Circular`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  alternates: {
+    canonical: canonicalUrl("/"),
+  },
+  openGraph: {
+    type: "website",
+    locale: LOCALE,
+    url: canonicalUrl("/"),
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} - Ropa Infantil Circular`,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: ogImageUrl(OG_IMAGE),
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} - Logo`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} - Ropa Infantil Circular`,
+    description: SITE_DESCRIPTION,
+    images: [ogImageUrl(OG_IMAGE)],
+    creator: TWITTER_HANDLE,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const ageFilters = [
   { label: "0-12m", emoji: "👶", filter: "0-12m" },

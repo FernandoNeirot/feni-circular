@@ -3,6 +3,7 @@ import { Quicksand } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/shared/components/providers";
 import { CartProvider } from "@/shared/components/cart-provider";
+import { FavoritesProvider } from "@/shared/components/favorites-provider";
 import { Header } from "@/shared/components/Header";
 import { WhatsAppFloatButton } from "@/shared/components/WhatsAppFloatButton";
 
@@ -27,9 +28,11 @@ export default function RootLayout({
       <body className={`${quicksand.variable} font-sans antialiased`}>
         <Providers>
           <CartProvider>
-            <Header />
-            {children}
-            <WhatsAppFloatButton />
+            <FavoritesProvider>
+              <Header />
+              {children}
+              <WhatsAppFloatButton />
+            </FavoritesProvider>
           </CartProvider>
         </Providers>
       </body>

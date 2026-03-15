@@ -4,9 +4,12 @@ import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart, Share2 } from "lucide-react";
 import type { Product } from "@/shared/types/product";
 import { useCart } from "@/shared/components/cart-provider";
+import { useFavorites } from "@/shared/components/favorites-provider";
+import { useShare } from "@/shared/hooks/useShare";
+import { toast } from "sonner";
 import Image from "next/image";
 
 interface ProductCardProps {
@@ -15,7 +18,38 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { share } = useShare(
+    {},
+    {
+      onCopyFallback: () => toast.success("Enlace copiado"),
+      onError: () => toast.error("No se pudo compartir"),
+    }
+  );
   const isSoldOut = product.soldOut;
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const wasFavorite = isFavorite(product.id);
+    toggleFavorite(product.id);
+    toast.success(wasFavorite ? "Eliminado de favoritos" : "Agregado a favoritos");
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/producto/${product.slug || product.id}`
+        : undefined;
+    share({
+      title: product.name,
+      text: `Mirá "${product.name}" (${product.brand}) en FENI Circular`,
+      url,
+    });
+  };
+
   return (
     <Link href={`/producto/${product.slug || product.id}`}>
       <Card
@@ -46,6 +80,30 @@ export function ProductCard({ product }: ProductCardProps) {
                 {product.brand}
               </Badge>
             )}
+            <div className="absolute bottom-3 right-3 flex gap-1.5 z-10">
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                className="h-9 w-9 rounded-full bg-background/90 hover:bg-background shadow-md"
+                aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                onClick={handleLike}
+              >
+                <Heart
+                  className={`h-4 w-4 ${isFavorite(product.id) ? "fill-destructive text-destructive" : ""}`}
+                />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                className="h-9 w-9 rounded-full bg-background/90 hover:bg-background shadow-md"
+                aria-label="Compartir"
+                onClick={handleShare}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div className="p-4 space-y-3">
             <div>

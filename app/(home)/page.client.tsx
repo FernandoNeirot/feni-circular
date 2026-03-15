@@ -6,6 +6,7 @@ import { HeroCarousel } from '@/shared/components/HeroCarousel'
 import { ProductGrid } from '@/shared/components/ProductGrid'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { useFavorites } from '@/shared/components/favorites-provider'
 import { productsQueryOptions } from '@/shared/queries/productos'
 import { Droplets, Heart, Instagram, Leaf, Recycle, Star } from 'lucide-react'
 
@@ -23,9 +24,13 @@ interface PageclientProps {
 }
 
 const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
+  const { favoriteIds } = useFavorites()
   const { data: products = [] } = useQuery(productsQueryOptions)
   const featuredProducts = [...products].sort((a, b) => (a.featured ? -1 : b.featured ? 1 : 0)).slice(0, 4)
   const trendingProducts = [...products].sort((a, b) => (a.trending ? -1 : b.trending ? 1 : 0)).slice(0, 4)
+  const favoriteProducts = products.filter((p) =>
+    favoriteIds.includes(String(p.id))
+  )
   const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ''}`
   )}`
@@ -129,6 +134,13 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   title="🔥 Los Más Vistos de la Semana"
   products={trendingProducts}
 />
+
+{favoriteProducts.length >= 1 && (
+  <ProductGrid
+    title="❤️ Mis favoritos"
+    products={favoriteProducts}
+  />
+)}
 
 <section className="py-16 px-4 md:px-8 bg-muted/30">
   <div className="max-w-5xl mx-auto">
