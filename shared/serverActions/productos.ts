@@ -23,7 +23,7 @@ export async function createProductWithData(data: Product): Promise<boolean | nu
 export async function getAllProducts(): Promise<Product[] | null> {
   try {
     const res = await fetch(`${getApiBase()}/api/productos`, {
-      next: { revalidate: 120 },
+      next: { revalidate: 60 * 60 },
     });
     if (!res.ok) return null;
     const data = await res.json();
