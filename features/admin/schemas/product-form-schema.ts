@@ -64,6 +64,22 @@ export const defaultProductFormValues: ProductFormValues = {
   entrepierna: "",
 };
 
+/**
+ * Normaliza un texto para usarlo como URL/slug:
+ * - Espacios → guiones
+ * - Quita acentos (campeón → campeon)
+ * - Solo deja letras, números y guiones
+ * - Minúsculas, sin guiones repetidos ni al inicio/final
+ */
 export function normalizeSlug(value: string): string {
-  return value.replace(/[^a-zA-Z0-9-]/g, "");
+  if (!value || typeof value !== "string") return "";
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // quitar acentos/diacríticos
+    .replace(/\s+/g, "-") // espacios → guión
+    .replace(/[^a-z0-9-]/g, "") // solo letras, números y guiones
+    .replace(/-+/g, "-") // colapsar guiones repetidos
+    .replace(/^-+|-+$/g, ""); // quitar guiones al inicio/final
 }

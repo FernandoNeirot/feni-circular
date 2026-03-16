@@ -50,15 +50,12 @@ export default function AdminProductFormPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const images = form.watch("images");
+  const name = form.watch("name");
 
   useEffect(() => {
     if (isEditing) return;
-    const name = form.watch("name");
-    const slug = form.watch("slug");
-    if (!slug && name?.trim()) {
-      form.setValue("slug", normalizeSlug(name), { shouldValidate: true });
-    }
-  });
+    form.setValue("slug", normalizeSlug(name ?? ""), { shouldValidate: true });
+  }, [name, isEditing, form]);
 
   useEffect(() => {
     blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));

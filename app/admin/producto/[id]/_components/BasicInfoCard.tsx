@@ -8,14 +8,12 @@ import { cn } from "@/shared/lib/utils";
 import type { ProductFormValues } from "@/features/admin";
 import type { UseFormReturn } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { normalizeSlug } from "@/features/admin";
-
 type BasicInfoCardProps = {
   form: UseFormReturn<ProductFormValues>;
   isEditing: boolean;
 };
 
-export function BasicInfoCard({ form, isEditing }: BasicInfoCardProps) {
+export function BasicInfoCard({ form }: BasicInfoCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -49,9 +47,9 @@ export function BasicInfoCard({ form, isEditing }: BasicInfoCardProps) {
                   form.formState.errors.slug && "border-destructive focus-visible:ring-destructive"
                 )}
                 {...field}
-                disabled={isEditing}
-                onChange={(e) => field.onChange(normalizeSlug(e.target.value))}
-                placeholder="url-del-producto"
+                disabled
+                readOnly
+                placeholder="Se genera automáticamente desde el nombre"
                 maxLength={120}
               />
             )}
@@ -59,7 +57,9 @@ export function BasicInfoCard({ form, isEditing }: BasicInfoCardProps) {
           {form.formState.errors.slug && (
             <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
           )}
-          <p className="text-xs text-muted-foreground">Solo letras, números y guiones</p>
+          <p className="text-xs text-muted-foreground">
+            Se genera desde el nombre (espacios → guiones, sin acentos ni caracteres especiales)
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="description">Descripción</Label>

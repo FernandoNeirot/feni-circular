@@ -7,6 +7,7 @@ import { FavoritesProvider } from "@/shared/components/favorites-provider";
 import { Header } from "@/shared/components/Header";
 import { WhatsAppFloatButton } from "@/shared/components/WhatsAppFloatButton";
 import { WhatsAppVisibilityProvider } from "@/shared/components/WhatsAppVisibilityContext";
+import { ScrollToTop } from "@/shared/components/ScrollToTop";
 
 const quicksand = Quicksand({
   variable: "--font-quicksand",
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${quicksand.variable} font-sans antialiased`}>
         <Providers>
+          <ScrollToTop />
           <CartProvider>
             <FavoritesProvider>
               <WhatsAppVisibilityProvider>
