@@ -24,11 +24,13 @@ feni-circular/
 │   └── admin/              # Formularios y lógica de admin
 │
 ├── shared/                 # Código transversal (no pertenece a una feature)
-│   ├── ui/                 # Design system (componentes base)
+│   ├── components/        # Design system (ui/) y componentes compartidos
 │   ├── lib/                # Utilidades, helpers
-│   ├── config/             # Configuración (Firebase, SEO, etc.)
+│   ├── configs/            # Configuración (Firebase, SEO, etc.)
 │   ├── types/              # Tipos de dominio compartidos
-│   └── hooks/              # Hooks reutilizables entre features
+│   ├── hooks/              # Hooks reutilizables entre features
+│   ├── queries/            # React Query (claves y opciones, ej. productos)
+│   └── serverActions/      # Server actions transversales (productos, imágenes, auth)
 │
 └── public/
 ```
@@ -49,7 +51,7 @@ Cada feature agrupa todo lo que pertenece a una capacidad de la app:
 
 | Feature       | Contiene                                                                          |
 | ------------- | --------------------------------------------------------------------------------- |
-| **products**  | Queries (React Query), componentes de listado/detalle (ProductCard, ProductGrid). |
+| **products**  | Reexportaciones/index; queries y componentes de listado en shared (queries/productos, ProductCard, ProductGrid). |
 | **cart**      | Provider del carrito, componente Cart, persistencia en localStorage.              |
 | **favorites** | Provider de favoritos, persistencia en localStorage.                              |
 | **auth**      | Server actions de login/sesión, helpers para rutas protegidas.                    |
@@ -63,11 +65,13 @@ Reglas:
 
 ### `shared/` — Transversal
 
-- **ui/**: botones, inputs, dialogs, cards, etc. (design system).
-- **lib/**: `cn()`, formateos, validaciones genéricas.
-- **config/**: Firebase (client/admin), SEO, constantes de app.
+- **components/**: botones, inputs, dialogs, cards, etc. (design system en `ui/`) y componentes compartidos (Header, ProductGrid, etc.).
+- **lib/**: `cn()`, formateos, validaciones genéricas, upload/borrado de imágenes en servidor.
+- **configs/**: Firebase (client/admin), SEO, constantes de app.
 - **types/**: modelos de dominio (Product, CartItem, etc.) usados en varias features.
 - **hooks/**: por ejemplo `useShare`, hooks que usan varias features.
+- **queries/**: opciones y claves de React Query (ej. `productsQueryOptions`, `productsQueryKey`).
+- **serverActions/**: acciones de servidor transversales: productos (crear, actualizar, eliminar), subida de imágenes, auth.
 
 ---
 
@@ -77,7 +81,7 @@ Reglas:
 
 ```
 app/(home) o app/buscar o app/producto/[id]
-  → useQuery(productsQueryOptions)  [features/products]
+  → useQuery(productsQueryOptions)  [shared/queries/productos]
   → GET /api/productos (o /api/productos/[id])
   → Firestore (server)
   → JSON → React Query cache → UI (ProductCard, ProductGrid, etc.)
@@ -98,9 +102,9 @@ app/(home) o app/buscar o app/producto/[id]
 ```
 app/admin/producto/[id]
   → Form (react-hook-form + schema en features/admin)
-  → onSubmit → buildProductFromForm → PUT/POST /api/productos
-  → API route → Firestore
-  → invalidate / refetch products query
+  → onSubmit → buildProductFromForm → server actions (uploadProductImage, createProductWithData, updateProduct)
+  → Server actions llaman a API (PUT/POST /api/productos) → Firestore
+  → setQueryData(productsQueryKey) en éxito
 ```
 
 ---
@@ -111,7 +115,7 @@ app/admin/producto/[id]
 - **Client/Server**: marcar con `"use client"` solo los componentes que usan hooks, contexto o eventos; el resto puede ser server component.
 - **Imports**: usar alias `@/features/*`, `@/shared/*`, `@/*` (según `tsconfig.json`).
 - **Tipos**: definir interfaces en `shared/types` cuando se usan en más de una feature; tipos locales dentro del feature.
-- **Queries**: React Query en `features/products` (u otra feature); clave y opciones exportadas para reutilizar e invalidar.
+- **Queries**: React Query en `shared/queries` (clave y opciones exportadas para reutilizar, invalidar o setQueryData).
 
 ---
 
@@ -121,15 +125,16 @@ app/admin/producto/[id]
 | ------------------------------------------- | ---------------------------------------------------- |
 | Nueva página o ruta                         | `app/...`                                            |
 | Nuevo endpoint REST                         | `app/api/...`                                        |
-| Lógica de productos                         | `features/products`                                  |
+| Lógica de productos                         | `features/products` / `shared/queries` (queries)     |
 | Lógica de carrito                           | `features/cart`                                      |
 | Lógica de favoritos                         | `features/favorites`                                 |
 | Lógica de auth                              | `features/auth`                                      |
 | Formularios/schemas admin                   | `features/admin`                                     |
-| Componente reutilizable (botón, card, etc.) | `shared/ui` o componente compartido en `shared/`     |
+| Server actions (productos, imágenes, auth)  | `shared/serverActions/`                              |
+| Componente reutilizable (botón, card, etc.) | `shared/components/` (design system en `ui/`)        |
 | Utilidad o helper                           | `shared/lib`                                         |
 | Tipo usado en varias features               | `shared/types`                                       |
-| Hook reutilizable                           | `shared/hooks` o dentro del feature si es específico |
+| Hook reutilizable                           | `shared/hooks` o dentro del feature si es específico  |
 
 ---
 
@@ -138,6 +143,6 @@ app/admin/producto/[id]
 - **Framework**: Next.js (App Router).
 - **UI**: React, Tailwind CSS, componentes en `shared/ui`.
 - **Estado**: React Query (servidor), Context + localStorage (carrito, favoritos).
-- **Backend**: API Routes + Firestore (Firebase Admin en server).
+- **Backend**: API Routes + Firestore (Firebase Admin en server). Escrituras desde la app vía Server Actions (`shared/serverActions/`) que llaman a la API.
 - **Validación**: Zod (schemas en `features/admin` y donde haga falta).
 - **Formularios**: react-hook-form + Zod.

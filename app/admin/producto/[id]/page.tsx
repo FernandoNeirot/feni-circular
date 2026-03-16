@@ -3,29 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Product, ProductMeasurements } from "@/shared/types/product";
+import type { Product } from "@/shared/types/product";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
-import { ArrowLeft, Save, ImagePlus, X } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { productsQueryKey, productsQueryOptions } from "@/shared/queries/productos";
 import { uploadProductImage } from "@/shared/serverActions/uploadImage";
-import { cn } from "@/shared/lib/utils";
-import { ZoomableImage } from "@/shared/components/ZoomableImage";
+import { createProductWithData, updateProduct } from "@/shared/serverActions/productos";
 import {
   productFormSchema,
   type ProductFormValues,
@@ -33,115 +20,17 @@ import {
   normalizeSlug,
 } from "@/features/admin";
 
-const categories = [
-  "Abrigos",
-  "Bolsos",
-  "Calzados",
-  "Enteritos",
-  "Pantalones",
-  "Remeras",
-  "Vestidos",
-];
-
-/** Campos de medidas por categoría. Claves: manga (A), ancho (B), largo (C), anchoCintura (D), entrepierna (E) */
-const categoryMeasurementFields: Record<
-  string,
-  Array<{ key: "manga" | "ancho" | "largo" | "anchoCintura" | "entrepierna"; label: string }>
-> = {
-  Abrigos: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "anchoCintura", label: "D - Ancho cintura" },
-  ],
-  Bolsos: [
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-  ],
-  Enteritos: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "anchoCintura", label: "D - Ancho cintura" },
-  ],
-  Calzados: [
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-  ],
-  Pantalones: [
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "entrepierna", label: "E - Entrepierna" },
-  ],
-  Remeras: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-  ],
-  Vestidos: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "anchoCintura", label: "D - Ancho cintura" },
-  ],
-};
-
-const conditions = ["Como nuevo", "Excelente", "Muy bueno", "Bueno"];
-const genders: Array<{ value: "niña" | "niño" | "unisex"; label: string }> = [
-  { value: "niña", label: "Niña" },
-  { value: "niño", label: "Niño" },
-  { value: "unisex", label: "Unisex" },
-];
-const ageRanges = [
-  { value: "0-12m", label: "👶 0-12m" },
-  { value: "1-3 años", label: "🧒 1-3 años" },
-  { value: "3-6 años", label: "👦 3-6 años" },
-  { value: "6+ años", label: "🎒 6+ años" },
-];
-
-const emptyMeasurements: ProductMeasurements = {
-  largo: 0,
-  ancho: 0,
-  manga: undefined,
-  anchoCintura: undefined,
-  entrepierna: undefined,
-};
-
-function buildProductFromForm(data: ProductFormValues, imageUrls: string[]): Product {
-  const measurements: ProductMeasurements = {
-    ...emptyMeasurements,
-    largo: Number(data.largo) || 0,
-    ancho: Number(data.ancho) || 0,
-    manga: data.manga ? Number(data.manga) : undefined,
-    anchoCintura: data.anchoCintura ? Number(data.anchoCintura) : undefined,
-    entrepierna: data.entrepierna ? Number(data.entrepierna) : undefined,
-  };
-  const images = imageUrls.length > 0 ? imageUrls : ["/images/placeholder.jpg"];
-  const image = images[0]!;
-  return {
-    name: data.name.trim(),
-    slug: data.slug?.trim() || undefined,
-    price: Number(data.price) || 0,
-    originalPrice: data.originalPrice ? Number(data.originalPrice) : undefined,
-    category: data.category,
-    size: data.size,
-    brand: data.brand,
-    condition: data.condition,
-    conditionDetail: data.conditionDetail?.trim() || undefined,
-    description: data.description?.trim() ?? "",
-    color: data.color?.trim() ?? "",
-    ageRange: data.ageRange?.trim() ?? "",
-    gender: data.gender,
-    material: data.material?.trim() || undefined,
-    usageCount: data.usageCount?.trim() || undefined,
-    soldOut: data.soldOut,
-    featured: data.featured,
-    trending: data.trending,
-    image,
-    images,
-    measurements,
-  };
-}
+import { buildProductFromForm } from "./buildProduct";
+import { fieldLabels } from "./constants";
+import {
+  BasicInfoCard,
+  PriceCard,
+  ClassificationCard,
+  ConditionCard,
+  MeasurementsCard,
+  ImagesCard,
+  VisibilityCard,
+} from "./_components";
 
 export default function AdminProductFormPage() {
   const router = useRouter();
@@ -245,14 +134,7 @@ export default function AdminProductFormPage() {
         toast.error("Error al cargar el producto");
         setLoading(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- form/queryClient stable, only re-run when id/isEditing changes
   }, [id, isEditing]);
-
-  const addImageUrl = (url: string) => {
-    const trimmed = url.trim();
-    if (!trimmed || images.length >= 3) return;
-    form.setValue("images", [...images, trimmed]);
-  };
 
   const moveImage = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= images.length) return;
@@ -281,18 +163,6 @@ export default function AdminProductFormPage() {
     const toAdd = Array.from(files).slice(0, remaining);
     form.setValue("images", [...images, ...toAdd]);
     e.target.value = "";
-  };
-
-  const fieldLabels: Record<string, string> = {
-    name: "Nombre",
-    slug: "URL",
-    price: "Precio",
-    category: "Categoría",
-    size: "Talle",
-    brand: "Marca",
-    condition: "Estado",
-    gender: "Género",
-    ageRange: "Rango de edad",
   };
 
   const onInvalid = (errors: Record<string, { message?: string }>) => {
@@ -333,26 +203,12 @@ export default function AdminProductFormPage() {
       let uploadedUrls: string[] = [];
 
       if (pendingFiles.length > 0) {
-        if (isEditing && id) {
-          for (const file of pendingFiles) {
-            const fd = new FormData();
-            fd.append("image", file);
-            const result = await uploadProductImage(slugToSave, fd);
-            if (!result.success) throw new Error(result.error);
-            uploadedUrls.push(result.data.url);
-          }
-        } else {
-          for (const file of pendingFiles) {
-            const fd = new FormData();
-            fd.append("image", file);
-            const res = await fetch(
-              `/api/images?folder=${encodeURIComponent(`feni-circular/producto/${slugToSave}`)}`,
-              { method: "POST", body: fd }
-            );
-            const json = await res.json();
-            if (!res.ok || !json.data?.url) throw new Error(json.error || "Error al subir imagen");
-            uploadedUrls.push(json.data.url);
-          }
+        for (const file of pendingFiles) {
+          const fd = new FormData();
+          fd.append("image", file);
+          const result = await uploadProductImage(slugToSave, fd);
+          if (!result.success) throw new Error(result.error);
+          uploadedUrls.push(result.data.url);
         }
       }
 
@@ -360,13 +216,8 @@ export default function AdminProductFormPage() {
       const body = buildProductFromForm(data, finalImages);
 
       if (isEditing && id) {
-        const res = await fetch(`/api/productos/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        const resData = await res.json();
-        if (resData.success !== false) {
+        const result = await updateProduct(id, body);
+        if (result.success) {
           queryClient.setQueryData(
             productsQueryKey,
             (prev: (Product & { id: string })[] | undefined) =>
@@ -375,27 +226,20 @@ export default function AdminProductFormPage() {
           toast.success("Producto actualizado");
           router.push("/admin");
         } else {
-          toast.error(resData.error || "Error al actualizar");
+          toast.error(result.error);
         }
       } else {
-        const res = await fetch("/api/productos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        const resData = await res.json();
-        if (resData.success !== false) {
-          if (resData.product) {
-            queryClient.setQueryData(
-              productsQueryKey,
-              (prev: (Product & { id: string })[] | undefined) =>
-                prev ? [...prev, resData.product] : [resData.product]
-            );
-          }
+        const result = await createProductWithData(body);
+        if (result.success) {
+          queryClient.setQueryData(
+            productsQueryKey,
+            (prev: (Product & { id: string })[] | undefined) =>
+              prev ? [...prev, result.product] : [result.product]
+          );
           toast.success("Producto creado");
           router.push("/admin");
         } else {
-          toast.error(resData.error || "Error al crear");
+          toast.error(result.error);
         }
       }
     } catch (err) {
@@ -450,520 +294,20 @@ export default function AdminProductFormPage() {
 
       <main className="max-w-3xl mx-auto px-4 py-8">
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Información básica</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nombre del producto *</Label>
-                <Input
-                  id="name"
-                  className={cn(
-                    form.formState.errors.name &&
-                      "border-destructive focus-visible:ring-destructive"
-                  )}
-                  {...form.register("name")}
-                  placeholder="Ej: Vestido Lavanda con Botones"
-                  maxLength={100}
-                />
-                {form.formState.errors.name && (
-                  <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="slug">URL</Label>
-                <Controller
-                  name="slug"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input
-                      id="slug"
-                      className={cn(
-                        form.formState.errors.slug &&
-                          "border-destructive focus-visible:ring-destructive"
-                      )}
-                      {...field}
-                      disabled={Boolean(isEditing)}
-                      onChange={(e) => field.onChange(normalizeSlug(e.target.value))}
-                      placeholder="url-del-producto"
-                      maxLength={120}
-                    />
-                  )}
-                />
-                {form.formState.errors.slug && (
-                  <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
-                )}
-                <p className="text-xs text-muted-foreground">Solo letras, números y guiones</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Descripción</Label>
-                <Textarea
-                  id="description"
-                  {...form.register("description")}
-                  placeholder="Describí la prenda, su historia, detalles..."
-                  rows={3}
-                  maxLength={500}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Marca *</Label>
-                  <Input
-                    id="brand"
-                    className={cn(
-                      form.formState.errors.brand &&
-                        "border-destructive focus-visible:ring-destructive"
-                    )}
-                    {...form.register("brand")}
-                    placeholder="Ej: Mimo & Co"
-                    maxLength={50}
-                  />
-                  {form.formState.errors.brand && (
-                    <p className="text-sm text-destructive">
-                      {form.formState.errors.brand.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="color">Color</Label>
-                  <Input
-                    id="color"
-                    {...form.register("color")}
-                    placeholder="Ej: Lavanda"
-                    maxLength={30}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="material">Material</Label>
-                <Input
-                  id="material"
-                  {...form.register("material")}
-                  placeholder="Ej: 100% Algodón"
-                  maxLength={50}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Precio</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">Precio de venta *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min={0}
-                    className={cn(
-                      form.formState.errors.price &&
-                        "border-destructive focus-visible:ring-destructive"
-                    )}
-                    {...form.register("price")}
-                    placeholder="1200"
-                  />
-                  {form.formState.errors.price && (
-                    <p className="text-sm text-destructive">
-                      {form.formState.errors.price.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="originalPrice">Precio original</Label>
-                  <Input
-                    id="originalPrice"
-                    type="number"
-                    min={0}
-                    {...form.register("originalPrice")}
-                    placeholder="4500"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Clasificación</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Categoría *</Label>
-                  <Controller
-                    name="category"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger
-                          className={cn(
-                            form.formState.errors.category &&
-                              "border-destructive focus-visible:ring-destructive"
-                          )}
-                        >
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {form.formState.errors.category && (
-                    <p className="text-sm text-destructive">
-                      {form.formState.errors.category.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Género *</Label>
-                  <Controller
-                    name="gender"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger
-                          className={cn(
-                            form.formState.errors.gender &&
-                              "border-destructive focus-visible:ring-destructive"
-                          )}
-                        >
-                          <SelectValue placeholder="Seleccionar género" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {genders.map((g) => (
-                            <SelectItem key={g.value} value={g.value}>
-                              {g.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="size">Talle *</Label>
-                  <Input
-                    id="size"
-                    className={cn(
-                      form.formState.errors.size &&
-                        "border-destructive focus-visible:ring-destructive"
-                    )}
-                    {...form.register("size")}
-                    placeholder="Ej: 2-3 años"
-                    maxLength={20}
-                  />
-                  {form.formState.errors.size && (
-                    <p className="text-sm text-destructive">{form.formState.errors.size.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Rango de edad *</Label>
-                  <Controller
-                    name="ageRange"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value || undefined} onValueChange={field.onChange}>
-                        <SelectTrigger
-                          className={cn(
-                            form.formState.errors.ageRange &&
-                              "border-destructive focus-visible:ring-destructive"
-                          )}
-                        >
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ageRanges.map((a) => (
-                            <SelectItem key={a.value} value={a.value}>
-                              {a.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {form.formState.errors.ageRange && (
-                    <p className="text-sm text-destructive">
-                      {form.formState.errors.ageRange.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Estado de la prenda</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Estado *</Label>
-                  <Controller
-                    name="condition"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger
-                          className={cn(
-                            form.formState.errors.condition &&
-                              "border-destructive focus-visible:ring-destructive"
-                          )}
-                        >
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {conditions.map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {form.formState.errors.condition && (
-                    <p className="text-sm text-destructive">
-                      {form.formState.errors.condition.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="usageCount">Cantidad de usos</Label>
-                  <Input
-                    id="usageCount"
-                    {...form.register("usageCount")}
-                    placeholder="Ej: Usado 2 veces"
-                    maxLength={30}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="conditionDetail">Detalle del estado</Label>
-                <Textarea
-                  id="conditionDetail"
-                  {...form.register("conditionDetail")}
-                  placeholder="Ej: Sin manchas ni roturas"
-                  rows={3}
-                  maxLength={300}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Medidas (cm)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {(() => {
-                const category = form.watch("category");
-                const fields = category ? categoryMeasurementFields[category] : null;
-                if (!fields?.length) {
-                  return (
-                    <p className="text-sm text-muted-foreground">
-                      Seleccioná una categoría para cargar los campos de medidas.
-                    </p>
-                  );
-                }
-                return (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {fields.map(({ key, label }) => (
-                      <div key={key} className="space-y-2">
-                        <Label htmlFor={`measure-${key}`}>{label}</Label>
-                        <div className="relative">
-                          <Input
-                            id={`measure-${key}`}
-                            type="number"
-                            min={0}
-                            className="pr-10"
-                            {...form.register(key)}
-                          />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
-                            cm
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              <div className="pt-2">
-                <ZoomableImage
-                  src={
-                    form.watch("category")
-                      ? `/images/medidas_${form
-                          .watch("category")
-                          ?.normalize("NFD")
-                          .replace(/[\u0300-\u036f]/g, "")
-                          .toLowerCase()}.png`
-                      : "/images/REFERENCIA_MEDIDAS.png"
-                  }
-                  alt="Referencia de medidas (clic para ampliar)"
-                  modalTitle="Referencia de medidas"
-                  className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Imágenes (máx. 3)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {previewUrls.length > 0 && (
-                <div className="flex flex-wrap gap-3">
-                  {previewUrls.map((url, index) => {
-                    const isFirst = index === 0;
-                    return (
-                      <div
-                        key={`preview-${index}`}
-                        className="relative group w-24 h-24 rounded-lg overflow-hidden border bg-muted shrink-0"
-                      >
-                        <img
-                          src={url}
-                          alt={`Vista previa ${index + 1}${isFirst ? " (principal)" : ""}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                          }}
-                        />
-                        {isFirst && (
-                          <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                            Principal
-                          </span>
-                        )}
-                        <div className="absolute inset-x-1 bottom-1 flex justify-between gap-1">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="icon"
-                            className="h-6 w-6 bg-black/60 text-white hover:bg-black/80"
-                            onClick={() => moveImage(index, index - 1)}
-                            disabled={index === 0}
-                            aria-label="Mover a la izquierda"
-                          >
-                            {"‹"}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="icon"
-                            className="h-6 w-6 bg-black/60 text-white hover:bg-black/80"
-                            onClick={() => moveImage(index, index + 1)}
-                            disabled={index === previewUrls.length - 1}
-                            aria-label="Mover a la derecha"
-                          >
-                            {"›"}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="h-6 w-6 opacity-90 group-hover:opacity-100"
-                            onClick={() => removeImage(index)}
-                            aria-label="Quitar imagen"
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              {images.length < 3 && (
-                <>
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => imageInputRef.current?.click()}
-                    onKeyDown={(e) => e.key === "Enter" && imageInputRef.current?.click()}
-                    className="border-2 border-dashed rounded-xl p-8 text-center text-muted-foreground space-y-2 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
-                  >
-                    <ImagePlus className="h-8 w-8 mx-auto" />
-                    <p className="text-sm">
-                      Hacé clic para elegir hasta {3 - images.length} imagen(es) (se subirán al
-                      guardar)
-                    </p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Visibilidad y estado</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Destacado</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Mostrar en sección de productos destacados
-                  </p>
-                </div>
-                <Controller
-                  name="featured"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  )}
-                />
-              </div>
-              <div className="flex items-center justify-between border-t pt-4">
-                <div>
-                  <Label>Lo más visto de la semana</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Incluir en la sección de tendencias
-                  </p>
-                </div>
-                <Controller
-                  name="trending"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  )}
-                />
-              </div>
-              <div className="flex items-center justify-between border-t pt-4">
-                <div>
-                  <Label>Vendido</Label>
-                  <p className="text-sm text-muted-foreground">
-                    El producto aparecerá como no disponible
-                  </p>
-                </div>
-                <Controller
-                  name="soldOut"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <BasicInfoCard form={form} isEditing={!!isEditing} />
+          <PriceCard form={form} />
+          <ClassificationCard form={form} />
+          <ConditionCard form={form} />
+          <MeasurementsCard form={form} />
+          <ImagesCard
+            images={images}
+            previewUrls={previewUrls}
+            moveImage={moveImage}
+            removeImage={removeImage}
+            imageInputRef={imageInputRef}
+            handleFileSelect={handleFileSelect}
+          />
+          <VisibilityCard form={form} />
 
           <div className="flex gap-3 justify-end pb-8">
             <Button type="button" variant="outline" asChild>
