@@ -163,6 +163,15 @@ export default function AdminProductFormPage() {
   const images = form.watch("images");
 
   useEffect(() => {
+    if (isEditing) return;
+    const name = form.watch("name");
+    const slug = form.watch("slug");
+    if (!slug && name?.trim()) {
+      form.setValue("slug", normalizeSlug(name), { shouldValidate: true });
+    }
+  });
+
+  useEffect(() => {
     blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
     blobUrlsRef.current = [];
     const urls = images.map((item: string | File) =>
@@ -243,6 +252,14 @@ export default function AdminProductFormPage() {
     const trimmed = url.trim();
     if (!trimmed || images.length >= 3) return;
     form.setValue("images", [...images, trimmed]);
+  };
+
+  const moveImage = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= images.length) return;
+    const next = [...images];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    form.setValue("images", next);
   };
 
   const removeImage = (index: number) => {
@@ -419,6 +436,15 @@ export default function AdminProductFormPage() {
         </div>
       </header>
 
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="text-sm text-muted-foreground">Guardando producto...</p>
+          </div>
+        </div>
+      )}
+
       <main className="max-w-3xl mx-auto px-4 py-8">
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
           <Card>
@@ -430,7 +456,10 @@ export default function AdminProductFormPage() {
                 <Label htmlFor="name">Nombre del producto *</Label>
                 <Input
                   id="name"
-                  className={cn(form.formState.errors.name && "border-destructive focus-visible:ring-destructive")}
+                  className={cn(
+                    form.formState.errors.name &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
                   {...form.register("name")}
                   placeholder="Ej: Vestido Lavanda con Botones"
                   maxLength={100}
@@ -447,8 +476,12 @@ export default function AdminProductFormPage() {
                   render={({ field }) => (
                     <Input
                       id="slug"
-                      className={cn(form.formState.errors.slug && "border-destructive focus-visible:ring-destructive")}
+                      className={cn(
+                        form.formState.errors.slug &&
+                          "border-destructive focus-visible:ring-destructive"
+                      )}
                       {...field}
+                      disabled={Boolean(isEditing)}
                       onChange={(e) => field.onChange(normalizeSlug(e.target.value))}
                       placeholder="url-del-producto"
                       maxLength={120}
@@ -475,7 +508,10 @@ export default function AdminProductFormPage() {
                   <Label htmlFor="brand">Marca *</Label>
                   <Input
                     id="brand"
-                    className={cn(form.formState.errors.brand && "border-destructive focus-visible:ring-destructive")}
+                    className={cn(
+                      form.formState.errors.brand &&
+                        "border-destructive focus-visible:ring-destructive"
+                    )}
                     {...form.register("brand")}
                     placeholder="Ej: Mimo & Co"
                     maxLength={50}
@@ -520,7 +556,10 @@ export default function AdminProductFormPage() {
                     id="price"
                     type="number"
                     min={0}
-                    className={cn(form.formState.errors.price && "border-destructive focus-visible:ring-destructive")}
+                    className={cn(
+                      form.formState.errors.price &&
+                        "border-destructive focus-visible:ring-destructive"
+                    )}
                     {...form.register("price")}
                     placeholder="1200"
                   />
@@ -558,7 +597,10 @@ export default function AdminProductFormPage() {
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger
-                          className={cn(form.formState.errors.category && "border-destructive focus-visible:ring-destructive")}
+                          className={cn(
+                            form.formState.errors.category &&
+                              "border-destructive focus-visible:ring-destructive"
+                          )}
                         >
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
@@ -586,7 +628,10 @@ export default function AdminProductFormPage() {
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger
-                          className={cn(form.formState.errors.gender && "border-destructive focus-visible:ring-destructive")}
+                          className={cn(
+                            form.formState.errors.gender &&
+                              "border-destructive focus-visible:ring-destructive"
+                          )}
                         >
                           <SelectValue placeholder="Seleccionar género" />
                         </SelectTrigger>
@@ -607,7 +652,10 @@ export default function AdminProductFormPage() {
                   <Label htmlFor="size">Talle *</Label>
                   <Input
                     id="size"
-                    className={cn(form.formState.errors.size && "border-destructive focus-visible:ring-destructive")}
+                    className={cn(
+                      form.formState.errors.size &&
+                        "border-destructive focus-visible:ring-destructive"
+                    )}
                     {...form.register("size")}
                     placeholder="Ej: 2-3 años"
                     maxLength={20}
@@ -624,7 +672,10 @@ export default function AdminProductFormPage() {
                     render={({ field }) => (
                       <Select value={field.value || undefined} onValueChange={field.onChange}>
                         <SelectTrigger
-                          className={cn(form.formState.errors.ageRange && "border-destructive focus-visible:ring-destructive")}
+                          className={cn(
+                            form.formState.errors.ageRange &&
+                              "border-destructive focus-visible:ring-destructive"
+                          )}
                         >
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
@@ -662,7 +713,10 @@ export default function AdminProductFormPage() {
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger
-                          className={cn(form.formState.errors.condition && "border-destructive focus-visible:ring-destructive")}
+                          className={cn(
+                            form.formState.errors.condition &&
+                              "border-destructive focus-visible:ring-destructive"
+                          )}
                         >
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
@@ -744,7 +798,15 @@ export default function AdminProductFormPage() {
               })()}
               <div className="pt-2">
                 <ZoomableImage
-                  src="/images/REFERENCIA_MEDIDAS.png"
+                  src={
+                    form.watch("category")
+                      ? `/images/medidas_${form
+                          .watch("category")
+                          ?.normalize("NFD")
+                          .replace(/[\u0300-\u036f]/g, "")
+                          .toLowerCase()}.png`
+                      : "/images/REFERENCIA_MEDIDAS.png"
+                  }
                   alt="Referencia de medidas (clic para ampliar)"
                   modalTitle="Referencia de medidas"
                   className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
@@ -760,31 +822,63 @@ export default function AdminProductFormPage() {
             <CardContent className="space-y-4">
               {previewUrls.length > 0 && (
                 <div className="flex flex-wrap gap-3">
-                  {previewUrls.map((url, index) => (
-                    <div
-                      key={`preview-${index}`}
-                      className="relative group w-24 h-24 rounded-lg overflow-hidden border bg-muted shrink-0"
-                    >
-                      <img
-                        src={url}
-                        alt={`Vista previa ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6 opacity-90 group-hover:opacity-100"
-                        onClick={() => removeImage(index)}
-                        aria-label="Quitar imagen"
+                  {previewUrls.map((url, index) => {
+                    const isFirst = index === 0;
+                    return (
+                      <div
+                        key={`preview-${index}`}
+                        className="relative group w-24 h-24 rounded-lg overflow-hidden border bg-muted shrink-0"
                       >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
+                        <img
+                          src={url}
+                          alt={`Vista previa ${index + 1}${isFirst ? " (principal)" : ""}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                        {isFirst && (
+                          <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                            Principal
+                          </span>
+                        )}
+                        <div className="absolute inset-x-1 bottom-1 flex justify-between gap-1">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            className="h-6 w-6 bg-black/60 text-white hover:bg-black/80"
+                            onClick={() => moveImage(index, index - 1)}
+                            disabled={index === 0}
+                            aria-label="Mover a la izquierda"
+                          >
+                            {"‹"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            className="h-6 w-6 bg-black/60 text-white hover:bg-black/80"
+                            onClick={() => moveImage(index, index + 1)}
+                            disabled={index === previewUrls.length - 1}
+                            aria-label="Mover a la derecha"
+                          >
+                            {"›"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="h-6 w-6 opacity-90 group-hover:opacity-100"
+                            onClick={() => removeImage(index)}
+                            aria-label="Quitar imagen"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               {images.length < 3 && (

@@ -12,15 +12,11 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Validar que las variables de entorno estén configuradas
 if (!firebaseConfig.projectId) {
-  console.error(
-    "Firebase configuration error: NEXT_PUBLIC_FIREBASE_PROJECT_ID is not set"
-  );
+  console.error("Firebase configuration error: NEXT_PUBLIC_FIREBASE_PROJECT_ID is not set");
 }
 
-const app =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]!;
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]!;
 export const provider = new GoogleAuthProvider();
 export const auth = getAuth(app);
 export const db = getFirestore(app);

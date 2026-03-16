@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
+import { SiteFooter } from "@/shared/components/SiteFooter";
 
 const steps = [
   {
@@ -78,6 +79,10 @@ const guarantees = [
 ];
 
 export default function HowItWorksPage() {
+  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+    "hola, te queria consultar por la ropa de FENI"
+  )}`;
+
   return (
     <div className="min-h-screen bg-background">
       <section className="relative py-20 px-4 text-center bg-gradient-to-b from-primary/5 via-background to-background">
@@ -163,6 +168,8 @@ export default function HowItWorksPage() {
           </Button>
         </div>
       </section>
+
+      <SiteFooter whatsappHref={whatsappHref} />
     </div>
   );
 }

@@ -1,20 +1,23 @@
 import { Suspense } from "react";
-import { getAllProducts } from "@/shared/serverActions/productos";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import { productsQueryOptions } from "@/shared/queries/productos";
 import { SearchContent } from "./SearchContent";
 
 export default async function SearchPage() {
-  const products = await getAllProducts();
-  const initialProducts = products ?? [];
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery(productsQueryOptions);
 
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          Cargando...
-        </div>
-      }
+      fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}
     >
-      <SearchContent initialProducts={initialProducts} />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <SearchContent />
+      </HydrationBoundary>
     </Suspense>
   );
 }

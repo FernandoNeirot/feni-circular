@@ -21,24 +21,16 @@ interface FirebaseTokenResponse {
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const sessionPayload = decodeSessionPayload(
-      cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ""
-    );
+    const sessionPayload = decodeSessionPayload(cookieStore.get(SESSION_COOKIE_NAME)?.value ?? "");
     const refreshToken = sessionPayload?.r ?? null;
 
     if (!refreshToken) {
-      return NextResponse.json(
-        { error: "No hay sesión para refrescar" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "No hay sesión para refrescar" }, { status: 401 });
     }
 
     const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "Configuración de Firebase incompleta" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Configuración de Firebase incompleta" }, { status: 500 });
     }
 
     const body = new URLSearchParams({
@@ -62,13 +54,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!data.id_token || !data.refresh_token) {
-      return NextResponse.json(
-        { error: "Respuesta inválida de Firebase" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Respuesta inválida de Firebase" }, { status: 500 });
     }
 
-    // Decodificar el idToken para obtener user info (el payload está en base64)
     let email: string | null = null;
     let displayName: string | null = null;
     try {
@@ -77,8 +65,8 @@ export async function POST(request: NextRequest) {
       ) as { email?: string; name?: string };
       email = payload.email ?? null;
       displayName = payload.name ?? null;
-    } catch {
-      // ignorar errores de decodificación
+    } catch (error) {
+      console.error("[auth/refresh] Error al decodificar el idToken:", error);
     }
 
     const response = NextResponse.json({
@@ -95,9 +83,6 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("[auth/refresh] Error:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }

@@ -51,10 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!password || typeof password !== "string") {
-      return NextResponse.json(
-        { error: "El campo password es requerido" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "El campo password es requerido" }, { status: 400 });
     }
 
     if (action === "register") {
@@ -95,7 +92,6 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    // action === "login"
     const result = await callFirebaseAuth(":signInWithPassword", {
       email: email.trim(),
       password,
@@ -147,13 +143,11 @@ export async function DELETE() {
 }
 
 function mapFirebaseError(message: string): string {
-  if (message.includes("INVALID_LOGIN_CREDENTIALS"))
-    return "Email o contraseña incorrectos";
+  if (message.includes("INVALID_LOGIN_CREDENTIALS")) return "Email o contraseña incorrectos";
   if (message.includes("INVALID_PASSWORD")) return "Contraseña incorrecta";
   if (message.includes("EMAIL_NOT_FOUND")) return "No existe una cuenta con ese email";
   if (message.includes("EMAIL_EXISTS")) return "Ya existe una cuenta con ese email";
-  if (message.includes("WEAK_PASSWORD"))
-    return "La contraseña debe tener al menos 6 caracteres";
+  if (message.includes("WEAK_PASSWORD")) return "La contraseña debe tener al menos 6 caracteres";
   if (message.includes("INVALID_EMAIL")) return "Email inválido";
   if (message.includes("USER_DISABLED")) return "Esta cuenta ha sido deshabilitada";
   return message;

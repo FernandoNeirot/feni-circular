@@ -12,17 +12,14 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ title, products }: ProductGridProps) {
+  if (products.length === 0) return null;
   return (
     <section className="py-12 px-4 md:px-8">
       <div className="flex items-center justify-between max-w-7xl mx-auto mb-8">
         <h2 className="text-3xl md:text-4xl font-bold">{title}</h2>
-        <Button
-          variant="ghost"
-          asChild
-          className="gap-2 text-primary hover:text-primary/80 rounded-full"
-        >
+        <Button variant="ghost" asChild className="gap-2 text-primary rounded-full">
           <Link href="/buscar">
-            Ver todos
+            Ver todo
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>

@@ -21,6 +21,7 @@ import {
   Clock,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SiteFooter } from "@/shared/components/SiteFooter";
 
 const benefits = [
   {
@@ -81,6 +82,10 @@ export default function SellWithUsPage() {
     window.open(url, "_blank");
     toast.success("Redirigiendo a WhatsApp...");
   };
+
+  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+    `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
+  )}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -292,6 +297,8 @@ export default function SellWithUsPage() {
           </form>
         </div>
       </section>
+
+      <SiteFooter whatsappHref={whatsappHref} />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Button } from '@/shared/components/ui/button'
 import { useFavorites } from '@/shared/components/favorites-provider'
 import { productsQueryOptions } from '@/shared/queries/productos'
 import { Droplets, Heart, Instagram, Leaf, Recycle, Star } from 'lucide-react'
+import { SiteFooter } from '@/shared/components/SiteFooter'
 
 interface PageclientProps {
   ageFilters: {
@@ -26,8 +27,18 @@ interface PageclientProps {
 const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   const { favoriteIds } = useFavorites()
   const { data: products = [] } = useQuery(productsQueryOptions)
-  const featuredProducts = [...products].sort((a, b) => (a.featured ? -1 : b.featured ? 1 : 0)).slice(0, 4)
-  const trendingProducts = [...products].sort((a, b) => (a.trending ? -1 : b.trending ? 1 : 0)).slice(0, 4)
+
+  const shuffleArray = <T,>(items: T[]): T[] => {
+    const arr = [...items]
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+  }
+
+  const featuredProducts = shuffleArray(products.filter((p) => p.featured)).slice(0, 4)
+  const trendingProducts = shuffleArray(products.filter((p) => p.trending)).slice(0, 4)
   const favoriteProducts = products.filter((p) =>
     favoriteIds.includes(String(p.id))
   )
@@ -193,51 +204,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   </div>
 </section>
 
-<footer className="bg-muted/50 py-12 px-4 md:px-8">
-  <div className="max-w-7xl mx-auto">
-    <div className="grid md:grid-cols-3 gap-8 mb-8">
-      <div>
-        <h3 className="text-xl font-bold mb-3">FENI</h3>
-        <p className="text-sm text-muted-foreground">
-          Ropa infantil circular de excelente calidad.
-        </p>
-      </div>
-      <div>
-        <h4 className="font-semibold mb-3">Navegación</h4>
-        <div className="flex flex-col gap-2">
-          {[
-            { label: "Productos", href: "/buscar" },
-            { label: "¿Cómo funciona?", href: "/como-funciona" },
-            { label: "Vendé con nosotros", href: "/vender" },
-            { label: "Preguntas frecuentes", href: "/faq" },
-          ].map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-sm text-muted-foreground hover:text-primary text-left transition-colors"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-      <div>
-        <h4 className="font-semibold mb-3">Contacto</h4>
-        <p className="text-sm text-muted-foreground">
-          WhatsApp: <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors">+54 11-3315-0864</a>
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Instagram: @fenicircular
-        </p>
-      </div>
-    </div>
-    <div className="border-t pt-6 text-center">
-      <p className="text-sm text-muted-foreground">
-        © 2024 FENI. Todos los derechos reservados.
-      </p>
-    </div>
-  </div>
-</footer>
+<SiteFooter whatsappHref={whatsappHref} />
     </>
   )
 }

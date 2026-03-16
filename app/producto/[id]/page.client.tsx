@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { productsQueryOptions } from "@/shared/queries/productos";
 import { ZoomableImage } from "@/shared/components/ZoomableImage";
+import { SiteFooter } from "@/shared/components/SiteFooter";
 
 interface ProductDetailClientProps {
   slug: string;
@@ -111,6 +112,10 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
       : product.condition === "Excelente"
         ? "bg-primary"
         : "bg-secondary";
+
+  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+    `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
+  )}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background pb-20 lg:pb-0">
@@ -264,7 +269,14 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                       </div>
                       <div className="mt-4 pt-2">
                         <ZoomableImage
-                          src="/images/REFERENCIA_MEDIDAS.png"
+                          src={
+                            product.category
+                              ? `/images/medidas_${product.category
+                                  .normalize("NFD")
+                                  .replace(/[\u0300-\u036f]/g, "")
+                                  .toLowerCase()}.png`
+                              : "/images/REFERENCIA_MEDIDAS.png"
+                          }
                           alt="Referencia de medidas"
                           modalTitle="Referencia de medidas"
                           className="max-w-full h-auto rounded-lg border bg-muted"
@@ -429,6 +441,8 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
           <Share2 className="h-5 w-5" />
         </Button>
       </div>
+
+      <SiteFooter whatsappHref={whatsappHref} />
     </div>
   );
 }

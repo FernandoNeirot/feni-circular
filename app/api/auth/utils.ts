@@ -22,7 +22,7 @@ export const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30 días
 
 export interface SessionPayload {
   t: string; // session_token (idToken)
-  r: string; // refresh_token
+  r: string; // refresh token
   u: { uid: string; email: string | null; displayName: string | null };
 }
 

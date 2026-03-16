@@ -1,9 +1,9 @@
-"use client";
+ "use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/shared/components/ProductCard";
-import type { Product } from "@/shared/types/product";
 import { Input } from "@/shared/components/ui/input";
 import { Badge } from "@/shared/components/ui/badge";
 import { Search as SearchIcon, X, SlidersHorizontal } from "lucide-react";
@@ -15,13 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { SiteFooter } from "@/shared/components/SiteFooter";
+import { productsQueryOptions } from "@/shared/queries/productos";
 
-interface SearchContentProps {
-  initialProducts: Product[];
-}
-
-export function SearchContent({ initialProducts }: SearchContentProps) {
+export function SearchContent() {
   const searchParams = useSearchParams();
+  const { data: products = [] } = useQuery(productsQueryOptions);
   const initialQuery = searchParams.get("q") || "";
   const initialAgeRange = searchParams.get("ageRange") || "all";
   const [query, setQuery] = useState(initialQuery);
@@ -32,12 +31,12 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = useMemo(
-    () => [...new Set(initialProducts.map((p) => p.category))],
-    [initialProducts],
+    () => [...new Set(products.map((p) => p.category))],
+    [products],
   );
 
   const filteredProducts = useMemo(() => {
-    let results = initialProducts;
+    let results = products;
 
     if (query.length >= 3) {
       const q = query.toLowerCase();
@@ -83,7 +82,7 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
     }
 
     return results;
-  }, [initialProducts, query, selectedCategory, selectedGender, selectedAgeRange, sortBy]);
+  }, [products, query, selectedCategory, selectedGender, selectedAgeRange, sortBy]);
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
@@ -132,6 +131,10 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
       : window.location.pathname;
     window.history.replaceState(null, "", newUrl);
   }, [selectedAgeRange, searchParams]);
+
+  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+    `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
+  )}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
@@ -310,6 +313,8 @@ export function SearchContent({ initialProducts }: SearchContentProps) {
           </div>
         )}
       </main>
+
+      <SiteFooter whatsappHref={whatsappHref} />
     </div>
   );
 }

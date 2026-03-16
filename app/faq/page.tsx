@@ -8,6 +8,7 @@ import {
 } from "@/shared/components/ui/accordion";
 import { Button } from "@/shared/components/ui/button";
 import { MessageCircle, Sparkles } from "lucide-react";
+import { SiteFooter } from "@/shared/components/SiteFooter";
 
 const faqSections = [
   {
@@ -110,6 +111,10 @@ const faqSections = [
 ];
 
 export default function FAQPage() {
+  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+    "hola, te queria consultar por la ropa de FENI"
+  )}`;
+
   return (
     <div className="min-h-screen bg-background">
       <section className="py-20 px-4 text-center bg-gradient-to-b from-info/5 via-background to-background">
@@ -182,6 +187,8 @@ export default function FAQPage() {
           </Button>
         </div>
       </section>
+
+      <SiteFooter whatsappHref={whatsappHref} />
     </div>
   );
 }

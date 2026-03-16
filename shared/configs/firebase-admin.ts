@@ -61,8 +61,8 @@ export function initializeAdminApp(): App {
       if (parsed.private_key && parsed.project_id) {
         parsedServiceAccount = { ...parsed, private_key: normalizePrivateKey(parsed.private_key) };
       }
-    } catch {
-      // ignorar, usar env vars individuales
+    } catch (error) {
+      console.error("[firebase-admin] Error al parsear el JSON de la cuenta de servicio:", error);
     }
   }
 

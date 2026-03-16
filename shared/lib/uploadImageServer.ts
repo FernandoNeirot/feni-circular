@@ -1,5 +1,6 @@
 import { getAdminStorage } from "@/shared/configs/firebase-admin";
 import { getDownloadURL } from "firebase-admin/storage";
+import sharp from "sharp";
 
 export type OptimizeAndUploadOptions = {
   folder: string;
@@ -13,25 +14,27 @@ export type OptimizeAndUploadResult = {
   path: string;
 };
 
-/**
- * Sube (y opcionalmente optimiza) una imagen a Firebase Storage.
- * Ejecutar solo en servidor.
- */
 export async function optimizeAndUploadImage(
   imageBuffer: Buffer,
   options: OptimizeAndUploadOptions
 ): Promise<OptimizeAndUploadResult> {
-  const { folder, fileName, originalFileName } = options;
-  const ext = originalFileName?.split(".").pop() || "jpg";
-  const safeName =
-    fileName ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
-  const path = `${folder.replace(/\/$/, "")}/${safeName}`;
+  const { folder, fileName, originalFileName, quality } = options;
+
+  const baseName = fileName ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+  const outputExt = "webp";
+  const path = `${folder.replace(/\/$/, "")}/${baseName}.${outputExt}`;
+
+  const optimizedBuffer = await sharp(imageBuffer)
+    .rotate()
+    .webp({ quality: quality ?? 80 })
+    .toBuffer();
 
   const bucket = getAdminStorage().bucket();
   const fileRef = bucket.file(path);
-  await fileRef.save(imageBuffer, {
+  await fileRef.save(optimizedBuffer, {
     metadata: {
-      contentType: `image/${ext === "jpg" ? "jpeg" : ext}`,
+      contentType: "image/webp",
     },
   });
 
