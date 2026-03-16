@@ -14,6 +14,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { SiteFooter } from "@/shared/components/SiteFooter";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 
 const steps = [
   {
@@ -79,7 +80,7 @@ const guarantees = [
 ];
 
 export default function HowItWorksPage() {
-  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     "hola, te queria consultar por la ropa de FENI"
   )}`;
 

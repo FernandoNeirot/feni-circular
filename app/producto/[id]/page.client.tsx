@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { Product } from "@/shared/types/product";
 import { useCart } from "@/shared/components/cart-provider";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 import { useFavorites } from "@/shared/components/favorites-provider";
 import { useShare } from "@/shared/hooks/useShare";
 import { toast } from "sonner";
@@ -113,7 +114,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
         ? "bg-primary"
         : "bg-secondary";
 
-  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
   )}`;
 

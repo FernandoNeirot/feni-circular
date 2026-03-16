@@ -10,6 +10,7 @@ import { useFavorites } from '@/shared/components/favorites-provider'
 import { productsQueryOptions } from '@/shared/queries/productos'
 import { Droplets, Heart, Instagram, Leaf, Recycle, Star } from 'lucide-react'
 import { SiteFooter } from '@/shared/components/SiteFooter'
+import { whatsappNumber } from '@/shared/configs/whatsapp'
 
 interface PageclientProps {
   ageFilters: {
@@ -42,7 +43,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   const favoriteProducts = products.filter((p) =>
     favoriteIds.includes(String(p.id))
   )
-  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ''}`
   )}`
   return (

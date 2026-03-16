@@ -4,11 +4,11 @@ import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { useContext } from "react";
 import { WhatsAppVisibilityContext } from "@/shared/components/WhatsAppVisibilityContext";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 
-const WHATSAPP_NUMBER = "541133150864";
 const BASE_MESSAGE = "Hola, queria hacerte unas consultas por las prendas de Feni";
 
-const FALLBACK_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(BASE_MESSAGE)}`;
+const FALLBACK_HREF = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(BASE_MESSAGE)}`;
 
 export function WhatsAppFloatButton() {
   const pathname = usePathname();
@@ -20,7 +20,7 @@ export function WhatsAppFloatButton() {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const message = `${BASE_MESSAGE}\n\n${typeof window !== "undefined" ? window.location.origin : ""}`;
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 

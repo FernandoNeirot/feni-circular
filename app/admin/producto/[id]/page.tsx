@@ -174,9 +174,9 @@ export default function AdminProductFormPage() {
   };
 
   const onSubmit = async (data: ProductFormValues) => {
-    const slugToSave = data.slug?.trim();
+    const slugToSave = (data.slug?.trim() || normalizeSlug(data.name ?? "")).trim();
     if (!slugToSave) {
-      toast.error("La URL es obligatoria");
+      toast.error("El nombre es obligatorio para generar la URL");
       return;
     }
 
@@ -210,7 +210,7 @@ export default function AdminProductFormPage() {
       }
 
       const finalImages = [...existingUrls, ...uploadedUrls];
-      const body = buildProductFromForm(data, finalImages);
+      const body = buildProductFromForm(data, finalImages, slugToSave);
 
       if (isEditing && id) {
         const result = await updateProduct(id, body);

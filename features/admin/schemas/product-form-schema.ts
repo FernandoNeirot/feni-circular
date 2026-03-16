@@ -6,9 +6,9 @@ export const productFormSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(100),
   slug: z
     .string()
-    .min(1, "La URL es obligatoria")
     .max(120)
-    .refine((v) => slugRegex.test(v), "Solo letras, números y guiones"),
+    .optional()
+    .refine((v) => !v || slugRegex.test(v), "Solo letras, números y guiones"),
   price: z.string().min(1, "El precio es obligatorio").refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Precio inválido"),
   originalPrice: z.string().optional(),
   category: z.string().min(1, "Seleccioná una categoría"),

@@ -9,6 +9,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { MessageCircle, Sparkles } from "lucide-react";
 import { SiteFooter } from "@/shared/components/SiteFooter";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 
 const faqSections = [
   {
@@ -111,7 +112,7 @@ const faqSections = [
 ];
 
 export default function FAQPage() {
-  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     "hola, te queria consultar por la ropa de FENI"
   )}`;
 
@@ -177,7 +178,7 @@ export default function FAQPage() {
             className="rounded-full gap-2"
             onClick={() =>
               window.open(
-                "https://wa.me/+541133150864?text=Hola! Tengo una consulta sobre FENI",
+                `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola! Tengo una consulta sobre FENI")}`,
                 "_blank",
               )
             }

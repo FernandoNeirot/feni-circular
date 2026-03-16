@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type { CartItem, Product } from "@/shared/types/product";
 import { toast } from "sonner";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 
 const CART_STORAGE_KEY = "feni-cart";
 
@@ -88,7 +89,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           `• ${item.name} (Talle: ${item.size})\n  Cantidad: ${item.quantity} - $${item.price * item.quantity}`,
       )
       .join("\n\n")}\n\n*Total: $${total}*\n\n_Pedido desde:_ ${homeUrl}`;
-    const whatsappNumber = "+541133150864";
     window.open(
       `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
       "_blank",

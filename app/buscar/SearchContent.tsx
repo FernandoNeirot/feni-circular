@@ -17,6 +17,7 @@ import {
 } from "@/shared/components/ui/select";
 import { SiteFooter } from "@/shared/components/SiteFooter";
 import { productsQueryOptions } from "@/shared/queries/productos";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 
 export function SearchContent() {
   const searchParams = useSearchParams();
@@ -132,7 +133,7 @@ export function SearchContent() {
     window.history.replaceState(null, "", newUrl);
   }, [selectedAgeRange, searchParams]);
 
-  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
   )}`;
 

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteFooter } from "@/shared/components/SiteFooter";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
 
 const benefits = [
   {
@@ -77,13 +78,12 @@ export default function SellWithUsPage() {
       "\n\n" +
       (formData.description.trim() || "Sin descripción adicional");
 
-    const whatsappNumber = "+541133150864";
-    const url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
     toast.success("Redirigiendo a WhatsApp...");
   };
 
-  const whatsappHref = `https://wa.me/541133150864?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
   )}`;
 
