@@ -53,7 +53,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/producto/${product.slug || product.id}`}>
       <Card
-        className={`group overflow-hidden border-2 hover:border-primary transition-all duration-300 hover:shadow-lg cursor-pointer ${isSoldOut ? "opacity-70" : ""}`}
+        className={`group overflow-hidden border-2 border-b-fuchsia-100 hover:border-primary transition-all duration-300 hover:shadow-lg cursor-pointer ${isSoldOut ? "opacity-70" : ""}`}
       >
         <CardContent className="p-0">
           <div className="relative overflow-hidden aspect-square bg-muted">

@@ -261,7 +261,7 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive"
                   onClick={async () => {
                     try {
                       const res = await fetch("/api/auth", {
@@ -336,7 +336,8 @@ export function Header() {
             <DialogHeader className="space-y-1.5">
               <DialogTitle>Iniciar sesión</DialogTitle>
               <p className="text-sm text-muted-foreground font-normal">
-                Acceso solo para administradores. Si no tenés permisos, no necesitás iniciar sesión para comprar.
+                Acceso solo para administradores. Si no tenés permisos, no necesitás iniciar sesión
+                para comprar.
               </p>
             </DialogHeader>
           </div>
