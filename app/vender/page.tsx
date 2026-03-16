@@ -61,6 +61,7 @@ export default function SellWithUsPage() {
       return;
     }
 
+    const homeUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "";
     const message =
       "¡Hola! Quiero vender/consignar ropa infantil.\n\n" +
       "Nombre: " +
@@ -76,7 +77,9 @@ export default function SellWithUsPage() {
       "\nEstado: " +
       (formData.condition || "No especificó") +
       "\n\n" +
-      (formData.description.trim() || "Sin descripción adicional");
+      (formData.description.trim() || "Sin descripción adicional") +
+      "\n\n\n" +
+      homeUrl;
 
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");

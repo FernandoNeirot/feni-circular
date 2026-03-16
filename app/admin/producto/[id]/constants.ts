@@ -79,7 +79,10 @@ export const emptyMeasurements: ProductMeasurements = {
 export const fieldLabels: Record<string, string> = {
   name: "Nombre",
   slug: "URL",
+  slugSuffix: "Sufijo URL",
   price: "Precio",
+  originalPrice: "Precio original",
+  purchasePrice: "Precio de compra",
   category: "Categoría",
   size: "Talle",
   brand: "Marca",

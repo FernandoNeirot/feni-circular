@@ -23,6 +23,7 @@ export function buildProductFromForm(
     slug,
     price: Number(data.price) || 0,
     originalPrice: data.originalPrice ? Number(data.originalPrice) : undefined,
+    purchasePrice: data.purchasePrice ? Number(data.purchasePrice) : undefined,
     category: data.category,
     size: data.size,
     brand: data.brand,

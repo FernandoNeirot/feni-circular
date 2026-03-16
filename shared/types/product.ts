@@ -13,6 +13,7 @@ export interface Product {
   name: string;
   price: number;
   originalPrice?: number;
+  purchasePrice?: number;
   images: string[];
   image: string;
   category: string;

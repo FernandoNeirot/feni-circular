@@ -9,8 +9,10 @@ export const productFormSchema = z.object({
     .max(120)
     .optional()
     .refine((v) => !v || slugRegex.test(v), "Solo letras, números y guiones"),
+  slugSuffix: z.string().max(60).optional(),
   price: z.string().min(1, "El precio es obligatorio").refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Precio inválido"),
   originalPrice: z.string().optional(),
+  purchasePrice: z.string().optional(),
   category: z.string().min(1, "Seleccioná una categoría"),
   size: z.string().min(1, "El talle es obligatorio").max(20),
   brand: z.string().min(1, "La marca es obligatoria").max(50),
@@ -40,8 +42,10 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 export const defaultProductFormValues: ProductFormValues = {
   name: "",
   slug: "",
+  slugSuffix: "",
   price: "",
   originalPrice: "",
+  purchasePrice: "",
   category: "",
   size: "",
   brand: "",

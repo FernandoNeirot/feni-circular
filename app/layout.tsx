@@ -18,6 +18,10 @@ const quicksand = Quicksand({
 export const metadata: Metadata = {
   title: "FENI - Ropa Infantil Circular",
   description: "Ropa infantil circular de excelente calidad. Segunda vida, calidad excepcional.",
+  icons: {
+    icon: "/images/feni-logo.png",
+    apple: "/images/feni-logo.png",
+  },
 };
 
 export default function RootLayout({

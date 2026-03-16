@@ -17,8 +17,8 @@ export function PriceCard({ form }: PriceCardProps) {
       <CardHeader>
         <CardTitle className="text-lg">Precio</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="price">Precio de venta *</Label>
             <Input
@@ -45,7 +45,21 @@ export function PriceCard({ form }: PriceCardProps) {
               placeholder="4500"
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="purchasePrice">Precio de compra</Label>
+            <Input
+              id="purchasePrice"
+              type="number"
+              min={0}
+              {...form.register("purchasePrice")}
+              placeholder="800"
+            />
+          </div>
         </div>
+        <p className="text-xs text-muted-foreground border-t pt-3">
+          <strong>Precio original:</strong> hace referencia al precio de la prenda como nuevo.{" "}
+          <strong>Precio de compra:</strong> es el costo que tuvo para el vendedor (se usa para reportes).
+        </p>
       </CardContent>
     </Card>
   );

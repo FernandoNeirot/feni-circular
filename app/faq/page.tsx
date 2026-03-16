@@ -178,7 +178,7 @@ export default function FAQPage() {
             className="rounded-full gap-2"
             onClick={() =>
               window.open(
-                `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola! Tengo una consulta sobre FENI")}`,
+                `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre FENI\n\n\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`)}`,
                 "_blank",
               )
             }

@@ -7,13 +7,17 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
 import type { ProductFormValues } from "@/features/admin";
 import type { UseFormReturn } from "react-hook-form";
-import { Controller } from "react-hook-form";
+import { normalizeSlug } from "@/features/admin";
+
 type BasicInfoCardProps = {
   form: UseFormReturn<ProductFormValues>;
   isEditing: boolean;
 };
 
-export function BasicInfoCard({ form }: BasicInfoCardProps) {
+export function BasicInfoCard({ form, isEditing }: BasicInfoCardProps) {
+  const name = form.watch("name");
+  const baseSlug = normalizeSlug(name ?? "");
+
   return (
     <Card>
       <CardHeader>
@@ -36,29 +40,35 @@ export function BasicInfoCard({ form }: BasicInfoCardProps) {
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="slug">URL</Label>
-          <Controller
-            name="slug"
-            control={form.control}
-            render={({ field }) => (
-              <Input
-                id="slug"
-                className={cn(
-                  form.formState.errors.slug && "border-destructive focus-visible:ring-destructive"
-                )}
-                {...field}
-                disabled
-                readOnly
-                placeholder="Se genera automáticamente desde el nombre"
-                maxLength={120}
-              />
-            )}
-          />
-          {form.formState.errors.slug && (
-            <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
+          <Label>URL</Label>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Input
+              id="slug-base"
+              className="flex-1 min-w-[120px]"
+              value={baseSlug}
+              disabled
+              readOnly
+              aria-label="URL generada desde el nombre"
+            />
+            <span className="text-muted-foreground shrink-0">-</span>
+            <Input
+              id="slug-suffix"
+              className={cn(
+                "flex-1 min-w-[100px]",
+                form.formState.errors.slugSuffix && "border-destructive focus-visible:ring-destructive"
+              )}
+              {...form.register("slugSuffix")}
+              disabled={isEditing}
+              placeholder={isEditing ? "" : "opcional, ej. 2 o azul"}
+              maxLength={60}
+              aria-label="Sufijo para hacer la URL única"
+            />
+          </div>
+          {form.formState.errors.slugSuffix && (
+            <p className="text-sm text-destructive">{form.formState.errors.slugSuffix.message}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Se genera desde el nombre (espacios → guiones, sin acentos ni caracteres especiales)
+            La URL se genera desde el nombre. Podés agregar un sufijo (solo al crear) para hacerla única.
           </p>
         </div>
         <div className="space-y-2">

@@ -50,12 +50,6 @@ export default function AdminProductFormPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const images = form.watch("images");
-  const name = form.watch("name");
-
-  useEffect(() => {
-    if (isEditing) return;
-    form.setValue("slug", normalizeSlug(name ?? ""), { shouldValidate: true });
-  }, [name, isEditing, form]);
 
   useEffect(() => {
     blobUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
@@ -77,11 +71,21 @@ export default function AdminProductFormPage() {
     function fillFormWithProduct(p: Product & { id: string }) {
       const imagesData: string[] =
         Array.isArray(p.images) && p.images.length > 0 ? p.images : p.image ? [p.image] : [];
+      const baseSlug = normalizeSlug(p.name ?? "");
+      const storedSlug = (p.slug ?? "").trim();
+      const slugSuffix =
+        !storedSlug || storedSlug === baseSlug
+          ? ""
+          : storedSlug.startsWith(baseSlug + "-")
+            ? storedSlug.slice(baseSlug.length + 1)
+            : storedSlug;
       form.reset({
         name: p.name,
         slug: p.slug ?? "",
+        slugSuffix,
         price: String(p.price),
         originalPrice: p.originalPrice ? String(p.originalPrice) : "",
+        purchasePrice: p.purchasePrice != null ? String(p.purchasePrice) : "",
         category: p.category,
         size: p.size,
         brand: p.brand,
@@ -174,7 +178,9 @@ export default function AdminProductFormPage() {
   };
 
   const onSubmit = async (data: ProductFormValues) => {
-    const slugToSave = (data.slug?.trim() || normalizeSlug(data.name ?? "")).trim();
+    const base = normalizeSlug(data.name ?? "");
+    const suffix = data.slugSuffix?.trim();
+    const slugToSave = (suffix ? `${base}-${normalizeSlug(suffix)}` : base).trim();
     if (!slugToSave) {
       toast.error("El nombre es obligatorio para generar la URL");
       return;
@@ -188,7 +194,7 @@ export default function AdminProductFormPage() {
       (p) => p.slug?.toLowerCase() === slugToSave.toLowerCase() && p.id !== id
     );
     if (slugExists) {
-      toast.error("Esta URL ya está en uso por otro producto. Elegí otra.");
+      toast.error("Esta URL ya está en uso por otro producto. Agregá o cambiá el sufijo.");
       return;
     }
 
