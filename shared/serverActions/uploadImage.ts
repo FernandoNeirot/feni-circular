@@ -8,7 +8,7 @@ export type UploadProductImageResult =
 
 /** Sube y optimiza una imagen de producto. Ejecutar solo en servidor (Server Action). */
 export async function uploadProductImage(
-  productId: string,
+  productSlug: string,
   formData: FormData,
   options?: { quality?: number }
 ): Promise<UploadProductImageResult> {
@@ -21,7 +21,7 @@ export async function uploadProductImage(
       return { success: false, data: null, error: "El archivo debe ser una imagen" };
     }
     const quality = Math.min(100, Math.max(0, options?.quality ?? 80));
-    const folder = `products/${productId}`;
+    const folder = `feni-circular/producto/${productSlug}`;
     const arrayBuffer = await file.arrayBuffer();
     const imageBuffer = Buffer.from(arrayBuffer);
     const result = await optimizeAndUploadImage(imageBuffer, {

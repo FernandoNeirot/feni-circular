@@ -337,7 +337,7 @@ export default function AdminProductFormPage() {
           for (const file of pendingFiles) {
             const fd = new FormData();
             fd.append("image", file);
-            const result = await uploadProductImage(id, fd);
+            const result = await uploadProductImage(slugToSave, fd);
             if (!result.success) throw new Error(result.error);
             uploadedUrls.push(result.data.url);
           }
@@ -345,7 +345,10 @@ export default function AdminProductFormPage() {
           for (const file of pendingFiles) {
             const fd = new FormData();
             fd.append("image", file);
-            const res = await fetch("/api/images?folder=products", { method: "POST", body: fd });
+            const res = await fetch(
+              `/api/images?folder=${encodeURIComponent(`feni-circular/producto/${slugToSave}`)}`,
+              { method: "POST", body: fd }
+            );
             const json = await res.json();
             if (!res.ok || !json.data?.url) throw new Error(json.error || "Error al subir imagen");
             uploadedUrls.push(json.data.url);
