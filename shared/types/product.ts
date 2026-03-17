@@ -31,6 +31,9 @@ export interface Product {
   soldOut?: boolean;
   featured?: boolean;
   trending?: boolean;
+  isConsigned: boolean;
+  boughtFrom: string;
+  soldTo: string;
 }
 
 export interface CartItem extends Product {
