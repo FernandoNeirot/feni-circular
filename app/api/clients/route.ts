@@ -7,6 +7,7 @@ const COLLECTION = "feni-circular-clients";
 export async function GET() {
   try {
     const db = getAdminFirestore();
+    console.log("---->[GET /api/clients]");
     const snapshot = await db.collection(COLLECTION).get();
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Client);
     return NextResponse.json(data);
