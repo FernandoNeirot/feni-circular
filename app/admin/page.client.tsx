@@ -197,7 +197,55 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                 </Button>
               </div>
 
-              <div className="border rounded-xl overflow-hidden bg-card">
+              {/* Listado clientes - mobile (cards) */}
+              <div className="space-y-3 sm:hidden">
+                {clientsPagination.pageItems.map((c) => (
+                  <div
+                    key={c.id}
+                    className="border rounded-xl bg-card p-3 flex flex-col gap-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-medium">{c.name}</p>
+                        <p className="text-xs text-muted-foreground">{c.phone}</p>
+                      </div>
+                      <div
+                        className="flex items-center gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                          <Link href={`/admin/cliente/${c.id}`} aria-label="Editar cliente">
+                            <Pencil className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setClientToDelete(c);
+                          }}
+                          aria-label="Eliminar cliente"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    {c.address && (
+                      <p className="text-xs text-muted-foreground">{c.address}</p>
+                    )}
+                  </div>
+                ))}
+                {filteredClients.length === 0 && (
+                  <p className="text-center py-10 text-muted-foreground">
+                    No se encontraron clientes
+                  </p>
+                )}
+              </div>
+
+              {/* Tabla clientes - solo desktop */}
+              <div className="hidden sm:block border rounded-xl overflow-hidden bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
@@ -253,11 +301,15 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-xs text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+                <p className="text-xs text-muted-foreground order-2 sm:order-1">
                   Mostrando {clientsPagination.pageItems.length} de {filteredClients.length}
+                  <span className="sm:hidden">
+                    {" "}
+                    · Página {clientsPagination.page} de {clientsPagination.totalPages}
+                  </span>
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2 order-1 sm:order-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -266,7 +318,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   >
                     Anterior
                   </Button>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="hidden sm:inline text-xs text-muted-foreground">
                     Página {clientsPagination.page} de {clientsPagination.totalPages}
                   </span>
                   <Button
@@ -324,8 +376,78 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                 <span>{products.filter((p) => !p.soldOut).length} disponibles</span>
               </div>
 
-              {/* Tabla */}
-              <div className="border rounded-xl overflow-hidden bg-card">
+              {/* Cards productos - mobile */}
+              <div className="block md:hidden space-y-3">
+                {productsPagination.pageItems.map((product) => (
+                  <div
+                    key={product.id}
+                    className="border rounded-xl overflow-hidden bg-card flex gap-3 p-3"
+                  >
+                    <Link href={`/admin/producto/${product.id}`} className="shrink-0">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className={`w-16 h-16 rounded-lg object-cover ${
+                          product.soldOut ? "grayscale opacity-60" : ""
+                        }`}
+                      />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <Link href={`/admin/producto/${product.id}`}>
+                        <p className="font-medium truncate">{product.name}</p>
+                      </Link>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {[product.brand, product.category].filter(Boolean).join(" · ")}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <Badge variant="outline" className="text-xs">
+                          {product.size}
+                        </Badge>
+                        <span className="text-sm font-semibold">${product.price}</span>
+                        {product.soldOut ? (
+                          <Badge variant="destructive" className="text-xs">
+                            Vendido
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-primary/15 text-primary border-0 text-xs">
+                            Disponible
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      className="flex flex-col justify-center gap-1 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                        <Link href={`/admin/producto/${product.id}`}>
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProductToDelete(product);
+                        }}
+                        aria-label="Eliminar producto"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {filtered.length === 0 && (
+                  <p className="text-center py-10 text-muted-foreground">
+                    No se encontraron productos
+                  </p>
+                )}
+              </div>
+
+              {/* Tabla productos - solo desktop */}
+              <div className="hidden md:block border rounded-xl overflow-hidden bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
@@ -420,11 +542,15 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-xs text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+                <p className="text-xs text-muted-foreground order-2 sm:order-1">
                   Mostrando {productsPagination.pageItems.length} de {filtered.length}
+                  <span className="sm:hidden">
+                    {" "}
+                    · Página {productsPagination.page} de {productsPagination.totalPages}
+                  </span>
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2 order-1 sm:order-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -433,7 +559,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   >
                     Anterior
                   </Button>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="hidden sm:inline text-xs text-muted-foreground">
                     Página {productsPagination.page} de {productsPagination.totalPages}
                   </span>
                   <Button
