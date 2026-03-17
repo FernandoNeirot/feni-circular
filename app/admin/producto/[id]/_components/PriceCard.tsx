@@ -52,14 +52,14 @@ export function PriceCard({ form }: PriceCardProps) {
       <CardContent className="space-y-6">
         {/* Origen: compra / consignación */}
         <div className="space-y-3 border rounded-lg p-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="space-y-0.5">
               <span className="text-sm font-medium text-foreground">Origen de la prenda</span>
               <p className="text-xs text-muted-foreground">
                 Indicá si la prenda fue comprada o consignada y de quién proviene.
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 sm:justify-end">
               <span className="text-xs text-muted-foreground">Comprado</span>
               <Switch
                 checked={!!isConsigned}
