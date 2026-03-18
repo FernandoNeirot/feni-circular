@@ -68,3 +68,38 @@ export function clearAuthCookies(response: NextResponse) {
     maxAge: 0,
   });
 }
+
+const FIREBASE_TOKEN_URL = "https://securetoken.googleapis.com/v1/token";
+
+interface FirebaseTokenResponse {
+  id_token?: string;
+  refresh_token?: string;
+  user_id?: string;
+  error?: { message: string };
+}
+
+export async function refreshFirebaseTokens(
+  refreshToken: string
+): Promise<{ idToken: string; refreshToken: string; userId: string } | null> {
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (!apiKey) return null;
+
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+  });
+
+  const res = await fetch(`${FIREBASE_TOKEN_URL}?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
+  });
+
+  const data = (await res.json()) as FirebaseTokenResponse;
+  if (!res.ok || !data.id_token || !data.refresh_token) return null;
+  return {
+    idToken: data.id_token,
+    refreshToken: data.refresh_token,
+    userId: data.user_id ?? "",
+  };
+}
