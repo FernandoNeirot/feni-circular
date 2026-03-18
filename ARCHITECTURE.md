@@ -12,8 +12,11 @@ feni-circular/
 │   ├── (home)/             # Grupo: landing
 │   ├── buscar/             # Búsqueda de productos
 │   ├── producto/[id]/      # Detalle de producto
-│   ├── admin/              # Panel de administración
-│   ├── api/                # API Routes (REST)
+│   ├── admin/              # Panel de administración (clientes, productos)
+│   │   ├── cliente/[id]/   # Crear/editar cliente
+│   │   ├── producto/[id]/  # Crear/editar producto (_components, buildProduct, constants)
+│   │   └── __tests__/      # Tests de integración del panel admin
+│   ├── api/                # API Routes (REST); __tests__/ para tests de rutas
 │   └── layout.tsx          # Layout raíz
 │
 ├── features/               # Lógica por funcionalidad (feature-based)
@@ -22,16 +25,21 @@ feni-circular/
 │   ├── favorites/          # Favoritos (likes)
 │   ├── auth/               # Autenticación (admin)
 │   └── admin/              # Formularios y lógica de admin
+│       └── schemas/        # Zod (productFormSchema, normalizeSlug, ProductFormValues)
 │
 ├── shared/                 # Código transversal (no pertenece a una feature)
-│   ├── components/        # Design system (ui/) y componentes compartidos
+│   ├── components/         # Design system (ui/) y componentes compartidos
 │   ├── lib/                # Utilidades, helpers
 │   ├── configs/            # Configuración (Firebase, SEO, etc.)
 │   ├── types/              # Tipos de dominio compartidos
 │   ├── hooks/              # Hooks reutilizables entre features
-│   ├── queries/            # React Query (claves y opciones, ej. productos)
-│   └── serverActions/      # Server actions transversales (productos, imágenes, auth)
+│   ├── queries/            # React Query (claves y opciones, ej. productos, clients)
+│   └── serverActions/      # Server actions (productos, clients, imágenes, auth)
+│       └── __tests__/      # Tests unitarios de server actions
 │
+├── jest.config.mjs         # Jest (next/jest), entorno jsdom, tests principales
+├── jest.api.config.mjs     # Jest para tests de API routes (entorno node)
+├── jest.setup.ts           # Setup global (jest-dom)
 └── public/
 ```
 
@@ -55,7 +63,7 @@ Cada feature agrupa todo lo que pertenece a una capacidad de la app:
 | **cart**      | Provider del carrito, componente Cart, persistencia en localStorage.              |
 | **favorites** | Provider de favoritos, persistencia en localStorage.                              |
 | **auth**      | Server actions de login/sesión, helpers para rutas protegidas.                    |
-| **admin**     | Schemas de formularios (Zod), lógica específica de administración.                |
+| **admin**     | Schemas de formularios (Zod: `productFormSchema`, `normalizeSlug`, `ProductFormValues`), lógica específica de administración. |
 
 Reglas:
 
@@ -71,11 +79,29 @@ Reglas:
 - **types/**: modelos de dominio (Product, CartItem, etc.) usados en varias features.
 - **hooks/**: por ejemplo `useShare`, hooks que usan varias features.
 - **queries/**: opciones y claves de React Query (ej. `productsQueryOptions`, `productsQueryKey`).
-- **serverActions/**: acciones de servidor transversales: productos (crear, actualizar, eliminar), subida de imágenes, auth.
+- **serverActions/**: acciones de servidor transversales: productos, clientes (CRUD), subida de imágenes, auth.
 
 ---
 
-## 3. Flujos de datos
+## 3. Testing
+
+- **Runner**: Jest (configuración vía `next/jest` en `jest.config.mjs`).
+- **Entorno**: `jsdom` para componentes y lógica; `node` para tests de API routes (`jest.api.config.mjs`).
+- **Bibliotecas**: React Testing Library, jest-dom.
+
+Tests incluidos:
+
+| Tipo        | Ubicación típica                                      | Qué se prueba                                              |
+| ----------- | ------------------------------------------------------ | ---------------------------------------------------------- |
+| Unitarios   | Junto al módulo (`*.test.ts`) o en `__tests__/`        | Schemas (Zod), `normalizeSlug`, `buildProductFromForm`, constantes, server actions (mock de `fetch`). |
+| Componentes| Junto al componente (`*.test.tsx`)                     | Render, formularios (FormProvider), interacción básica.    |
+| Integración| `app/admin/__tests__/`, `app/api/**/__tests__/`        | Flujos del panel admin (listado, búsqueda, eliminar); API routes con Firestore mockeado. |
+
+Scripts: `npm run test`, `npm run test:watch`, `npm run test:coverage`, `npm run test:api` (solo rutas API).
+
+---
+
+## 4. Flujos de datos
 
 ### Lectura de productos (listado / detalle)
 
@@ -109,7 +135,7 @@ app/admin/producto/[id]
 
 ---
 
-## 4. Convenciones de código
+## 5. Convenciones de código
 
 - **Nombres**: PascalCase componentes, camelCase funciones y variables, kebab-case para rutas y archivos de página.
 - **Client/Server**: marcar con `"use client"` solo los componentes que usan hooks, contexto o eventos; el resto puede ser server component.
@@ -119,7 +145,7 @@ app/admin/producto/[id]
 
 ---
 
-## 5. Dónde agregar código nuevo
+## 6. Dónde agregar código nuevo
 
 | Necesidad                                   | Dónde colocarlo                                      |
 | ------------------------------------------- | ---------------------------------------------------- |
@@ -135,10 +161,12 @@ app/admin/producto/[id]
 | Utilidad o helper                           | `shared/lib`                                         |
 | Tipo usado en varias features               | `shared/types`                                       |
 | Hook reutilizable                           | `shared/hooks` o dentro del feature si es específico  |
+| Tests unitarios de un módulo/componente    | Junto al archivo (`*.test.ts(x)`) o en `__tests__/`   |
+| Tests de integración (admin, API)          | `app/admin/__tests__/`, `app/api/**/__tests__/`      |
 
 ---
 
-## 6. Stack principal
+## 7. Stack principal
 
 - **Framework**: Next.js (App Router).
 - **UI**: React, Tailwind CSS, componentes en `shared/ui`.
@@ -146,3 +174,4 @@ app/admin/producto/[id]
 - **Backend**: API Routes + Firestore (Firebase Admin en server). Escrituras desde la app vía Server Actions (`shared/serverActions/`) que llaman a la API.
 - **Validación**: Zod (schemas en `features/admin` y donde haga falta).
 - **Formularios**: react-hook-form + Zod.
+- **Testing**: Jest, React Testing Library, jest-dom; tests unitarios y de integración para admin y API.
