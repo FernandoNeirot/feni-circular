@@ -14,6 +14,8 @@ export interface Product {
   price: number;
   originalPrice?: number;
   purchasePrice?: number;
+  purchaseDate?: string;
+  saleDate?: string;
   images: string[];
   image: string;
   category: string;

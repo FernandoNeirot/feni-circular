@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -31,10 +31,7 @@ export function SearchContent() {
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = useMemo(
-    () => [...new Set(products.map((p) => p.category))],
-    [products],
-  );
+  const categories = useMemo(() => [...new Set(products.map((p) => p.category))], [products]);
 
   const filteredProducts = useMemo(() => {
     let results = products;
@@ -48,7 +45,7 @@ export function SearchContent() {
           p.brand.toLowerCase().includes(q) ||
           p.color.toLowerCase().includes(q) ||
           p.size.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q),
+          p.description.toLowerCase().includes(q)
       );
     }
 
@@ -114,7 +111,7 @@ export function SearchContent() {
 
   const ageRangeOptions = [
     { value: "all", label: "Todas las edades" },
-    { value: "0-12m", label: "0-12m" },
+    // { value: "0-12m", label: "0-12m" },
     { value: "1-3 años", label: "1-3 años" },
     { value: "3-6 años", label: "3-6 años" },
     { value: "6+ años", label: "6+ años" },
@@ -206,10 +203,7 @@ export function SearchContent() {
                   <X className="h-3 w-3" />
                 </Badge>
               )}
-              <button
-                onClick={clearFilters}
-                className="text-sm text-primary hover:underline"
-              >
+              <button onClick={clearFilters} className="text-sm text-primary hover:underline">
                 Limpiar filtros
               </button>
             </>

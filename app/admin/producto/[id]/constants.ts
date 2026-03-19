@@ -62,7 +62,7 @@ export const genders: Array<{ value: "niña" | "niño" | "unisex"; label: string
 ];
 
 export const ageRanges = [
-  { value: "0-12m", label: "👶 0-12m" },
+  // { value: "0-12m", label: "👶 0-12m" },
   { value: "1-3 años", label: "🧒 1-3 años" },
   { value: "3-6 años", label: "👦 3-6 años" },
   { value: "6+ años", label: "🎒 6+ años" },
@@ -83,6 +83,8 @@ export const fieldLabels: Record<string, string> = {
   price: "Precio",
   originalPrice: "Precio original",
   purchasePrice: "Precio de compra",
+  purchaseDate: "Fecha de compra/consignación",
+  saleDate: "Fecha de venta",
   category: "Categoría",
   size: "Talle",
   brand: "Marca",

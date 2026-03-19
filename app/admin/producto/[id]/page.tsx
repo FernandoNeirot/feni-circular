@@ -86,6 +86,8 @@ export default function AdminProductFormPage() {
         price: String(p.price),
         originalPrice: p.originalPrice ? String(p.originalPrice) : "",
         purchasePrice: p.purchasePrice != null ? String(p.purchasePrice) : "",
+        purchaseDate: p.purchaseDate ?? "",
+        saleDate: p.saleDate ?? "",
         isConsigned: p.isConsigned ?? false,
         boughtFrom: p.boughtFrom ?? "",
         soldTo: p.soldTo ?? "",

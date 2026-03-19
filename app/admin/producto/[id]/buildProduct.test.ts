@@ -9,6 +9,8 @@ function formValues(overrides: Partial<ProductFormValues> = {}): ProductFormValu
     price: "1200",
     originalPrice: "4500",
     purchasePrice: "800",
+    purchaseDate: "2026-03-20",
+    saleDate: "2026-03-21",
     category: "Vestidos",
     size: "2",
     brand: "Mimo",
@@ -45,6 +47,8 @@ describe("buildProductFromForm", () => {
     expect(product.price).toBe(1200);
     expect(product.originalPrice).toBe(4500);
     expect(product.purchasePrice).toBe(800);
+    expect(product.purchaseDate).toBe("2026-03-20");
+    expect(product.saleDate).toBe("2026-03-21");
     expect(product.category).toBe("Vestidos");
     expect(product.size).toBe("2");
     expect(product.brand).toBe("Mimo");

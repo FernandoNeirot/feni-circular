@@ -12,14 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import {
-  Camera,
-  Send,
-  Sparkles,
-  DollarSign,
-  Recycle,
-  Clock,
-} from "lucide-react";
+import { Camera, Send, Sparkles, DollarSign, Recycle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { SiteFooter } from "@/shared/components/SiteFooter";
 import { whatsappNumber } from "@/shared/configs/whatsapp";
@@ -98,12 +91,10 @@ export default function SellWithUsPage() {
             <Sparkles className="h-4 w-4" />
             Sumate al movimiento circular
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-            Vendé con nosotros
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground">Vendé con nosotros</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            ¿Tenés ropa infantil en buen estado que ya no usan? Dales una segunda
-            vida y ganá dinero con eso que ya no necesitás.
+            ¿Tenés ropa infantil en buen estado que ya no usan? Dales una segunda vida y ganá dinero
+            con eso que ya no necesitás.
           </p>
         </div>
       </section>
@@ -111,10 +102,7 @@ export default function SellWithUsPage() {
       <section className="py-12 px-4 md:px-8">
         <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-6">
           {benefits.map((b, i) => (
-            <div
-              key={i}
-              className="text-center space-y-3 p-6 rounded-2xl bg-card border"
-            >
+            <div key={i} className="text-center space-y-3 p-6 rounded-2xl bg-card border">
               <div className="mx-auto w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
                 <b.icon className="h-6 w-6 text-secondary" />
               </div>
@@ -157,10 +145,7 @@ export default function SellWithUsPage() {
             Completá el formulario y te contactamos por WhatsApp
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5 bg-card p-6 md:p-8 rounded-2xl border"
-          >
+          <form onSubmit={handleSubmit} className="space-y-5 bg-card p-6 md:p-8 rounded-2xl border">
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Tu nombre *</Label>
@@ -169,9 +154,7 @@ export default function SellWithUsPage() {
                   placeholder="María García"
                   maxLength={100}
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="rounded-xl"
                 />
               </div>
@@ -182,9 +165,7 @@ export default function SellWithUsPage() {
                   placeholder="+54 9 11 1234-5678"
                   maxLength={20}
                   value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="rounded-xl"
                 />
               </div>
@@ -197,9 +178,7 @@ export default function SellWithUsPage() {
                 placeholder="Ej: Palermo, CABA"
                 maxLength={100}
                 value={formData.city}
-                onChange={(e) =>
-                  setFormData({ ...formData, city: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 className="rounded-xl"
               />
             </div>
@@ -211,9 +190,7 @@ export default function SellWithUsPage() {
                   placeholder="Ej: Mimo, Zara Kids, H&M..."
                   maxLength={100}
                   value={formData.brand}
-                  onChange={(e) =>
-                    setFormData({ ...formData, brand: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                   className="rounded-xl"
                 />
               </div>
@@ -221,15 +198,13 @@ export default function SellWithUsPage() {
                 <Label>Rango de edad</Label>
                 <Select
                   value={formData.ageRange}
-                  onValueChange={(v) =>
-                    setFormData({ ...formData, ageRange: v })
-                  }
+                  onValueChange={(v) => setFormData({ ...formData, ageRange: v })}
                 >
                   <SelectTrigger className="rounded-xl">
                     <SelectValue placeholder="Seleccioná" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0-12 meses">0-12 meses</SelectItem>
+                    {/* <SelectItem value="0-12 meses">0-12 meses</SelectItem> */}
                     <SelectItem value="1-3 años">1-3 años</SelectItem>
                     <SelectItem value="3-6 años">3-6 años</SelectItem>
                     <SelectItem value="6-10 años">6-10 años</SelectItem>
@@ -243,23 +218,15 @@ export default function SellWithUsPage() {
               <Label>Estado general</Label>
               <Select
                 value={formData.condition}
-                onValueChange={(v) =>
-                  setFormData({ ...formData, condition: v })
-                }
+                onValueChange={(v) => setFormData({ ...formData, condition: v })}
               >
                 <SelectTrigger className="rounded-xl">
                   <SelectValue placeholder="¿En qué estado están?" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Como nuevo">
-                    Como nuevo (1-2 usos)
-                  </SelectItem>
-                  <SelectItem value="Muy bueno">
-                    Muy bueno (poco uso)
-                  </SelectItem>
-                  <SelectItem value="Bueno">
-                    Bueno (uso normal, sin defectos)
-                  </SelectItem>
+                  <SelectItem value="Como nuevo">Como nuevo (1-2 usos)</SelectItem>
+                  <SelectItem value="Muy bueno">Muy bueno (poco uso)</SelectItem>
+                  <SelectItem value="Bueno">Bueno (uso normal, sin defectos)</SelectItem>
                   <SelectItem value="Variado">Variado</SelectItem>
                 </SelectContent>
               </Select>
@@ -273,9 +240,7 @@ export default function SellWithUsPage() {
                 maxLength={1000}
                 rows={4}
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="rounded-xl resize-none"
               />
             </div>
@@ -283,17 +248,13 @@ export default function SellWithUsPage() {
             <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 text-sm text-muted-foreground">
               <Camera className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
               <p>
-                <strong className="text-foreground">Tip:</strong> Al enviarnos el
-                mensaje por WhatsApp, adjuntá fotos de las prendas. Con 2-3 fotos
-                por prenda alcanza (frente, espalda y etiqueta).
+                <strong className="text-foreground">Tip:</strong> Al enviarnos el mensaje por
+                WhatsApp, adjuntá fotos de las prendas. Con 2-3 fotos por prenda alcanza (frente,
+                espalda y etiqueta).
               </p>
             </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full rounded-full gap-2"
-            >
+            <Button type="submit" size="lg" className="w-full rounded-full gap-2">
               <Send className="h-5 w-5" />
               Enviar por WhatsApp
             </Button>
