@@ -9,6 +9,7 @@ import type { Product } from "@/shared/types/product";
 import { useCart } from "@/shared/components/cart-provider";
 import { useFavorites } from "@/shared/components/favorites-provider";
 import { useShare } from "@/shared/hooks/useShare";
+import { categorySkipsMeasurements } from "@/shared/lib/category-measurements";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -109,8 +110,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <div>
               <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
               <p className="text-xs text-muted-foreground">
-                {product.brand} · Talle: {product.size} · {product.measurements.largo}×
-                {product.measurements.ancho} cm
+                {product.brand} · Talle: {product.size}
+                {!categorySkipsMeasurements(product.category) && (
+                  <>
+                    {" "}
+                    · {product.measurements.largo}×{product.measurements.ancho} cm
+                  </>
+                )}
               </p>
             </div>
             <div className="flex items-center justify-between">

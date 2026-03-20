@@ -44,19 +44,6 @@ export function VisibilityCard({ form }: VisibilityCardProps) {
             render={({ field }) => <Switch checked={field.value} onCheckedChange={field.onChange} />}
           />
         </div>
-        <div className="flex items-center justify-between border-t pt-4">
-          <div>
-            <Label>Vendido</Label>
-            <p className="text-sm text-muted-foreground">
-              El producto aparecerá como no disponible
-            </p>
-          </div>
-          <Controller
-            name="soldOut"
-            control={form.control}
-            render={({ field }) => <Switch checked={field.value} onCheckedChange={field.onChange} />}
-          />
-        </div>
       </CardContent>
     </Card>
   );

@@ -9,6 +9,7 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import type { ProductFormValues } from "@/features/admin";
 import type { UseFormReturn } from "react-hook-form";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -145,7 +146,13 @@ export function PriceCard({ form }: PriceCardProps) {
                 value={boughtFrom ?? ""}
                 onValueChange={(value) => form.setValue("boughtFrom", value)}
               >
-                <SelectTrigger id="boughtFrom">
+                <SelectTrigger
+                  id="boughtFrom"
+                  className={cn(
+                    form.formState.errors.boughtFrom &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
+                >
                   <SelectValue placeholder="Seleccioná un cliente / proveedor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -174,6 +181,11 @@ export function PriceCard({ form }: PriceCardProps) {
                   )}
                 </SelectContent>
               </Select>
+              {form.formState.errors.boughtFrom && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.boughtFrom.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -184,9 +196,18 @@ export function PriceCard({ form }: PriceCardProps) {
                 id="purchasePrice"
                 type="number"
                 min={0}
+                className={cn(
+                  form.formState.errors.purchasePrice &&
+                    "border-destructive focus-visible:ring-destructive"
+                )}
                 {...form.register("purchasePrice")}
-                placeholder="800"
+                placeholder="Ej.: 800"
               />
+              {form.formState.errors.purchasePrice && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.purchasePrice.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -197,7 +218,11 @@ export function PriceCard({ form }: PriceCardProps) {
                 id="purchaseDate"
                 type="button"
                 variant="outline"
-                className="w-full justify-start text-left font-normal"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  form.formState.errors.purchaseDate &&
+                    "border-destructive focus-visible:ring-destructive"
+                )}
                 onClick={() => setPurchaseDateOpen(true)}
               >
                 <CalendarDays className="h-4 w-4" />
@@ -261,6 +286,12 @@ export function PriceCard({ form }: PriceCardProps) {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {form.formState.errors.purchaseDate && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.purchaseDate.message}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -318,7 +349,7 @@ export function PriceCard({ form }: PriceCardProps) {
                   form.formState.errors.price && "border-destructive focus-visible:ring-destructive"
                 )}
                 {...form.register("price")}
-                placeholder="1200"
+                placeholder="Ej.: 1200"
               />
               {form.formState.errors.price && (
                 <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
@@ -331,11 +362,21 @@ export function PriceCard({ form }: PriceCardProps) {
                 id="originalPrice"
                 type="number"
                 min={0}
+                className={cn(
+                  form.formState.errors.originalPrice &&
+                    "border-destructive focus-visible:ring-destructive"
+                )}
                 {...form.register("originalPrice")}
-                placeholder="4500"
+                placeholder="Ej.: 4500"
               />
+              {form.formState.errors.originalPrice && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.originalPrice.message}
+                </p>
+              )}
               <p className="text-[11px] text-muted-foreground">
-                Precio como nuevo. Se usa para mostrar el descuento sobre el precio de venta.
+                Precio como nuevo. Debe ser <strong>mayor</strong> al precio de venta para mostrar el
+                descuento.
               </p>
             </div>
 
@@ -345,7 +386,11 @@ export function PriceCard({ form }: PriceCardProps) {
                 id="saleDate"
                 type="button"
                 variant="outline"
-                className="w-full justify-start text-left font-normal"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  form.formState.errors.saleDate &&
+                    "border-destructive focus-visible:ring-destructive"
+                )}
                 onClick={() => setSaleDateOpen(true)}
               >
                 <CalendarDays className="h-4 w-4" />
@@ -407,6 +452,25 @@ export function PriceCard({ form }: PriceCardProps) {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {form.formState.errors.saleDate && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.saleDate.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between border-t pt-4 sm:col-span-2">
+              <div>
+                <Label>Vendido</Label>
+                <p className="text-sm text-muted-foreground">
+                  El producto aparecerá como no disponible.
+                </p>
+              </div>
+              <Switch
+                checked={!!form.watch("soldOut")}
+                onCheckedChange={(checked) => form.setValue("soldOut", checked)}
+              />
             </div>
           </div>
         </div>

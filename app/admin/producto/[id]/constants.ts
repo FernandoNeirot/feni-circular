@@ -1,57 +1,6 @@
 import type { ProductMeasurements } from "@/shared/types/product";
 
-export const categories = [
-  "Abrigos",
-  "Bolsos",
-  "Calzados",
-  "Enteritos",
-  "Pantalones",
-  "Remeras",
-  "Vestidos",
-] as const;
-
-/** Campos de medidas por categoría. Claves: manga (A), ancho (B), largo (C), anchoCintura (D), entrepierna (E) */
-export const categoryMeasurementFields: Record<
-  string,
-  Array<{ key: "manga" | "ancho" | "largo" | "anchoCintura" | "entrepierna"; label: string }>
-> = {
-  Abrigos: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "anchoCintura", label: "D - Ancho cintura" },
-  ],
-  Bolsos: [
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-  ],
-  Enteritos: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "anchoCintura", label: "D - Ancho cintura" },
-  ],
-  Calzados: [
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-  ],
-  Pantalones: [
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "entrepierna", label: "E - Entrepierna" },
-  ],
-  Remeras: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-  ],
-  Vestidos: [
-    { key: "manga", label: "A - Largo manga" },
-    { key: "ancho", label: "B - Ancho" },
-    { key: "largo", label: "C - Alto" },
-    { key: "anchoCintura", label: "D - Ancho cintura" },
-  ],
-};
+export { categories, categoryMeasurementFields } from "@/shared/lib/category-measurements";
 
 export const conditions = ["Como nuevo", "Excelente", "Muy bueno", "Bueno"] as const;
 

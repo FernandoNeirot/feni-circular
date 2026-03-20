@@ -6,7 +6,10 @@ import { Label } from "@/shared/components/ui/label";
 import { ZoomableImage } from "@/shared/components/ZoomableImage";
 import type { ProductFormValues } from "@/features/admin";
 import type { UseFormReturn } from "react-hook-form";
-import { categoryMeasurementFields } from "../constants";
+import {
+  categoryMeasurementFields,
+  getCategoryMeasurementImagePath,
+} from "@/shared/lib/category-measurements";
 
 type MeasurementsCardProps = {
   form: UseFormReturn<ProductFormValues>;
@@ -21,7 +24,23 @@ export function MeasurementsCard({ form }: MeasurementsCardProps) {
       <CardContent className="space-y-4">
         {(() => {
           const category = form.watch("category");
-          const fields = category ? categoryMeasurementFields[category] : null;
+          const fields = category
+            ? categoryMeasurementFields[category as keyof typeof categoryMeasurementFields]
+            : undefined;
+          if (!category) {
+            return (
+              <p className="text-sm text-muted-foreground">
+                Seleccioná una categoría para cargar los campos de medidas.
+              </p>
+            );
+          }
+          if (Array.isArray(fields) && fields.length === 0) {
+            return (
+              <p className="text-sm text-muted-foreground">
+                <strong>Accesorios</strong> no requiere medidas ni imagen de referencia.
+              </p>
+            );
+          }
           if (!fields?.length) {
             return (
               <p className="text-sm text-muted-foreground">
@@ -51,22 +70,21 @@ export function MeasurementsCard({ form }: MeasurementsCardProps) {
             </div>
           );
         })()}
-        <div className="pt-2">
-          <ZoomableImage
-            src={
-              form.watch("category")
-                ? `/images/medidas_${form
-                    .watch("category")
-                    ?.normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .toLowerCase()}.png`
-                : "/images/REFERENCIA_MEDIDAS.png"
-            }
-            alt="Referencia de medidas (clic para ampliar)"
-            modalTitle="Referencia de medidas"
-            className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-          />
-        </div>
+        {(() => {
+          const category = form.watch("category");
+          const src = getCategoryMeasurementImagePath(category);
+          if (!src) return null;
+          return (
+            <div className="pt-2">
+              <ZoomableImage
+                src={src}
+                alt="Referencia de medidas (clic para ampliar)"
+                modalTitle="Referencia de medidas"
+                className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );

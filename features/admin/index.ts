@@ -4,6 +4,7 @@
  */
 export {
   productFormSchema,
+  productFormSchemaBase,
   defaultProductFormValues,
   normalizeSlug,
   type ProductFormValues,

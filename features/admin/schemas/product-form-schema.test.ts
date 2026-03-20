@@ -1,6 +1,7 @@
 import {
   normalizeSlug,
   productFormSchema,
+  productFormSchemaBase,
   defaultProductFormValues,
   type ProductFormValues,
 } from "./product-form-schema";
@@ -61,7 +62,11 @@ describe("productFormSchema", () => {
     condition: "Como nuevo",
     ageRange: "3-6 años",
     gender: "niña",
+    boughtFrom: "client-1",
+    purchasePrice: "800",
+    purchaseDate: "2026-03-20",
     soldOut: false,
+    isConsigned: false,
     featured: false,
     trending: false,
   };
@@ -127,12 +132,75 @@ describe("productFormSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("accepts empty originalPrice", () => {
+    const result = productFormSchema.safeParse({
+      ...defaultProductFormValues,
+      ...validBase,
+      originalPrice: "",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts originalPrice greater than sale price", () => {
+    const result = productFormSchema.safeParse({
+      ...defaultProductFormValues,
+      ...validBase,
+      price: "1200",
+      originalPrice: "4500",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects originalPrice less than or equal to sale price", () => {
+    const lower = productFormSchema.safeParse({
+      ...defaultProductFormValues,
+      ...validBase,
+      price: "1200",
+      originalPrice: "900",
+    });
+    expect(lower.success).toBe(false);
+    if (!lower.success) {
+      expect(lower.error.flatten().fieldErrors.originalPrice?.[0]).toContain("mayor");
+    }
+
+    const equal = productFormSchema.safeParse({
+      ...defaultProductFormValues,
+      ...validBase,
+      price: "1200",
+      originalPrice: "1200",
+    });
+    expect(equal.success).toBe(false);
+  });
+
+  it("requires saleDate when soldOut is true", () => {
+    const result = productFormSchema.safeParse({
+      ...defaultProductFormValues,
+      ...validBase,
+      soldOut: true,
+      saleDate: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.saleDate?.[0]).toContain("obligatoria");
+    }
+  });
+
+  it("accepts saleDate when soldOut is true", () => {
+    const result = productFormSchema.safeParse({
+      ...defaultProductFormValues,
+      ...validBase,
+      soldOut: true,
+      saleDate: "2026-03-21",
+    });
+    expect(result.success).toBe(true);
+  });
 });
 
 describe("defaultProductFormValues", () => {
   it("has all keys required by schema", () => {
     const keys = Object.keys(defaultProductFormValues).sort();
-    const schemaKeys = Object.keys(productFormSchema.shape).sort();
+    const schemaKeys = Object.keys(productFormSchemaBase.shape).sort();
     schemaKeys.forEach((k) => {
       expect(keys).toContain(k);
     });

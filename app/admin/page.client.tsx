@@ -1318,18 +1318,18 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 pb-4">
                     {!salesPeriodRangeOk && (
-                      <p className="text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 rounded-lg px-3 py-2">
+                      <p className="text-sm text-foreground border border-primary/30 bg-primary/5 rounded-lg px-3 py-2">
                         Completá <strong>fecha desde</strong> y <strong>fecha hasta</strong> para listar las
                         ventas de ese rango.
                       </p>
                     )}
                     {salesPeriodInvalidOrder && (
-                      <p className="text-sm text-destructive border border-destructive/30 rounded-lg px-3 py-2">
+                      <p className="text-sm text-destructive border border-destructive/40 bg-destructive/10 rounded-lg px-3 py-2">
                         La fecha desde no puede ser posterior a la fecha hasta.
                       </p>
                     )}
                     {salesPeriodRangeOk && !salesPeriodInvalidOrder && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-foreground">
                         <span className="font-medium text-foreground">{salesPeriodList.length}</span>{" "}
                         {salesPeriodList.length === 1 ? "venta" : "ventas"} en el período
                         {salesPeriodList.length > 0 && (
@@ -1552,7 +1552,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                                 <tr>
                                   <td
                                     colSpan={7}
-                                    className="text-center py-8 text-muted-foreground"
+                                    className="text-center py-8 text-sm text-foreground/80"
                                   >
                                     No hay resultados con los filtros actuales. Si tenés activada la
                                     opción &quot;Solo ventas con fecha&quot;, los vendidos sin fecha
@@ -1566,7 +1566,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                               <tr>
                                 <td
                                   colSpan={7}
-                                  className="text-center py-8 text-muted-foreground"
+                                  className="text-center py-8 text-sm text-foreground/80"
                                 >
                                   Indicá un rango de fechas válido para ver los productos vendidos.
                                 </td>

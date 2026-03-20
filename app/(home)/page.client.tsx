@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
+import type { Product } from "@/shared/types/product";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { HeroCarousel } from "@/shared/components/HeroCarousel";
@@ -25,21 +26,50 @@ interface PageclientProps {
   }[];
 }
 
+/**
+ * Fisher–Yates con RNG determinista (semilla por string).
+ * Orden estable entre renders y con el servidor; cambia si cambia el catálogo.
+ */
+function seededShuffle<T>(items: T[], seedKey: string): T[] {
+  let h = 2166136261;
+  for (let i = 0; i < seedKey.length; i++) {
+    h ^= seedKey.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  let seed = h >>> 0;
+  const rand = () => {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function poolIdentity(products: Product[]): string {
+  return products
+    .map((p) => String(p.id ?? p.slug ?? p.name))
+    .sort()
+    .join("\0");
+}
+
 const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   const { favoriteIds } = useFavorites();
   const { data: products = [] } = useQuery(productsQueryOptions);
 
-  const shuffleArray = <T,>(items: T[]): T[] => {
-    const arr = [...items];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  };
+  const featuredProducts = useMemo(() => {
+    const pool = products.filter((p) => p.featured);
+    return seededShuffle(pool, `featured:${poolIdentity(pool)}`).slice(0, 4);
+  }, [products]);
 
-  const featuredProducts = shuffleArray(products.filter((p) => p.featured)).slice(0, 4);
-  const trendingProducts = shuffleArray(products.filter((p) => p.trending)).slice(0, 4);
+  const trendingProducts = useMemo(() => {
+    const pool = products.filter((p) => p.trending);
+    return seededShuffle(pool, `trending:${poolIdentity(pool)}`).slice(0, 4);
+  }, [products]);
+
   const favoriteProducts = products.filter((p) => favoriteIds.includes(String(p.id)));
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
@@ -126,7 +156,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
         </div>
       </section>
 
-      <ProductGrid title="🔥 Los Más Vistos de la Semana" products={trendingProducts} />
+      <ProductGrid title="🔥 Los Más Vistos" products={trendingProducts} />
 
       {favoriteProducts.length >= 1 && (
         <ProductGrid title="❤️ Mis favoritos" products={favoriteProducts} />

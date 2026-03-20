@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const slugRegex = /^[a-zA-Z0-9-]*$/;
 
-export const productFormSchema = z.object({
+export const productFormSchemaBase = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(100),
   slug: z
     .string()
@@ -11,7 +11,13 @@ export const productFormSchema = z.object({
     .refine((v) => !v || slugRegex.test(v), "Solo letras, números y guiones"),
   slugSuffix: z.string().max(60).optional(),
   price: z.string().min(1, "El precio es obligatorio").refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Precio inválido"),
-  originalPrice: z.string().optional(),
+  originalPrice: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v?.trim() || (!Number.isNaN(Number(v)) && Number(v) >= 0),
+      "Precio original inválido"
+    ),
   purchasePrice: z.string().optional(),
   purchaseDate: z.string().optional(),
   saleDate: z.string().optional(),
@@ -42,7 +48,72 @@ export const productFormSchema = z.object({
   entrepierna: z.string().optional(),
 });
 
-export type ProductFormValues = z.infer<typeof productFormSchema>;
+export const productFormSchema = productFormSchemaBase.superRefine((data, ctx) => {
+  if (data.soldOut) {
+    const saleDateRaw = data.saleDate?.trim() ?? "";
+    if (!saleDateRaw) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "La fecha de venta es obligatoria cuando el producto está marcado como vendido",
+        path: ["saleDate"],
+      });
+    }
+  }
+
+  // Origen: comprado / consignado
+  const boughtFromRaw = data.boughtFrom?.trim() ?? "";
+  if (!boughtFromRaw) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `${data.isConsigned ? "Consignado de" : "Comprado a"} es obligatorio`,
+      path: ["boughtFrom"],
+    });
+  }
+
+  const purchasePriceRaw = data.purchasePrice?.trim() ?? "";
+  if (!purchasePriceRaw) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `${data.isConsigned ? "Precio de consignación" : "Precio de compra"} es obligatorio`,
+      path: ["purchasePrice"],
+    });
+  } else {
+    const purchase = Number(purchasePriceRaw);
+    if (Number.isNaN(purchase) || purchase < 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Precio inválido",
+        path: ["purchasePrice"],
+      });
+    }
+  }
+
+  const purchaseDateRaw = data.purchaseDate?.trim() ?? "";
+  if (!purchaseDateRaw) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `${data.isConsigned ? "Fecha de consignación" : "Fecha de compra"} es obligatoria`,
+      path: ["purchaseDate"],
+    });
+  }
+
+  const sale = Number(data.price);
+  if (Number.isNaN(sale)) return;
+  const raw = data.originalPrice?.trim() ?? "";
+  if (!raw) return;
+  const original = Number(raw);
+  if (Number.isNaN(original)) return;
+  if (original <= sale) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "El precio original debe ser mayor al precio de venta",
+      path: ["originalPrice"],
+    });
+  }
+});
+
+export type ProductFormValues = z.infer<typeof productFormSchemaBase>;
 
 export const defaultProductFormValues: ProductFormValues = {
   name: "",

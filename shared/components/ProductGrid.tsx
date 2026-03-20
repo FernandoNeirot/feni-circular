@@ -24,10 +24,29 @@ export function ProductGrid({ title, products }: ProductGridProps) {
           </Link>
         </Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      <div className="w-full max-w-7xl -mx-4 px-4 sm:mx-auto sm:px-0">
+        <ul
+          role="list"
+          className={[
+            "flex gap-5",
+            "sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+            "overflow-x-auto sm:overflow-visible",
+            "snap-x snap-mandatory sm:snap-none",
+            "scroll-pl-0 scroll-pr-3 sm:scroll-pr-0",
+            "pb-1 sm:pb-0",
+            "pr-3 sm:pr-0",
+            "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+          ].join(" ")}
+        >
+          {products.map((product) => (
+            <li
+              key={product.id}
+              className="snap-start shrink-0 w-[min(calc(100vw-6rem),17.5rem)] sm:w-auto sm:min-w-0 sm:shrink sm:snap-none"
+            >
+              <ProductCard product={product} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

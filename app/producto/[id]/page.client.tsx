@@ -23,6 +23,11 @@ import {
   Info,
 } from "lucide-react";
 import type { Product } from "@/shared/types/product";
+import {
+  categorySkipsMeasurements,
+  getCategoryMeasurementImagePath,
+  getProductMeasurementEntries,
+} from "@/shared/lib/category-measurements";
 import { useCart } from "@/shared/components/cart-provider";
 import { whatsappNumber } from "@/shared/configs/whatsapp";
 import { useFavorites } from "@/shared/components/favorites-provider";
@@ -239,57 +244,50 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
               </Badge>
             </div>
 
-            <Card className="border-2 border-primary/20">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Ruler className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-lg">Medidas Reales de la Prenda</h3>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
-                  <Info className="h-3.5 w-3.5" />
-                  Medidas tomadas con la prenda extendida sobre superficie plana
-                </p>
-                {(() => {
-                  const m = product.measurements;
-                  const entries: Array<{ label: string; value: number }> = [
-                    { label: "C - Largo", value: m?.largo ?? 0 },
-                    { label: "B - Ancho", value: m?.ancho ?? 0 },
-                    { label: "A - Largo manga", value: m?.manga ?? 0 },
-                    { label: "D - Ancho cintura", value: m?.anchoCintura ?? 0 },
-                    { label: "E - Entrepierna", value: m?.entrepierna ?? 0 },
-                  ].filter((e) => e.value > 0);
-                  return (
-                    <>
-                      <div className="grid grid-cols-2 gap-3">
-                        {entries.map(({ label, value }) => (
-                          <div key={label} className="bg-muted rounded-lg p-3 text-center">
-                            <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                            <p className="text-xl font-bold text-primary">{value} cm</p>
+            {!categorySkipsMeasurements(product.category) && (
+              <Card className="border-2 border-primary/20">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Ruler className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-lg">Medidas Reales de la Prenda</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+                    <Info className="h-3.5 w-3.5" />
+                    Medidas tomadas con la prenda extendida sobre superficie plana
+                  </p>
+                  {(() => {
+                    const entries = getProductMeasurementEntries(product);
+                    const imgSrc = getCategoryMeasurementImagePath(product.category);
+                    return (
+                      <>
+                        {entries.length > 0 && (
+                          <div className="grid grid-cols-2 gap-3">
+                            {entries.map(({ label, value }) => (
+                              <div key={label} className="bg-muted rounded-lg p-3 text-center">
+                                <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                                <p className="text-xl font-bold text-primary">{value} cm</p>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                      <div className="mt-4 pt-2">
-                        <ZoomableImage
-                          src={
-                            product.category
-                              ? `/images/medidas_${product.category
-                                  .normalize("NFD")
-                                  .replace(/[\u0300-\u036f]/g, "")
-                                  .toLowerCase()}.png`
-                              : "/images/REFERENCIA_MEDIDAS.png"
-                          }
-                          alt="Referencia de medidas"
-                          modalTitle="Referencia de medidas"
-                          className="max-w-full h-auto rounded-lg border bg-muted"
-                          showZoomHint
-                          zoomHintText="Clic para ampliar"
-                        />
-                      </div>
-                    </>
-                  );
-                })()}
-              </CardContent>
-            </Card>
+                        )}
+                        {imgSrc && (
+                          <div className={entries.length > 0 ? "mt-4 pt-2" : ""}>
+                            <ZoomableImage
+                              src={imgSrc}
+                              alt="Referencia de medidas"
+                              modalTitle="Referencia de medidas"
+                              className="max-w-full h-auto rounded-lg border bg-muted"
+                              showZoomHint
+                              zoomHintText="Clic para ampliar"
+                            />
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            )}
 
             <div className="flex gap-3">
               {product.soldOut ? (

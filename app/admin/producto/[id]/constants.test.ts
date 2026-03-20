@@ -12,9 +12,11 @@ describe("admin producto constants", () => {
   describe("categories", () => {
     it("includes expected categories", () => {
       expect(categories).toContain("Abrigos");
+      expect(categories).toContain("Accesorios");
       expect(categories).toContain("Vestidos");
       expect(categories).toContain("Remeras");
       expect(categories).toContain("Pantalones");
+      expect(categories).toContain("Pollera");
       expect(categories).toContain("Calzados");
       expect(categories).toContain("Bolsos");
       expect(categories).toContain("Enteritos");
@@ -82,6 +84,18 @@ describe("admin producto constants", () => {
           expect(f.label).toBeTruthy();
         });
       });
+    });
+
+    it("Accesorios has no measurement fields", () => {
+      expect(categoryMeasurementFields.Accesorios).toEqual([]);
+    });
+
+    it("Pollera has cintura, alto and largo fields", () => {
+      expect(categoryMeasurementFields.Pollera.map((f) => f.key)).toEqual([
+        "anchoCintura",
+        "largo",
+        "ancho",
+      ]);
     });
   });
 
