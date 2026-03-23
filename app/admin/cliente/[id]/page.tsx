@@ -10,8 +10,8 @@ import { Label } from "@/shared/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Save, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { clientsQueryKey } from "@/shared/queries/clients";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { clientsQueryKey, clientsQueryOptions } from "@/shared/queries/clients";
 import { createClient, updateClient, getClient } from "@/shared/serverActions/clients";
 
 export default function AdminClienteFormPage() {
@@ -26,6 +26,8 @@ export default function AdminClienteFormPage() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(Boolean(isEditing));
   const [saving, setSaving] = useState(false);
+
+  useQuery(clientsQueryOptions);
 
   useEffect(() => {
     if (!isEditing || !id) return;
@@ -61,7 +63,11 @@ export default function AdminClienteFormPage() {
         const result = await updateClient(id, data);
         if (result.success) {
           queryClient.setQueryData(clientsQueryKey, (prev: Client[] | undefined) =>
-            prev ? prev.map((c) => (c.id === id ? { ...data, id } : c)) : prev
+            prev
+              ? prev.some((c) => c.id === id)
+                ? prev.map((c) => (c.id === id ? { ...data, id } : c))
+                : [...prev, { ...data, id }]
+              : [{ ...data, id }]
           );
           toast.success("Cliente actualizado");
           router.push("/admin");
@@ -72,12 +78,18 @@ export default function AdminClienteFormPage() {
         const result = await createClient(data);
         if (result.success && result.client) {
           queryClient.setQueryData(clientsQueryKey, (prev: Client[] | undefined) =>
-            prev ? [...prev, result.client!] : [result.client!]
+            prev
+              ? prev.some((c) => c.id === result.client!.id)
+                ? prev.map((c) => (c.id === result.client!.id ? result.client! : c))
+                : [...prev, result.client!]
+              : [result.client!]
           );
           toast.success("Cliente creado");
           router.push("/admin");
         } else {
-          toast.error(result.success === false ? (result as { error: string }).error : "Error al crear");
+          toast.error(
+            result.success === false ? (result as { error: string }).error : "Error al crear"
+          );
         }
       }
     } catch {

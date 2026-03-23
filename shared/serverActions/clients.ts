@@ -74,7 +74,7 @@ export async function getClient(clientId: string): Promise<Client | null> {
 export async function getAllClients(): Promise<Client[] | null> {
   try {
     const res = await fetch(`${getApiBase()}/api/clients`, {
-      next: { revalidate: 60 * 60 },
+      next: { revalidate: 24 * 60 * 60 },
     });
     if (!res.ok) return null;
     const data = (await res.json()) as unknown;
