@@ -13,6 +13,9 @@ interface ProductGridProps {
 
 export function ProductGrid({ title, products }: ProductGridProps) {
   if (products.length === 0) return null;
+  const productsOrdered = [...products].sort(
+    (a, b) => Number(!!a.soldOut) - Number(!!b.soldOut)
+  );
   return (
     <section className="py-12 px-4 md:px-8">
       <div className="flex items-center justify-between max-w-7xl mx-auto mb-8">
@@ -38,7 +41,7 @@ export function ProductGrid({ title, products }: ProductGridProps) {
             "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
           ].join(" ")}
         >
-          {products.map((product) => (
+          {productsOrdered.map((product) => (
             <li
               key={product.id}
               className="snap-start shrink-0 w-[min(calc(100vw-6rem),17.5rem)] sm:w-auto sm:min-w-0 sm:shrink sm:snap-none"

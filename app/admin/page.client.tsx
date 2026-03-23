@@ -880,7 +880,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 pb-4">
-                  <div className="flex items-center gap-3 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm">
                     <span className="text-muted-foreground">Ver</span>
                     <button
                       type="button"
@@ -890,7 +890,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                         );
                         setClientReportPage(1);
                       }}
-                      className={`relative inline-flex h-10 w-[32rem] max-w-full items-center rounded-full border p-1.5 transition-colors ${
+                      className={`relative inline-flex h-12 sm:h-10 w-full sm:w-[32rem] max-w-full items-center rounded-full border p-1.5 transition-colors ${
                         clientReportMode === "sales"
                           ? "bg-blue-500/15 border-blue-500/40"
                           : "bg-emerald-500/15 border-emerald-500/40"
@@ -898,22 +898,22 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                       aria-label="Cambiar modo de reporte por cliente"
                     >
                       <span
-                        className={`absolute top-1 h-7 w-[calc(50%-0.25rem)] rounded-full shadow-sm transition-transform ${
+                        className={`absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-full shadow-sm transition-transform ${
                           clientReportMode === "sales"
                           ? "translate-x-[calc(100%+0.25rem)] bg-blue-600"
                             : "translate-x-0 bg-emerald-600"
                         }`}
                       />
-                      <span className="relative z-10 flex w-full text-sm font-medium px-2">
+                      <span className="relative z-10 flex w-full text-[11px] sm:text-sm font-medium px-1 sm:px-2">
                         <span
-                          className={`w-1/2 text-center px-5 whitespace-nowrap transition-colors ${
+                          className={`w-1/2 text-center px-2 sm:px-5 whitespace-nowrap transition-colors ${
                             clientReportMode === "purchase" ? "text-white" : "text-foreground"
                           }`}
                         >
                           Compras / consignación
                         </span>
                         <span
-                          className={`w-1/2 text-center px-5 whitespace-nowrap transition-colors ${
+                          className={`w-1/2 text-center px-2 sm:px-5 whitespace-nowrap transition-colors ${
                             clientReportMode === "sales" ? "text-white" : "text-foreground"
                           }`}
                         >
@@ -936,7 +936,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   />
                 </div>
 
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3 text-sm items-end">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 text-sm items-start sm:items-end">
                   <div className="space-y-1">
                     <label htmlFor="client-report-from" className="text-xs text-muted-foreground">
                       Fecha desde
@@ -985,10 +985,10 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm w-full sm:w-auto">
                     <span>Ordenar:</span>
                     <select
-                      className="border rounded-md px-2 py-1 bg-background"
+                      className="border rounded-md px-2 py-1 bg-background w-full sm:w-auto min-w-0"
                       value={clientReportSort}
                       onChange={(e) => {
                         setClientReportSort(e.target.value as ReportSort);
@@ -1004,7 +1004,33 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   {/* Export CSV oculto temporalmente */}
                 </div>
 
-                <div className="border rounded-lg overflow-hidden">
+                <div className="space-y-3 md:hidden">
+                  {clientReportsPagination.pageItems.map((row) => (
+                    <button
+                      key={row.id}
+                      type="button"
+                      className="w-full border rounded-lg p-3 text-left space-y-2 hover:bg-muted/30"
+                      onClick={() => {
+                        const selected = clientsById.get(row.id);
+                        if (selected) setSelectedClientReport(selected);
+                      }}
+                    >
+                      <p className="font-medium">{row.name}</p>
+                      <p className="text-sm text-muted-foreground">{row.phone || "Sin teléfono"}</p>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{row.dateLabel}</span>
+                        <Badge variant="outline">{row.count}</Badge>
+                      </div>
+                    </button>
+                  ))}
+                  {clientReportRows.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                      No se encontraron clientes/proveedores para este filtro
+                    </div>
+                  )}
+                </div>
+
+                <div className="hidden md:block border rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -1049,11 +1075,11 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground">
                   <span>
                     Mostrando {clientReportsPagination.pageItems.length} de {clientReportRows.length}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -1092,7 +1118,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 pb-4">
-                  <div className="flex items-center gap-3 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm">
                     <span className="text-muted-foreground">Ver</span>
                     <button
                       type="button"
@@ -1102,7 +1128,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                         );
                         setProductReportPage(1);
                       }}
-                      className={`relative inline-flex h-10 w-[32rem] max-w-full items-center rounded-full border p-1.5 transition-colors ${
+                      className={`relative inline-flex h-12 sm:h-10 w-full sm:w-[32rem] max-w-full items-center rounded-full border p-1.5 transition-colors ${
                         productReportMode === "sales"
                           ? "bg-blue-500/15 border-blue-500/40"
                           : "bg-emerald-500/15 border-emerald-500/40"
@@ -1110,22 +1136,22 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                       aria-label="Cambiar modo de reporte por producto"
                     >
                       <span
-                        className={`absolute top-1 h-7 w-[calc(50%-0.25rem)] rounded-full shadow-sm transition-transform ${
+                        className={`absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-full shadow-sm transition-transform ${
                           productReportMode === "sales"
                           ? "translate-x-[calc(100%+0.25rem)] bg-blue-600"
                             : "translate-x-0 bg-emerald-600"
                         }`}
                       />
-                      <span className="relative z-10 flex w-full text-sm font-medium px-2">
+                      <span className="relative z-10 flex w-full text-[11px] sm:text-sm font-medium px-1 sm:px-2">
                         <span
-                          className={`w-1/2 text-center px-5 whitespace-nowrap transition-colors ${
+                          className={`w-1/2 text-center px-2 sm:px-5 whitespace-nowrap transition-colors ${
                             productReportMode === "purchase" ? "text-white" : "text-foreground"
                           }`}
                         >
                           Compras / consignación
                         </span>
                         <span
-                          className={`w-1/2 text-center px-5 whitespace-nowrap transition-colors ${
+                          className={`w-1/2 text-center px-2 sm:px-5 whitespace-nowrap transition-colors ${
                             productReportMode === "sales" ? "text-white" : "text-foreground"
                           }`}
                         >
@@ -1148,7 +1174,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   />
                 </div>
 
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3 text-sm items-end">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 text-sm items-start sm:items-end">
                   <div className="space-y-1">
                     <label htmlFor="product-report-from" className="text-xs text-muted-foreground">
                       Fecha desde
@@ -1197,10 +1223,10 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm w-full sm:w-auto">
                     <span>Ordenar:</span>
                     <select
-                      className="border rounded-md px-2 py-1 bg-background"
+                      className="border rounded-md px-2 py-1 bg-background w-full sm:w-auto min-w-0"
                       value={productReportSort}
                       onChange={(e) => {
                         setProductReportSort(e.target.value as ReportSort);
@@ -1216,7 +1242,42 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   {/* Export CSV oculto temporalmente */}
                 </div>
 
-                <div className="border rounded-lg overflow-hidden">
+                <div className="space-y-3 md:hidden">
+                  {productReportsPagination.pageItems.map(({ product }) => {
+                    const boughtBy = clientsById.get(product.boughtFrom)?.name ?? "Sin dato";
+                    const soldTo = clientsById.get(product.soldTo)?.name ?? "Sin dato";
+                    const rawDate =
+                      productReportMode === "purchase" ? product.purchaseDate : product.saleDate;
+                    const dateKey = normalizeReportDateKey(rawDate);
+                    const dateCell = dateKey ? formatReportDateDisplay(dateKey) : "—";
+                    return (
+                      <button
+                        key={product.id}
+                        type="button"
+                        className="w-full border rounded-lg p-3 text-left space-y-2 hover:bg-muted/30"
+                        onClick={() => setSelectedProductReport(product)}
+                      >
+                        <p className="font-medium">{product.name}</p>
+                        <p className="text-sm text-muted-foreground">{dateCell}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {productReportMode === "purchase" ? boughtBy : soldTo}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {productReportMode === "purchase"
+                            ? `Vendido a: ${soldTo}`
+                            : `Origen: ${boughtBy}`}
+                        </p>
+                      </button>
+                    );
+                  })}
+                  {productReportRows.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                      No se encontraron productos para este filtro
+                    </div>
+                  )}
+                </div>
+
+                <div className="hidden md:block border rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -1274,11 +1335,11 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground">
                   <span>
                     Mostrando {productReportsPagination.pageItems.length} de {productReportRows.length}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -1363,7 +1424,7 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                       </p>
                     )}
 
-                    <div className="flex flex-col sm:flex-row flex-wrap gap-3 text-sm items-end">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-3 text-sm items-start sm:items-end">
                       <div className="space-y-1">
                         <label htmlFor="sales-period-from" className="text-xs text-muted-foreground">
                           Fecha desde
@@ -1444,10 +1505,10 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                     </label>
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div className="flex items-center gap-2 text-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm w-full sm:w-auto">
                         <span>Ordenar:</span>
                         <select
-                          className="border rounded-md px-2 py-1 bg-background disabled:opacity-50"
+                          className="border rounded-md px-2 py-1 bg-background disabled:opacity-50 w-full sm:w-auto min-w-0"
                           value={salesPeriodSort}
                           disabled={!salesPeriodRangeOk || salesPeriodInvalidOrder}
                           onChange={(e) => {
@@ -1465,7 +1526,80 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                       </div>
                     </div>
 
-                    <div className="border rounded-lg overflow-hidden">
+                    <div className="space-y-3 md:hidden">
+                      {salesPeriodPagination.pageItems.map((product) => {
+                        const hasBuyer =
+                          typeof product.soldTo === "string" &&
+                          product.soldTo.trim().length > 0;
+                        const buyer = hasBuyer
+                          ? clientsById.get(product.soldTo)?.name ?? "Sin dato"
+                          : product.soldOut
+                            ? "Vendido (sin comprador)"
+                            : "—";
+                        const saleKey = normalizeReportDateKey(product.saleDate);
+                        const dateLabel = saleKey ? formatReportDateDisplay(saleKey) : "—";
+                        const sale = product.price ?? 0;
+                        const cost = product.purchasePrice ?? 0;
+                        const profit = sale - cost;
+                        const pid = product.id?.toString() ?? "";
+                        return (
+                          <div
+                            key={product.id ?? product.name + saleKey}
+                            className="border rounded-lg p-3 space-y-2"
+                          >
+                            <button
+                              type="button"
+                              className="w-full text-left space-y-2"
+                              onClick={() => setSelectedProductReport(product)}
+                            >
+                              <p className="font-medium">{product.name}</p>
+                              <p className="text-sm text-muted-foreground">{dateLabel}</p>
+                              <p className="text-sm text-muted-foreground">{buyer}</p>
+                            </button>
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div>
+                                <p className="text-muted-foreground">Venta</p>
+                                <p className="font-medium">{formatSalesReportArs(sale)}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Costo</p>
+                                <p className="font-medium">{formatSalesReportArs(cost)}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Ganancia</p>
+                                <p
+                                  className={
+                                    profit >= 0
+                                      ? "font-medium text-emerald-600 dark:text-emerald-400"
+                                      : "font-medium text-destructive"
+                                  }
+                                >
+                                  {formatSalesReportArs(profit)}
+                                </p>
+                              </div>
+                            </div>
+                            {pid ? (
+                              <Button variant="outline" size="sm" className="w-full" asChild>
+                                <Link href={`/admin/producto/${pid}`}>Editar</Link>
+                              </Button>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                      {salesPeriodRangeOk && !salesPeriodInvalidOrder && salesPeriodList.length === 0 && (
+                        <div className="text-center py-8 text-sm text-foreground/80 border rounded-lg">
+                          No hay resultados con los filtros actuales. Si tenés activada la opción
+                          &quot;Solo ventas con fecha&quot;, los vendidos sin fecha no aparecen.
+                        </div>
+                      )}
+                      {(!salesPeriodRangeOk || salesPeriodInvalidOrder) && (
+                        <div className="text-center py-8 text-sm text-foreground/80 border rounded-lg">
+                          Indicá un rango de fechas válido para ver los productos vendidos.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="hidden md:block border rounded-lg overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="w-full">
                           <thead>
@@ -1577,11 +1711,11 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground">
                       <span>
                         Mostrando {salesPeriodPagination.pageItems.length} de {salesPeriodList.length}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center sm:justify-start gap-2">
                         <Button
                           variant="outline"
                           size="sm"
