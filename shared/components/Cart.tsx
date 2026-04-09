@@ -13,22 +13,52 @@ import {
   SheetTrigger,
   SheetDescription,
 } from "@/shared/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/shared/components/ui/dialog";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
-import { ShoppingCart, Trash2, Send, ShoppingBag, Sparkles, Package, Gift } from "lucide-react";
+import {
+  ShoppingCart,
+  Trash2,
+  Send,
+  ShoppingBag,
+  Sparkles,
+  Package,
+  Gift,
+  Truck,
+  Store,
+} from "lucide-react";
 import type { CartItem } from "@/shared/types/product";
+import type { Address, ShippingOption } from "@/shared/types/shipping";
 import { useCart } from "@/shared/components/cart-provider";
 import { productsQueryOptions } from "@/shared/queries/productos";
 import { useWhatsAppVisibility } from "@/shared/components/WhatsAppVisibilityContext";
+import { AddressForm } from "@/shared/components/AddressForm";
+import { ShippingOptions } from "@/shared/components/ShippingOptions";
+import { whatsappNumber } from "@/shared/configs/whatsapp";
+import { toast } from "sonner";
 
 export function Cart() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showShippingOptions, setShowShippingOptions] = useState(false);
+  const [shippingMode, setShippingMode] = useState<"pickup" | "shipping" | null>(null);
+  const [address, setAddress] = useState<Address | null>(null);
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+
   const { cartItems: items, removeItem, checkout } = useCart();
   const { setCartOpen } = useWhatsAppVisibility();
 
   useEffect(() => {
     setCartOpen(isOpen);
   }, [isOpen, setCartOpen]);
+
   const { data: products = [] } = useQuery(productsQueryOptions);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -37,9 +67,63 @@ export function Cart() {
   const cartIds = new Set(items.map((i) => i.id));
   const upsellProduct = products.find((p) => !cartIds.has(p.id) && !p.soldOut && p.price <= 15000);
 
-  const handleCheckout = () => {
+  const handleCheckoutClick = () => {
+    setShowShippingOptions(true);
+  };
+
+  const handlePickupCheckout = () => {
     checkout();
     setIsOpen(false);
+    setShowShippingOptions(false);
+    setShippingMode(null);
+  };
+
+  const handleShippingCheckout = () => {
+    if (!address) {
+      toast.error("Ingresá tu dirección");
+      return;
+    }
+
+    if (!selectedShipping) {
+      toast.error("Seleccioná una opción de envío");
+      return;
+    }
+
+    setShippingLoading(true);
+
+    try {
+      const shippingTotal = totalPrice + selectedShipping.price;
+      const homeUrl =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : (process.env.NEXT_PUBLIC_BASE_URL ?? "");
+
+      const message = `¡Hola! Me interesa realizar un pedido con envío:\n\n${items
+        .map(
+          (item) =>
+            `• ${item.name} (Talle: ${item.size})\n  Cantidad: ${item.quantity} - $${(item.price * item.quantity).toLocaleString()}`
+        )
+        .join(
+          "\n\n"
+        )}\n\n*Subtotal: $${totalPrice.toLocaleString()}*\n*Envío (${selectedShipping.service}): $${selectedShipping.price.toFixed(2)}*\n*Total: $${shippingTotal.toFixed(2)}*\n\n📍 *Dirección de envío:*\n${address.street} ${address.number}${
+        address.floor ? ` piso ${address.floor}` : ""
+      }${address.apartment ? ` dpto ${address.apartment}` : ""}\n${address.city}, ${address.province} ${address.postalCode}\n\n⏱️ *Entrega estimada: ${selectedShipping.deliveryDays} día/s*\n\n_Pedido desde:_ ${homeUrl}`;
+
+      window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
+
+      toast.success("Redirigiendo a WhatsApp con detalles de envío...");
+      setIsOpen(false);
+      setShowShippingOptions(false);
+      setShippingMode(null);
+      setAddress(null);
+      setSelectedShipping(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Error procesando pedido";
+      toast.error(errorMessage);
+      console.error("Error:", error);
+    } finally {
+      setShippingLoading(false);
+    }
   };
 
   return (
@@ -196,7 +280,7 @@ export function Cart() {
               <Button
                 className="w-full gap-2 rounded-full h-12 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                 size="lg"
-                onClick={handleCheckout}
+                onClick={handleCheckoutClick}
               >
                 <Send className="h-5 w-5" />
                 Pedir por WhatsApp
@@ -210,6 +294,117 @@ export function Cart() {
           </>
         )}
       </SheetContent>
+
+      {/* Dialog para opciones de envío */}
+      <Dialog open={showShippingOptions} onOpenChange={setShowShippingOptions}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">¿Cómo querés recibir tu pedido?</DialogTitle>
+            <DialogDescription>Elegí entre envío a domicilio o retiro</DialogDescription>
+          </DialogHeader>
+
+          {shippingMode === null ? (
+            <div className="grid grid-cols-2 gap-4 py-6">
+              {/* Opción Retirar */}
+              <button
+                onClick={() => setShippingMode("pickup")}
+                className="flex flex-col items-center justify-center p-6 rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all"
+              >
+                <Store className="h-10 w-10 text-primary mb-3" />
+                <span className="font-semibold text-lg">Retirar</span>
+                <span className="text-xs text-muted-foreground text-center mt-2">
+                  Coordinálo directamente por WhatsApp
+                </span>
+              </button>
+
+              {/* Opción Envío */}
+              <button
+                onClick={() => setShippingMode("shipping")}
+                className="flex flex-col items-center justify-center p-6 rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all"
+              >
+                <Truck className="h-10 w-10 text-primary mb-3" />
+                <span className="font-semibold text-lg">Envío</span>
+                <span className="text-xs text-muted-foreground text-center mt-2">
+                  Con Correo Argentino
+                </span>
+              </button>
+            </div>
+          ) : shippingMode === "pickup" ? (
+            <div className="space-y-4 py-6">
+              <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
+                <p className="text-sm text-blue-900">
+                  ✓ Te enviaremos un mensaje por WhatsApp con los detalles para coordinar el retiro
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setShippingMode(null)} className="flex-1">
+                  Volver
+                </Button>
+                <Button onClick={handlePickupCheckout} className="flex-1">
+                  Continuar con WhatsApp
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 py-6">
+              <AddressForm
+                onAddressValidated={setAddress}
+                onShippingOptionsCalculated={(opts) => {
+                  setShippingOptions(opts);
+                  setSelectedShipping(opts[0] || null);
+                }}
+                loading={shippingLoading}
+              />
+
+              {shippingOptions.length > 0 && (
+                <ShippingOptions
+                  options={shippingOptions}
+                  onSelectOption={setSelectedShipping}
+                  loading={shippingLoading}
+                />
+              )}
+
+              {address && selectedShipping && (
+                <div className="rounded-lg bg-green-50 border border-green-200 p-4">
+                  <p className="text-sm font-semibold mb-2 text-green-900">
+                    📝 Tu pedido será enviado a:
+                  </p>
+                  <p className="text-sm text-green-800">
+                    {address.street} {address.number}
+                    {address.floor ? ` piso ${address.floor}` : ""}
+                    {address.apartment ? ` dpto ${address.apartment}` : ""}
+                  </p>
+                  <p className="text-sm text-green-800">
+                    {address.city}, {address.province} {address.postalCode}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShippingMode(null);
+                    setAddress(null);
+                    setSelectedShipping(null);
+                    setShippingOptions([]);
+                  }}
+                  className="flex-1"
+                >
+                  Volver
+                </Button>
+                <Button
+                  onClick={handleShippingCheckout}
+                  disabled={!address || !selectedShipping || shippingLoading}
+                  className="flex-1"
+                >
+                  {shippingLoading ? "Procesando..." : "Ir a WhatsApp con Envío"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }
