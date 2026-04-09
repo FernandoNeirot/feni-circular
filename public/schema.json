@@ -1,0 +1,100 @@
+{
+  "@context": "https://schema.org/",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://fenicircular.com/#organization",
+      "name": "Feni Circular",
+      "description": "Plataforma de ropa infantil usada de excelente calidad",
+      "url": "https://fenicircular.com",
+      "logo": "https://fenicircular.com/images/feni-logo.png",
+      "sameAs": ["https://wa.me/541133150864"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "telephone": "+54-11-3315-0864",
+        "areaServed": "AR"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "AR",
+        "addressLocality": "CABA"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://fenicircular.com/#website",
+      "url": "https://fenicircular.com",
+      "name": "Feni Circular",
+      "description": "Ropa infantil usada de excelente calidad",
+      "publisher": {
+        "@id": "https://fenicircular.com/#organization"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://fenicircular.com/buscar?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://fenicircular.com/#localbusiness",
+      "name": "Feni Circular",
+      "image": "https://fenicircular.com/images/feni-logo.png",
+      "description": "Plataforma de compra y venta de ropa infantil usada",
+      "url": "https://fenicircular.com",
+      "telephone": "+54-11-3315-0864",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Argentina"
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "ARS",
+        "offerCount": "500+",
+        "offers": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Ropa infantil usada",
+              "category": "Moda infantil"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Inicio",
+          "item": "https://fenicircular.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Buscar",
+          "item": "https://fenicircular.com/buscar"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Cómo Funciona",
+          "item": "https://fenicircular.com/como-funciona"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Vender",
+          "item": "https://fenicircular.com/vender"
+        }
+      ]
+    }
+  ]
+}

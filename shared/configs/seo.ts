@@ -13,20 +13,25 @@ const BASE_URL =
 
 export const SITE_NAME = "FENI Circular";
 export const SITE_DESCRIPTION =
-  "Ropa infantil usada de excelente calidad. Dale una segunda vida a la ropa de tus hijos: moda circular, sostenible y con impacto real (menos agua, menos CO₂). Comprá y vendé con FENI.";
+  "Ropa infantil usada de excelente calidad en Argentina. Dale una segunda vida a la ropa de tus hijos: moda circular, sostenible y con impacto real. Compra, vende y consigna ropa infantil. Envíos con Correo Argentino.";
 export const SITE_KEYWORDS = [
   "ropa infantil usada",
-  "ropa circular",
-  "moda circular infantil",
   "ropa infantil segunda mano",
-  "FENI",
-  "feni circular",
-  "ropa bebé usada",
+  "ropa infantil circular",
+  "ropa infantil sostenible",
+  "ropa infantil Argentina",
   "ropa niños usada",
-  "sostenible",
-  "segunda vida ropa",
+  "ropa niña usada",
+  "economía circular infantil",
   "comprar ropa infantil",
   "vender ropa infantil",
+  "consignación ropa infantil",
+  "ropa usada CABA",
+  "ropa bebé segunda mano",
+  "moda infantil sostenible",
+  "segunda vida ropa",
+  "feni circular",
+  "FENI",
 ];
 export const LOCALE = "es_AR";
 export const TWITTER_HANDLE = "@feni.kids";
@@ -43,7 +48,6 @@ export function canonicalUrl(path: string): string {
   const p = path.startsWith("/") ? path : `/${path}`;
   return `${base}${p}`;
 }
-
 
 export const DEFAULT_OG_IMAGE = "/og-default.png";
 

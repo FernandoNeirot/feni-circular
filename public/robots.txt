@@ -1,0 +1,54 @@
+# robots.txt for Feni Circular
+# Generated for https://fenicircular.com
+
+# General rules for all bots
+User-agent: *
+Allow: /
+Allow: /buscar
+Allow: /producto/
+Allow: /admin/
+Disallow: /api/
+Disallow: /.next/
+Crawl-delay: 2
+
+# Google Bot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Claude/Anthropic
+User-agent: Claude-Web
+Allow: /
+
+# GPT/OpenAI
+User-agent: GPTBot
+Allow: /
+
+# Gemini/Google AI
+User-agent: Google-Extended
+Allow: /
+
+# Other AI crawlers
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: *-AI
+Allow: /
+
+# Sitemap
+Sitemap: https://fenicircular.com/sitemap.xml
+
+# Block specific bots if needed
+User-agent: SemrushBot
+Allow: /
+
+User-agent: DotBot
+Allow: /

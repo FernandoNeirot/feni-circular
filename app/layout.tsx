@@ -15,13 +15,63 @@ const quicksand = Quicksand({
   weight: ["400", "500", "600", "700"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com";
+
 export const metadata: Metadata = {
-  title: "FENI - Ropa Infantil Circular",
-  description: "Ropa infantil circular de excelente calidad. Segunda vida, calidad excepcional.",
+  title: "Feni Circular - Ropa Infantil Usada de Calidad | Compra y Vende",
+  description:
+    "Ropa infantil usada de excelente calidad. Compra ropa de segunda mano para niñas y niños. Vende o consigna ropa infantil en Feni Circular. Envíos con Correo Argentino.",
+  keywords: [
+    "ropa infantil usada",
+    "ropa infantil segunda mano",
+    "ropa niños usado",
+    "ropa infantil circular",
+    "economía circular",
+    "ropa infantil sostenible",
+    "consignación ropa infantil",
+    "vender ropa infantil",
+    "ropa usada Argentina",
+    "CABA",
+    "feni circular",
+  ],
+  metadataBase: new URL(baseUrl),
+  alternates: {
+    canonical: baseUrl,
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: baseUrl,
+    title: "Feni Circular - Ropa Infantil Usada de Calidad",
+    description:
+      "Plataforma de venta de ropa infantil usada. Segunda vida, calidad excepcional. Compra y vende con nosotros.",
+    siteName: "Feni Circular",
+    images: [
+      {
+        url: `${baseUrl}/images/feni-logo.png`,
+        width: 1200,
+        height: 630,
+        alt: "Feni Circular - Ropa Infantil",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Feni Circular - Ropa Infantil Usada",
+    description: "Ropa infantil circular de excelente calidad.",
+    images: [`${baseUrl}/images/feni-logo.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    "google-site-verification": "agregar-tu-google-verification",
+  },
   icons: {
     icon: "/images/feni-logo.png",
     apple: "/images/feni-logo.png",
   },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -31,6 +81,59 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <meta name="theme-color" content="#1e40af" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Feni Circular" />
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* JSON-LD Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Feni Circular",
+              url: baseUrl,
+              logo: `${baseUrl}/images/feni-logo.png`,
+              description: "Plataforma de venta de ropa infantil usada de excelente calidad.",
+              sameAs: ["https://wa.me/541133150864"],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "Customer Service",
+                telephone: "+54-11-3315-0864",
+              },
+              areaServed: {
+                "@type": "Country",
+                name: "AR",
+              },
+            }),
+          }}
+        />
+
+        {/* ecommerce Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "WebSite",
+              name: "Feni Circular",
+              url: baseUrl,
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: `${baseUrl}/buscar?q={search_term_string}`,
+                },
+                query_input: "required name=search_term_string",
+              },
+            }),
+          }}
+        />
+      </head>
       <body className={`${quicksand.variable} font-sans antialiased`}>
         <Providers>
           <ScrollToTop />

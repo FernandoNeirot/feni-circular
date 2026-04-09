@@ -1,0 +1,88 @@
+# Feni Circular - Plataforma de Ropa Infantil Sostenible
+
+## Descripción
+
+Feni Circular es una plataforma especializada en venta de ropa infantil usada de excelente calidad. Promovemos la economía circular y la sostenibilidad mediante la segunda vida de prendas infantiles.
+
+## Información de la Empresa
+
+- **Nombre:** Feni Circular
+- **URL:** https://fenicircular.com
+- **Tipo:** E-commerce de ropa infantil de segunda mano
+- **Enfoque:** Sostenibilidad, economía circular, ropa infantil de calidad
+
+## Servicios Principales
+
+### 1. Venta de Ropa Infantil Usada
+- Ropa para niñas, niños y unisex
+- Prendas de excelente calidad y condición
+- Marcas reconocidas internacionales
+- Categorías: remeras, pantalones, vestidos, chaqueticas, accesorios
+
+### 2. Sistema de Consignación
+- Vende tu ropa infantil usada en nuestro plataforma
+- Recibe porcentaje por cada venta realizada
+- Sin costo de ingreso
+- Gestionamos logística y marketing
+
+### 3. Búsqueda y Filtrado Avanzado
+- Filtrar por talle, color, marca, condición
+- Búsqueda por categoría
+- Visualización de medidas exactas
+- Zoom interactivo de prendas
+
+### 4. Envíos con Correo Argentino
+- Integración con Correo Argentino
+- Validación de direcciones
+- Cálculo de tarifas en tiempo real
+- Opciones de envío: Clásico, Express, Premium
+- Rastreo de paquetes
+
+## Palabras Clave Principales
+
+- Ropa infantil usada Argentina
+- Ropa infantil circular
+- Ropa infantil segundamano
+- Ropa de niños sostenible
+- Economía circular infantil
+- Ropa usada calidad
+- Vender ropa usada infantil
+- Consignación de ropa
+
+## Ubicación
+
+- País: Argentina
+- Región: CABA y zona de cobertura de Correo Argentino
+
+## Contacto
+
+- WhatsApp: +54 11 3315-0864
+- Email: contacto@fenicircular.com
+- Dirección: CABA, Argentina
+
+## Redes Sociales y Canales
+
+- WhatsApp Business disponible
+- Consultas directas por plataforma
+
+## Tecnología
+
+- Frontend: Next.js 15, React 19, TypeScript
+- Base de datos: Firebase
+- Styling: Tailwind CSS
+- E-commerce integrado con WhatsApp
+- API integrada con Correo Argentino
+
+## Compromiso
+
+Nos comprometemos a:
+- Promover la sostenibilidad ambiental
+- Ofrecer ropa infantil de buena calidad
+- Facilitar la economía circular
+- Garantizar transacciones seguras
+- Validar calidad de todas las prendas
+
+---
+
+**Última actualización:** abril 2026
+**Categoría:** E-commerce, Sostenibilidad, Moda infantil

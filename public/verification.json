@@ -1,0 +1,58 @@
+{
+  "site_verification": {
+    "name": "Feni Circular",
+    "domain": "fenicircular.com",
+    "description": "Plataforma de ropa infantil usada de excelente calidad",
+    "type": "e-commerce",
+    "country": "AR",
+    "language": "es",
+    "verified": true,
+    "verification_date": "2026-04-09"
+  },
+  "search_engines": [
+    {
+      "engine": "Google",
+      "url": "https://search.google.com/search-console",
+      "status": "pending",
+      "note": "Completar verificación manual"
+    },
+    {
+      "engine": "Bing",
+      "url": "https://www.bing.com/webmaster",
+      "status": "pending",
+      "note": "Completar verificación manual"
+    }
+  ],
+  "ai_models": [
+    {
+      "model": "Gemini",
+      "provider": "Google",
+      "status": "configured",
+      "files": ["llm.txt"]
+    },
+    {
+      "model": "ChatGPT",
+      "provider": "OpenAI",
+      "status": "configured",
+      "files": ["gpt.txt"]
+    },
+    {
+      "model": "Claude",
+      "provider": "Anthropic",
+      "status": "configured",
+      "files": ["llm.txt"]
+    }
+  ],
+  "indexing": {
+    "robots_txt": "https://fenicircular.com/robots.txt",
+    "sitemap": "https://fenicircular.com/sitemap.xml",
+    "schema": "https://fenicircular.com/schema.json"
+  },
+  "compliance": {
+    "https": true,
+    "mobile_friendly": true,
+    "structured_data": true,
+    "open_graph": true,
+    "twitter_card": true
+  }
+}

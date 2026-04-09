@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "indexable_content": {
+    "title": "Feni Circular - Ropa Infantil Usada de Calidad",
+    "description": "Plataforma de venta de ropa infantil usada. Compra y vende ropa de segunda mano para niños.",
+    "keywords": [
+      "ropa infantil usada",
+      "ropa infantil segunda mano",
+      "ropa niños usado",
+      "economía circular",
+      "ropa infantil sostenible"
+    ]
+  },
+  "navigation": [
+    {
+      "title": "Inicio",
+      "url": "/",
+      "priority": "high"
+    },
+    {
+      "title": "Buscar Productos",
+      "url": "/buscar",
+      "priority": "high"
+    },
+    {
+      "title": "¿Cómo Funciona?",
+      "url": "/como-funciona",
+      "priority": "medium"
+    },
+    {
+      "title": "Preguntas Frecuentes",
+      "url": "/faq",
+      "priority": "medium"
+    },
+    {
+      "title": "Vender",
+      "url": "/vender",
+      "priority": "high"
+    }
+  ],
+  "business_info": {
+    "name": "Feni Circular",
+    "type": "e-commerce",
+    "location": "Argentina",
+    "contact": {
+      "whatsapp": "+54 11 3315-0864"
+    }
+  }
+}
