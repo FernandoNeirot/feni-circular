@@ -46,7 +46,7 @@ const faqSections = [
       },
       {
         q: "¿Puedo retirar en persona?",
-        a: "Sí, coordinamos punto de encuentro en zona CABA. ¡Es gratis!",
+        a: "Sí, podes acercarte con cita previa a Villa Dominico, Avellaneda.",
       },
       {
         q: "¿Cuánto cuesta el envío?",
@@ -62,7 +62,7 @@ const faqSections = [
         a: "Cada prenda pasa por una inspección detallada de 6 pasos: revisamos manchas, roturas, olores, funcionalidad de cierres, y las higienizamos profesionalmente. Rechazamos más del 40% de lo que recibimos.",
       },
       {
-        q: '¿Qué significan los estados (Excelente, Como nuevo, Muy bueno)?',
+        q: "¿Qué significan los estados (Excelente, Como nuevo, Muy bueno)?",
         a: '"Como nuevo" = 1-2 usos, sin marcas visibles. "Excelente" = poco uso, perfecto estado. "Muy bueno" = uso normal sin defectos, puede tener mínimo desgaste en etiquetas.',
       },
       {
@@ -80,15 +80,7 @@ const faqSections = [
     questions: [
       {
         q: "¿Puedo devolver un producto?",
-        a: "Si la prenda no coincide con la descripción publicada, te ofrecemos cambio o devolución del dinero dentro de las 48hs de recibida. Debés contactarnos por WhatsApp con fotos.",
-      },
-      {
-        q: "¿Hacen cambios de talle?",
-        a: "Como cada prenda es única, los cambios de talle dependen de la disponibilidad. Por eso es tan importante revisar las medidas reales antes de comprar.",
-      },
-      {
-        q: "¿Quién paga el envío de devolución?",
-        a: "Si la devolución es por un error nuestro (prenda distinta a la publicada), el envío corre por nuestra cuenta. Si es por arrepentimiento, el costo es del comprador.",
+        a: "Si, podes realizar el cambio por cualquier producto dentro de los 5 días realizada la compra.	En el caso que sea una prenda de Promoción, la misma no tiene cambio ni devolución.",
       },
     ],
   },
@@ -124,9 +116,7 @@ export default function FAQPage() {
             <Sparkles className="h-4 w-4" />
             Resolvemos tus dudas
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-            Preguntas Frecuentes
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground">Preguntas Frecuentes</h1>
           <p className="text-lg text-muted-foreground">
             Todo lo que necesitás saber antes de comprar o vender en FENI.
           </p>
@@ -137,20 +127,14 @@ export default function FAQPage() {
         <div className="max-w-3xl mx-auto space-y-10">
           {faqSections.map((section, i) => (
             <div key={i}>
-              <h2 className="text-xl font-bold mb-4 text-foreground">
-                {section.title}
-              </h2>
+              <h2 className="text-xl font-bold mb-4 text-foreground">{section.title}</h2>
               <Accordion
                 type="single"
                 collapsible
                 className="bg-card rounded-2xl border overflow-hidden"
               >
                 {section.questions.map((faq, j) => (
-                  <AccordionItem
-                    key={j}
-                    value={`${i}-${j}`}
-                    className="border-border/50"
-                  >
+                  <AccordionItem key={j} value={`${i}-${j}`} className="border-border/50">
                     <AccordionTrigger className="px-5 text-left hover:no-underline hover:bg-muted/30 text-foreground">
                       {faq.q}
                     </AccordionTrigger>
@@ -168,9 +152,7 @@ export default function FAQPage() {
       <section className="py-16 px-4 text-center">
         <div className="max-w-md mx-auto space-y-4 p-8 rounded-2xl bg-card border">
           <MessageCircle className="h-10 w-10 text-primary mx-auto" />
-          <h3 className="text-xl font-bold text-foreground">
-            ¿No encontraste tu respuesta?
-          </h3>
+          <h3 className="text-xl font-bold text-foreground">¿No encontraste tu respuesta?</h3>
           <p className="text-sm text-muted-foreground">
             Escribinos por WhatsApp y te respondemos en minutos.
           </p>
@@ -179,7 +161,7 @@ export default function FAQPage() {
             onClick={() =>
               window.open(
                 `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre FENI\n\n\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`)}`,
-                "_blank",
+                "_blank"
               )
             }
           >
