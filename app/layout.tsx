@@ -65,10 +65,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
     nocache: false,
-    "google-site-verification": "agregar-tu-google-verification",
   },
   icons: {
-    icon: "/images/feni-logo.png",
+    icon: "/favicon.ico",
     apple: "/images/feni-logo.png",
   },
   manifest: "/manifest.json",
@@ -86,6 +85,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Feni Circular" />
+        <meta name="google-site-verification" content="agregar-tu-google-verification" />
         <link rel="manifest" href="/manifest.json" />
 
         {/* JSON-LD Schema */}
