@@ -26,10 +26,6 @@ interface PageclientProps {
   }[];
 }
 
-/**
- * Fisher–Yates con RNG determinista (semilla por string).
- * Orden estable entre renders y con el servidor; cambia si cambia el catálogo.
- */
 function seededShuffle<T>(items: T[], seedKey: string): T[] {
   let h = 2166136261;
   for (let i = 0; i < seedKey.length; i++) {
@@ -60,6 +56,12 @@ function buscarAgeRange(ageRange: string): string {
   return `/buscar?ageRange=${encodeURIComponent(ageRange)}`;
 }
 
+function createdAtMs(p: Product): number {
+  if (!p.createdAt) return 0;
+  const t = new Date(p.createdAt).getTime();
+  return Number.isFinite(t) ? t : 0;
+}
+
 const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   const { favoriteIds } = useFavorites();
   const { data: products = [] } = useQuery(productsQueryOptions);
@@ -69,17 +71,28 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
     return seededShuffle(pool, `featured:${poolIdentity(pool)}`).slice(0, 4);
   }, [products]);
 
+  
+
   const trendingProducts = useMemo(() => {
     const pool = products.filter((p) => p.trending);
     return seededShuffle(pool, `trending:${poolIdentity(pool)}`).slice(0, 4);
   }, [products]);
 
+  /** Último ingreso: más reciente por `createdAt` (sin fecha al final). */
+  const recentlyArrivedProducts = useMemo(() => {
+    return [...products]
+      .sort((a, b) => createdAtMs(b) - createdAtMs(a))
+      .slice(0, 4);
+  }, [products]);
+
   const productsByAge = useMemo(() => {
     return products.filter((p) => p.ageRange === "1-3 años").slice(0, 4);
   }, [products]);
+
   const productsByAge36A = useMemo(() => {
     return products.filter((p) => p.ageRange === "3-6 años").slice(0, 4);
   }, [products]);
+  
   const productsByAge6A = useMemo(() => {
     return products.filter((p) => p.ageRange === "6+ años").slice(0, 4);
   }, [products]);
@@ -141,6 +154,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </div>
         </div>
       </section> */}
+      <ProductGrid title="📦 Recién Llegados" products={recentlyArrivedProducts} />
       <ProductGrid
         title="🧒 Productos para 1-3 años"
         products={productsByAge}
