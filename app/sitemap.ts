@@ -17,19 +17,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/como-funciona`,
+      url: `${baseUrl}/como-funciona-feni`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/faq`,
+      url: `${baseUrl}/preguntas-frecuentes`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/vender`,
+      url: `${baseUrl}/vende-con-nosotros`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,

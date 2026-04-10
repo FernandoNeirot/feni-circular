@@ -20,9 +20,9 @@ export function SiteFooter({ whatsappHref }: SiteFooterProps) {
             <div className="flex flex-col gap-2">
               {[
                 { label: "Productos", href: "/buscar" },
-                { label: "¿Cómo funciona?", href: "/como-funciona" },
-                { label: "Vendé con nosotros", href: "/vender" },
-                { label: "Preguntas frecuentes", href: "/faq" },
+                { label: "¿Cómo funciona?", href: "/como-funciona-feni" },
+                { label: "Vendé con nosotros", href: "/vende-con-nosotros" },
+                { label: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
               ].map((l) => (
                 <Link
                   key={l.href}
@@ -59,4 +59,3 @@ export function SiteFooter({ whatsappHref }: SiteFooterProps) {
     </footer>
   );
 }
-

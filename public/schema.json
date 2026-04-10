@@ -86,13 +86,13 @@
           "@type": "ListItem",
           "position": 3,
           "name": "Cómo Funciona",
-          "item": "https://fenicircular.com/como-funciona"
+          "item": "https://fenicircular.com/como-funciona-feni"
         },
         {
           "@type": "ListItem",
           "position": 4,
-          "name": "Vender",
-          "item": "https://fenicircular.com/vender"
+          "name": "Vende con nosotros",
+          "item": "https://fenicircular.com/vende-con-nosotros"
         }
       ]
     }

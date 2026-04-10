@@ -24,17 +24,17 @@
     },
     {
       "title": "¿Cómo Funciona?",
-      "url": "/como-funciona",
+      "url": "/como-funciona-feni",
       "priority": "medium"
     },
     {
       "title": "Preguntas Frecuentes",
-      "url": "/faq",
+      "url": "/preguntas-frecuentes",
       "priority": "medium"
     },
     {
-      "title": "Vender",
-      "url": "/vender",
+      "title": "Vende con nosotros",
+      "url": "/vende-con-nosotros",
       "priority": "high"
     }
   ],

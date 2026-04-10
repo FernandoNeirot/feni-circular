@@ -32,9 +32,9 @@ import { useWhatsAppVisibility } from "@/shared/components/WhatsAppVisibilityCon
 const navLinks = [
   { label: "Inicio", href: "/" },
   { label: "Productos", href: "/buscar" },
-  { label: "¿Cómo funciona?", href: "/como-funciona" },
-  { label: "Vendé con nosotros", href: "/vender" },
-  { label: "Preguntas frecuentes", href: "/faq" },
+  { label: "¿Cómo funciona?", href: "/como-funciona-feni" },
+  { label: "Vendé con nosotros", href: "/vende-con-nosotros" },
+  { label: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
 ];
 
 export function Header() {
