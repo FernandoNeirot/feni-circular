@@ -116,7 +116,15 @@ describe("POST /api/productos", () => {
     expect(data.success).toBe(true);
     expect(data.id).toBe("new-doc-id");
     expect(data.product).toMatchObject({ id: "new-doc-id", name: mockProduct.name });
-    expect(mockAdd).toHaveBeenCalledWith(mockProduct);
+    expect(data.product.createdAt).toEqual(expect.any(String));
+    expect(data.product.updatedAt).toEqual(expect.any(String));
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ...mockProduct,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      })
+    );
   });
 
   it("returns 500 when Firestore add throws", async () => {

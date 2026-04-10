@@ -33,7 +33,11 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Plus, Pencil, Search, ArrowLeft, Package, Trash2, Users } from "lucide-react";
-import { productsQueryKey, productsQueryOptions } from "@/shared/queries/productos";
+import {
+  adminProductsQueryKey,
+  adminProductsQueryOptions,
+  productsQueryKey,
+} from "@/shared/queries/productos";
 import { clientsQueryKey, clientsQueryOptions } from "@/shared/queries/clients";
 import { deleteProduct } from "@/shared/serverActions/productos";
 import { deleteClient } from "@/shared/serverActions/clients";
@@ -148,8 +152,8 @@ function paginate<T>(items: T[], page: number) {
 export default function AdminPageClient({ initialClients, initialProducts }: AdminPageClientProps) {
   const queryClient = useQueryClient();
   const { data: productsData } = useQuery({
-    ...productsQueryOptions,
-    initialData: initialProducts,
+    ...adminProductsQueryOptions,
+    initialData: initialProducts as (Product & { id: string })[],
   });
   const products = (productsData ?? initialProducts) as Product[];
 
@@ -199,9 +203,12 @@ export default function AdminPageClient({ initialClients, initialProducts }: Adm
     try {
       const result = await deleteProduct(productToDelete.id?.toString() ?? "");
       if (result.success) {
-        queryClient.setQueryData(productsQueryKey, (prev: Product[] | undefined) =>
-          prev ? prev.filter((p) => p.id !== productToDelete.id) : prev
+        queryClient.setQueryData(
+          adminProductsQueryKey,
+          (prev: (Product & { id: string })[] | undefined) =>
+            prev ? prev.filter((p) => String(p.id) !== String(productToDelete.id)) : prev
         );
+        queryClient.invalidateQueries({ queryKey: productsQueryKey });
         toast.success("Producto eliminado");
         setProductToDelete(null);
       } else {

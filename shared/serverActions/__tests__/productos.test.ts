@@ -1,9 +1,15 @@
+jest.mock("next/cache", () => ({
+  revalidatePath: jest.fn(),
+}));
+
 import {
   createProductWithData,
   updateProduct,
   deleteProduct,
   getAllProducts,
   getProductoLinks,
+  updateProductoLinks,
+  syncProductoPublicLinks,
 } from "../productos";
 import type { Product } from "@/shared/types/product";
 
@@ -112,11 +118,19 @@ describe("productos server actions", () => {
 
   describe("updateProduct", () => {
     it("returns success when API returns 200 and success true", async () => {
-      global.fetch = mockFetch({ success: true }) as typeof fetch;
+      global.fetch = mockFetch({
+        success: true,
+        createdAt: "2025-01-01T00:00:00.000Z",
+        updatedAt: "2025-01-02T00:00:00.000Z",
+      }) as typeof fetch;
 
       const result = await updateProduct("doc-123", mockProduct);
 
       expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.createdAt).toBe("2025-01-01T00:00:00.000Z");
+        expect(result.updatedAt).toBe("2025-01-02T00:00:00.000Z");
+      }
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/productos/doc-123"),
         expect.objectContaining({
@@ -195,6 +209,65 @@ describe("productos server actions", () => {
       global.fetch = mockFetch([1, 2]) as typeof fetch;
 
       expect(await getProductoLinks()).toBeNull();
+    });
+  });
+
+  describe("updateProductoLinks", () => {
+    it("PUTs links and returns success", async () => {
+      global.fetch = mockFetch({ success: true }) as typeof fetch;
+
+      const result = await updateProductoLinks(["a", "b"]);
+
+      expect(result.success).toBe(true);
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/productos/links"),
+        expect.objectContaining({
+          method: "PUT",
+          body: JSON.stringify({ links: ["a", "b"] }),
+        })
+      );
+    });
+
+    it("returns error when API fails", async () => {
+      global.fetch = mockFetch({ success: false }, { ok: false }) as typeof fetch;
+
+      const result = await updateProductoLinks([]);
+
+      expect(result.success).toBe(false);
+      if (!result.success) expect(result.error).toBeTruthy();
+    });
+  });
+
+  describe("syncProductoPublicLinks", () => {
+    it("merges from GET then PUTs", async () => {
+      const fn = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(["old"]),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ success: true }),
+        });
+      global.fetch = fn as typeof fetch;
+
+      const result = await syncProductoPublicLinks({
+        slug: "new",
+        soldOut: false,
+        previousSlug: "old",
+      });
+
+      expect(result.success).toBe(true);
+      expect(fn).toHaveBeenCalledTimes(2);
+      expect(fn.mock.calls[1]![1]).toEqual(
+        expect.objectContaining({
+          method: "PUT",
+          body: JSON.stringify({ links: ["new"] }),
+        })
+      );
     });
   });
 

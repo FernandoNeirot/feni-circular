@@ -12,6 +12,7 @@ jest.mock("@/shared/serverActions/productos", () => ({
   createProductWithData: jest.fn(),
   updateProduct: jest.fn(),
   getAllProducts: jest.fn(),
+  getAllProductsAdmin: jest.fn(),
 }));
 jest.mock("@/shared/serverActions/clients", () => ({
   deleteClient: (...args: unknown[]) => mockDeleteClient(...args),

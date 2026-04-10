@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/shared/components/providers";
 import { CartProvider } from "@/shared/components/cart-provider";
 import { FavoritesProvider } from "@/shared/components/favorites-provider";
+import { SyncSoldOutFavorites } from "@/shared/components/SyncSoldOutFavorites";
 import { Header } from "@/shared/components/Header";
 import { WhatsAppFloatButton } from "@/shared/components/WhatsAppFloatButton";
 import { WhatsAppVisibilityProvider } from "@/shared/components/WhatsAppVisibilityContext";
@@ -141,6 +142,7 @@ export default function RootLayout({
           <ScrollToTop />
           <CartProvider>
             <FavoritesProvider>
+              <SyncSoldOutFavorites />
               <WhatsAppVisibilityProvider>
                 <Header />
                 {children}

@@ -14,6 +14,8 @@ interface FavoritesContextType {
   favoriteIds: string[];
   /** Agrega o quita el producto por id (toggle) */
   toggleFavorite: (id: string | number | undefined) => void;
+  /** Quita el id de favoritos si estaba (p. ej. producto vendido). */
+  removeFavorite: (id: string | number | undefined) => void;
   /** true si el producto está en favoritos */
   isFavorite: (id: string | number | undefined) => boolean;
 }
@@ -54,6 +56,12 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const removeFavorite = useCallback((id: string | number | undefined) => {
+    const sid = toId(id);
+    if (!sid) return;
+    setFavoriteIds((prev) => (prev.includes(sid) ? prev.filter((x) => x !== sid) : prev));
+  }, []);
+
   const isFavorite = useCallback(
     (id: string | number | undefined) => {
       const sid = toId(id);
@@ -64,7 +72,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <FavoritesContext.Provider
-      value={{ favoriteIds, toggleFavorite, isFavorite }}
+      value={{ favoriteIds, toggleFavorite, removeFavorite, isFavorite }}
     >
       {children}
     </FavoritesContext.Provider>

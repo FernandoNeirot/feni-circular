@@ -70,7 +70,9 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
     return seededShuffle(pool, `trending:${poolIdentity(pool)}`).slice(0, 4);
   }, [products]);
 
-  const favoriteProducts = products.filter((p) => favoriteIds.includes(String(p.id)));
+  const favoriteProducts = products.filter(
+    (p) => favoriteIds.includes(String(p.id)) && !p.soldOut
+  );
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
   )}`;

@@ -32,6 +32,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isSoldOut) return;
     const wasFavorite = isFavorite(product.id);
     toggleFavorite(product.id);
     toast.success(wasFavorite ? "Eliminado de favoritos" : "Agregado a favoritos");
@@ -82,18 +83,20 @@ export function ProductCard({ product }: ProductCardProps) {
               </Badge>
             )}
             <div className="absolute bottom-3 right-3 flex gap-1.5 z-10">
-              <Button
-                type="button"
-                size="icon"
-                variant="secondary"
-                className="h-9 w-9 rounded-full bg-background/90 hover:bg-background shadow-md"
-                aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                onClick={handleLike}
-              >
-                <Heart
-                  className={`h-4 w-4 ${isFavorite(product.id) ? "fill-destructive text-destructive" : ""}`}
-                />
-              </Button>
+              {!isSoldOut && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  className="h-9 w-9 rounded-full bg-background/90 hover:bg-background shadow-md"
+                  aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                  onClick={handleLike}
+                >
+                  <Heart
+                    className={`h-4 w-4 ${isFavorite(product.id) ? "fill-destructive text-destructive" : ""}`}
+                  />
+                </Button>
+              )}
               <Button
                 type="button"
                 size="icon"

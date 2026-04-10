@@ -60,8 +60,17 @@ export async function PUT(
     if (!doc.exists) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
-    await ref.set(body);
-    return NextResponse.json({ success: true });
+    const existing = doc.data() as Record<string, unknown>;
+    const now = new Date().toISOString();
+    const existingCreatedRaw = existing.createdAt;
+    const existingCreated =
+      typeof existingCreatedRaw === "string" && existingCreatedRaw.trim() !== ""
+        ? existingCreatedRaw
+        : undefined;
+    /** Sin `createdAt` en BD: mismo instante que `updatedAt` (solo en esa migración). */
+    const createdAt = existingCreated ?? now;
+    await ref.set({ ...body, createdAt, updatedAt: now });
+    return NextResponse.json({ success: true, createdAt, updatedAt: now });
   } catch (err) {
     console.error("[PUT /api/productos/[id]]", err);
     return NextResponse.json(

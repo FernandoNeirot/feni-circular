@@ -3,19 +3,22 @@
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/shared/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CloudCog } from "lucide-react";
 import type { Product } from "@/shared/types/product";
 
 interface ProductGridProps {
   title: string;
   products: Product[];
+  /** Solo para grids donde quieras mandar vendidos al final (p. ej. favoritos). El resto mantiene el orden recibido. */
+  sortSoldLast?: boolean;
 }
 
-export function ProductGrid({ title, products }: ProductGridProps) {
+export function ProductGrid({ title, products, sortSoldLast = false }: ProductGridProps) {
   if (products.length === 0) return null;
-  const productsOrdered = [...products].sort(
-    (a, b) => Number(!!a.soldOut) - Number(!!b.soldOut)
-  );
+  const productsOrdered = sortSoldLast
+    ? [...products].sort((a, b) => Number(!!a.soldOut) - Number(!!b.soldOut))
+    : products;
+  console.log(products);
   return (
     <section className="py-12 px-4 md:px-8">
       <div className="flex items-center justify-between max-w-7xl mx-auto mb-8">

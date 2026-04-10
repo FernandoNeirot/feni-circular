@@ -1,6 +1,8 @@
 import type { Product } from "@/shared/types/product";
+import { getAllProductsAdmin } from "@/shared/serverActions/productos";
 
 export const productsQueryKey = ["products"] as const;
+export const adminProductsQueryKey = ["products", "admin"] as const;
 
 const STALE_TIME_24H = 24 * 60 * 60 * 1000;
 
@@ -19,5 +21,16 @@ export async function fetchProducts(): Promise<Product[]> {
 export const productsQueryOptions = {
   queryKey: productsQueryKey,
   queryFn: fetchProducts,
+  staleTime: STALE_TIME_24H,
+} as const;
+
+export async function fetchAdminProducts(): Promise<(Product & { id: string })[]> {
+  const data = await getAllProductsAdmin();
+  return Array.isArray(data) ? data : [];
+}
+
+export const adminProductsQueryOptions = {
+  queryKey: adminProductsQueryKey,
+  queryFn: fetchAdminProducts,
   staleTime: STALE_TIME_24H,
 } as const;

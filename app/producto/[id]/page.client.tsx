@@ -45,7 +45,7 @@ interface ProductDetailClientProps {
 
 export default function ProductDetailClient({ slug, initialProduct }: ProductDetailClientProps) {
   const { addToCart, cartItems } = useCart();
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const { share } = useShare(
     {},
     {
@@ -68,6 +68,12 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   }, [slug]);
 
   const loading = Boolean(slug && isPending && !initialProduct);
+
+  const productForSoldCheck = productFromCache ?? initialProduct;
+  useEffect(() => {
+    if (!productForSoldCheck?.soldOut || !productForSoldCheck.id) return;
+    removeFavorite(productForSoldCheck.id);
+  }, [productForSoldCheck?.soldOut, productForSoldCheck?.id, removeFavorite]);
 
   if (loading) {
     return (
@@ -98,6 +104,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   };
 
   const handleToggleFavorite = () => {
+    if (product.soldOut) return;
     const wasFavorite = isFavorite(product.id);
     toggleFavorite(product.id);
     toast.success(wasFavorite ? "Eliminado de favoritos" : "Agregado a favoritos");
@@ -107,6 +114,11 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
+
+  const measurementEntries = getProductMeasurementEntries(product);
+  const showRealMeasurementsCard =
+    !categorySkipsMeasurements(product.category) && measurementEntries.length > 0;
+  const measurementImageSrc = getCategoryMeasurementImagePath(product.category);
 
   const prevImage = () =>
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
@@ -244,7 +256,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
               </Badge>
             </div>
 
-            {!categorySkipsMeasurements(product.category) && (
+            {showRealMeasurementsCard && (
               <Card className="border-2 border-primary/20">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-4">
@@ -255,36 +267,26 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                     <Info className="h-3.5 w-3.5" />
                     Medidas tomadas con la prenda extendida sobre superficie plana
                   </p>
-                  {(() => {
-                    const entries = getProductMeasurementEntries(product);
-                    const imgSrc = getCategoryMeasurementImagePath(product.category);
-                    return (
-                      <>
-                        {entries.length > 0 && (
-                          <div className="grid grid-cols-2 gap-3">
-                            {entries.map(({ label, value }) => (
-                              <div key={label} className="bg-muted rounded-lg p-3 text-center">
-                                <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                                <p className="text-xl font-bold text-primary">{value} cm</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {imgSrc && (
-                          <div className={entries.length > 0 ? "mt-4 pt-2" : ""}>
-                            <ZoomableImage
-                              src={imgSrc}
-                              alt="Referencia de medidas"
-                              modalTitle="Referencia de medidas"
-                              className="max-w-full h-auto rounded-lg border bg-muted"
-                              showZoomHint
-                              zoomHintText="Clic para ampliar"
-                            />
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
+                  <div className="grid grid-cols-2 gap-3">
+                    {measurementEntries.map(({ label, value }) => (
+                      <div key={label} className="bg-muted rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                        <p className="text-xl font-bold text-primary">{value} cm</p>
+                      </div>
+                    ))}
+                  </div>
+                  {measurementImageSrc && (
+                    <div className="mt-4 pt-2">
+                      <ZoomableImage
+                        src={measurementImageSrc}
+                        alt="Referencia de medidas"
+                        modalTitle="Referencia de medidas"
+                        className="max-w-full h-auto rounded-lg border bg-muted"
+                        showZoomHint
+                        zoomHintText="Clic para ampliar"
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -305,17 +307,19 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                   Agregar al carrito
                 </Button>
               )}
-              <Button
-                size="lg"
-                variant="outline"
-                className={
-                  isFavorite(product.id) ? "px-4 text-destructive border-destructive/50" : "px-4"
-                }
-                aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                onClick={handleToggleFavorite}
-              >
-                <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
-              </Button>
+              {!product.soldOut && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className={
+                    isFavorite(product.id) ? "px-4 text-destructive border-destructive/50" : "px-4"
+                  }
+                  aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                  onClick={handleToggleFavorite}
+                >
+                  <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
+                </Button>
+              )}
               <Button
                 size="lg"
                 variant="outline"
@@ -411,19 +415,21 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
             Agregar al carrito
           </Button>
         )}
-        <Button
-          size="lg"
-          variant="outline"
-          className={
-            isFavorite(product.id)
-              ? "shrink-0 px-4 text-destructive border-destructive/50"
-              : "shrink-0 px-4"
-          }
-          aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
-          onClick={handleToggleFavorite}
-        >
-          <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
-        </Button>
+        {!product.soldOut && (
+          <Button
+            size="lg"
+            variant="outline"
+            className={
+              isFavorite(product.id)
+                ? "shrink-0 px-4 text-destructive border-destructive/50"
+                : "shrink-0 px-4"
+            }
+            aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+            onClick={handleToggleFavorite}
+          >
+            <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
+          </Button>
+        )}
         <Button
           size="lg"
           variant="outline"

@@ -10,9 +10,17 @@ import { Button } from "@/shared/components/ui/button";
 import { Save, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { productsQueryKey, productsQueryOptions } from "@/shared/queries/productos";
+import {
+  adminProductsQueryKey,
+  adminProductsQueryOptions,
+  productsQueryKey,
+} from "@/shared/queries/productos";
 import { uploadProductImage } from "@/shared/serverActions/uploadImage";
-import { createProductWithData, updateProduct } from "@/shared/serverActions/productos";
+import {
+  createProductWithData,
+  syncProductoPublicLinks,
+  updateProduct,
+} from "@/shared/serverActions/productos";
 import {
   productFormSchema,
   type ProductFormValues,
@@ -115,7 +123,7 @@ export default function AdminProductFormPage() {
       });
     }
 
-    const cached = queryClient.getQueryData<(Product & { id: string })[]>(productsQueryKey);
+    const cached = queryClient.getQueryData<(Product & { id: string })[]>(adminProductsQueryKey);
     const productFromCache = cached?.find((item) => item.id === id);
 
     if (productFromCache) {
@@ -125,7 +133,7 @@ export default function AdminProductFormPage() {
     }
 
     queryClient
-      .fetchQuery(productsQueryOptions)
+      .fetchQuery(adminProductsQueryOptions)
       .then((data) => {
         const list = (data ?? []) as (Product & { id: string })[];
         const product = list.find((item) => item.id === id);
@@ -192,8 +200,8 @@ export default function AdminProductFormPage() {
     }
 
     const allProducts =
-      queryClient.getQueryData<(Product & { id: string })[]>(productsQueryKey) ??
-      (await queryClient.fetchQuery(productsQueryOptions)) ??
+      queryClient.getQueryData<(Product & { id: string })[]>(adminProductsQueryKey) ??
+      (await queryClient.fetchQuery(adminProductsQueryOptions)) ??
       [];
     const slugExists = allProducts.some(
       (p) => p.slug?.toLowerCase() === slugToSave.toLowerCase() && p.id !== id
@@ -202,6 +210,10 @@ export default function AdminProductFormPage() {
       toast.error("Esta URL ya está en uso por otro producto. Agregá o cambiá el sufijo.");
       return;
     }
+
+    const previousProduct =
+      isEditing && id ? allProducts.find((p) => p.id === id) : undefined;
+    const previousSlug = previousProduct?.slug?.trim() || undefined;
 
     const existingUrls = data.images.filter((x): x is string => typeof x === "string");
     const pendingFiles = data.images.filter((x): x is File => x instanceof File);
@@ -227,11 +239,26 @@ export default function AdminProductFormPage() {
         const result = await updateProduct(id, body);
         if (result.success) {
           queryClient.setQueryData(
-            productsQueryKey,
+            adminProductsQueryKey,
             (prev: (Product & { id: string })[] | undefined) =>
-              prev ? prev.map((p) => (p.id === id ? { ...body, id } : p)) : prev
+              prev
+                ? prev.map((p) =>
+                    p.id === id
+                      ? { ...body, id, createdAt: result.createdAt, updatedAt: result.updatedAt }
+                      : p
+                  )
+                : prev
           );
+          queryClient.invalidateQueries({ queryKey: productsQueryKey });
           toast.success("Producto actualizado");
+          const linkSync = await syncProductoPublicLinks({
+            slug: slugToSave,
+            soldOut: body.soldOut ?? false,
+            previousSlug: previousSlug || null,
+          });
+          if (!linkSync.success) {
+            toast.warning(linkSync.error);
+          }
           router.push("/admin");
         } else {
           toast.error(result.error);
@@ -240,11 +267,20 @@ export default function AdminProductFormPage() {
         const result = await createProductWithData(body);
         if (result.success) {
           queryClient.setQueryData(
-            productsQueryKey,
+            adminProductsQueryKey,
             (prev: (Product & { id: string })[] | undefined) =>
               prev ? [...prev, result.product] : [result.product]
           );
+          queryClient.invalidateQueries({ queryKey: productsQueryKey });
           toast.success("Producto creado");
+          const linkSync = await syncProductoPublicLinks({
+            slug: slugToSave,
+            soldOut: body.soldOut ?? false,
+            previousSlug: null,
+          });
+          if (!linkSync.success) {
+            toast.warning(linkSync.error);
+          }
           router.push("/admin");
         } else {
           toast.error(result.error);

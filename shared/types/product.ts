@@ -8,6 +8,10 @@ export interface ProductMeasurements {
 
 export interface Product {
   id?: number;
+  /** ISO 8601 — asignado en el servidor al crear */
+  createdAt?: string;
+  /** ISO 8601 — asignado en el servidor en cada actualización */
+  updatedAt?: string;
   slug?: string;
   stock?: number;
   name: string;
