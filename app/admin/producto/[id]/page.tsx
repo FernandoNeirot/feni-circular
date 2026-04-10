@@ -208,7 +208,7 @@ export default function AdminProductFormPage() {
 
     setLoading(true);
     try {
-      let uploadedUrls: string[] = [];
+      const uploadedUrls: string[] = [];
 
       if (pendingFiles.length > 0) {
         for (const file of pendingFiles) {

@@ -3,6 +3,7 @@ import {
   updateProduct,
   deleteProduct,
   getAllProducts,
+  getProductoLinks,
 } from "../productos";
 import type { Product } from "@/shared/types/product";
 
@@ -167,6 +168,33 @@ describe("productos server actions", () => {
       const result = await getAllProducts();
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("getProductoLinks", () => {
+    it("returns string array and uses 24h revalidate", async () => {
+      const links = ["/foo", "bar"];
+      global.fetch = mockFetch(links) as typeof fetch;
+
+      const result = await getProductoLinks();
+
+      expect(result).toEqual(links);
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/productos/links"),
+        expect.objectContaining({ next: { revalidate: 24 * 60 * 60 } })
+      );
+    });
+
+    it("returns null when API returns not ok", async () => {
+      global.fetch = mockFetch({}, { ok: false }) as typeof fetch;
+
+      expect(await getProductoLinks()).toBeNull();
+    });
+
+    it("returns null when response is not string array", async () => {
+      global.fetch = mockFetch([1, 2]) as typeof fetch;
+
+      expect(await getProductoLinks()).toBeNull();
     });
   });
 

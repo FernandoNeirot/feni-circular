@@ -11,9 +11,7 @@ export type CreateProductResult =
   | { success: true; product: Product & { id: string } }
   | { success: false; error: string };
 
-export async function createProductWithData(
-  data: Product
-): Promise<CreateProductResult> {
+export async function createProductWithData(data: Product): Promise<CreateProductResult> {
   try {
     const res = await fetch(`${getApiBase()}/api/productos`, {
       method: "POST",
@@ -84,6 +82,21 @@ export async function getAllProducts(): Promise<Product[] | null> {
   }
 }
 
+/** URLs/slugs desde `feni-circular-url-productos` vía `/api/productos/links`. Cache 24h. */
+export async function getProductoLinks(): Promise<string[] | null> {
+  try {
+    const res = await fetch(`${getApiBase()}/api/productos/links`, {
+      next: { revalidate: 24 * 60 * 60 },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as unknown;
+    return Array.isArray(data) && data.every((x) => typeof x === "string") ? (data as string[]) : null;
+  } catch (err) {
+    console.error("[getProductoLinks]", err);
+    return null;
+  }
+}
+
 export type DeleteProductResult = { success: true } | { success: false; error: string };
 
 export async function deleteProduct(productId: string): Promise<DeleteProductResult> {
@@ -104,3 +117,5 @@ export async function deleteProduct(productId: string): Promise<DeleteProductRes
     };
   }
 }
+
+
