@@ -8,6 +8,7 @@ import { Header } from "@/shared/components/Header";
 import { WhatsAppFloatButton } from "@/shared/components/WhatsAppFloatButton";
 import { WhatsAppVisibilityProvider } from "@/shared/components/WhatsAppVisibilityContext";
 import { ScrollToTop } from "@/shared/components/ScrollToTop";
+import { Analytics } from "@vercel/analytics/next"
 
 const quicksand = Quicksand({
   variable: "--font-quicksand",
@@ -135,6 +136,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${quicksand.variable} font-sans antialiased`}>
+        <Analytics />
         <Providers>
           <ScrollToTop />
           <CartProvider>
