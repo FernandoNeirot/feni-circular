@@ -71,8 +71,6 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
     return seededShuffle(pool, `featured:${poolIdentity(pool)}`).slice(0, 4);
   }, [products]);
 
-  
-
   const trendingProducts = useMemo(() => {
     const pool = products.filter((p) => p.trending);
     return seededShuffle(pool, `trending:${poolIdentity(pool)}`).slice(0, 4);
@@ -80,9 +78,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
 
   /** Último ingreso: más reciente por `createdAt` (sin fecha al final). */
   const recentlyArrivedProducts = useMemo(() => {
-    return [...products]
-      .sort((a, b) => createdAtMs(b) - createdAtMs(a))
-      .slice(0, 4);
+    return [...products].sort((a, b) => createdAtMs(b) - createdAtMs(a)).slice(0, 4);
   }, [products]);
 
   const productsByAge = useMemo(() => {
@@ -92,7 +88,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   const productsByAge36A = useMemo(() => {
     return products.filter((p) => p.ageRange === "3-6 años").slice(0, 4);
   }, [products]);
-  
+
   const productsByAge6A = useMemo(() => {
     return products.filter((p) => p.ageRange === "6+ años").slice(0, 4);
   }, [products]);
@@ -214,7 +210,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </div>
         </div>
       </section>
-      <ProductGrid title="🔥 Los Más Vistos" products={trendingProducts} />
+      <ProductGrid title="🔥 Favoritos de Mamá y Papá" products={trendingProducts} />
       {favoriteProducts.length >= 1 && (
         <ProductGrid title="❤️ Mis favoritos" products={favoriteProducts} />
       )}
