@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { productsQueryOptions } from "@/shared/queries/productos";
 import { SearchContent } from "./SearchContent";
+import { SearchPageSkeleton } from "./SearchPageSkeleton";
 import { canonicalUrl, ogImageUrl } from "@/shared/configs/seo";
 
 export const metadata: Metadata = {
@@ -40,9 +41,7 @@ export default async function SearchPage() {
   await queryClient.prefetchQuery(productsQueryOptions);
 
   return (
-    <Suspense
-      fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}
-    >
+    <Suspense fallback={<SearchPageSkeleton />}>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <SearchContent />
       </HydrationBoundary>
