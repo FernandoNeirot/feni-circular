@@ -3,28 +3,34 @@
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/shared/components/ui/button";
-import { ArrowRight, CloudCog } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Product } from "@/shared/types/product";
 
 interface ProductGridProps {
   title: string;
   products: Product[];
+  /** Destino del botón «Ver todo» (ej. `/buscar?ageRange=...`). Por defecto `/buscar`. */
+  seeAllHref?: string;
   /** Solo para grids donde quieras mandar vendidos al final (p. ej. favoritos). El resto mantiene el orden recibido. */
   sortSoldLast?: boolean;
 }
 
-export function ProductGrid({ title, products, sortSoldLast = false }: ProductGridProps) {
+export function ProductGrid({
+  title,
+  products,
+  seeAllHref = "/buscar",
+  sortSoldLast = false,
+}: ProductGridProps) {
   if (products.length === 0) return null;
   const productsOrdered = sortSoldLast
     ? [...products].sort((a, b) => Number(!!a.soldOut) - Number(!!b.soldOut))
     : products;
-  console.log(products);
   return (
     <section className="py-12 px-4 md:px-8">
       <div className="flex items-center justify-between max-w-7xl mx-auto mb-8">
         <h2 className="text-3xl md:text-4xl font-bold">{title}</h2>
         <Button variant="ghost" asChild className="gap-2 text-primary rounded-full">
-          <Link href="/buscar">
+          <Link href={seeAllHref}>
             Ver todo
             <ArrowRight className="h-4 w-4" />
           </Link>

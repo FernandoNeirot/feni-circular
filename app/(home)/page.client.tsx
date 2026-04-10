@@ -56,6 +56,10 @@ function poolIdentity(products: Product[]): string {
     .join("\0");
 }
 
+function buscarAgeRange(ageRange: string): string {
+  return `/buscar?ageRange=${encodeURIComponent(ageRange)}`;
+}
+
 const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
   const { favoriteIds } = useFavorites();
   const { data: products = [] } = useQuery(productsQueryOptions);
@@ -70,16 +74,23 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
     return seededShuffle(pool, `trending:${poolIdentity(pool)}`).slice(0, 4);
   }, [products]);
 
-  const favoriteProducts = products.filter(
-    (p) => favoriteIds.includes(String(p.id)) && !p.soldOut
-  );
+  const productsByAge = useMemo(() => {
+    return products.filter((p) => p.ageRange === "1-3 años").slice(0, 4);
+  }, [products]);
+  const productsByAge36A = useMemo(() => {
+    return products.filter((p) => p.ageRange === "3-6 años").slice(0, 4);
+  }, [products]);
+  const productsByAge6A = useMemo(() => {
+    return products.filter((p) => p.ageRange === "6+ años").slice(0, 4);
+  }, [products]);
+
+  const favoriteProducts = products.filter((p) => favoriteIds.includes(String(p.id)) && !p.soldOut);
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `hola, te queria consultar por la ropa de FENI\n${process.env.NEXT_PUBLIC_BASE_URL ?? ""}`
   )}`;
   return (
     <>
       <HeroCarousel />
-
       <section className="py-16 px-4 md:px-8">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center space-y-3">
@@ -109,8 +120,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </div>
         </div>
       </section>
-
-      <section className="py-8 px-4 md:px-8">
+      {/* <section className="py-8 px-4 md:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-6">Buscá por edad</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -130,10 +140,22 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
             ))}
           </div>
         </div>
-      </section>
-
-      <ProductGrid title="✨ Productos Destacados" products={featuredProducts} />
-
+      </section> */}
+      <ProductGrid
+        title="🧒 Productos para 1-3 años"
+        products={productsByAge}
+        seeAllHref={buscarAgeRange("1-3 años")}
+      />
+      <ProductGrid
+        title="👦 Productos para 3-6 años"
+        products={productsByAge36A}
+        seeAllHref={buscarAgeRange("3-6 años")}
+      />
+      <ProductGrid
+        title="🎒 Productos para 6+ años"
+        products={productsByAge6A}
+        seeAllHref={buscarAgeRange("6+ años")}
+      />
       <section className="py-12 px-4 md:px-8">
         <div className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
           <Droplets className="h-10 w-10 text-info mx-auto" />
@@ -157,13 +179,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </div>
         </div>
       </section>
-
-      <ProductGrid title="🔥 Los Más Vistos" products={trendingProducts} />
-
-      {favoriteProducts.length >= 1 && (
-        <ProductGrid title="❤️ Mis favoritos" products={favoriteProducts} />
-      )}
-
+      <ProductGrid title="✨ Productos Destacados" products={featuredProducts} />
       <section className="py-16 px-4 md:px-8 bg-muted/30">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-10">
@@ -184,6 +200,10 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </div>
         </div>
       </section>
+      <ProductGrid title="🔥 Los Más Vistos" products={trendingProducts} />
+      {favoriteProducts.length >= 1 && (
+        <ProductGrid title="❤️ Mis favoritos" products={favoriteProducts} />
+      )}
 
       <section className="py-16 px-4 md:px-8 text-center">
         <div className="max-w-md mx-auto space-y-4">
@@ -202,7 +222,6 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </Button>
         </div>
       </section>
-
       <SiteFooter whatsappHref={whatsappHref} />
     </>
   );

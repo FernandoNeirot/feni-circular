@@ -28,6 +28,12 @@ export function SearchContent() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
   const [selectedAgeRange, setSelectedAgeRange] = useState(initialAgeRange);
+
+  /** Entrada desde home u otra página con query inicial (ej. `?ageRange=1-3 años`). */
+  useEffect(() => {
+    setQuery(searchParams.get("q") || "");
+    setSelectedAgeRange(searchParams.get("ageRange") || "all");
+  }, [searchParams]);
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
