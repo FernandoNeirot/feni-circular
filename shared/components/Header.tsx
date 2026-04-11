@@ -142,7 +142,7 @@ export function Header() {
             className="h-10 w-10 object-contain"
           />
           <div className="hidden sm:block text-left">
-            <h1 className="text-lg font-bold leading-tight">FENI</h1>
+            <p className="text-lg font-bold leading-tight">FENI</p>
             <p className="text-[10px] text-muted-foreground leading-none">Ropa Infantil</p>
           </div>
         </Link>
@@ -187,10 +187,12 @@ export function Header() {
             />
             {query && (
               <button
+                type="button"
                 onClick={() => setQuery("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Limpiar búsqueda"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" aria-hidden />
               </button>
             )}
             {suggestions.length > 0 && query.length >= 2 && (
@@ -232,13 +234,17 @@ export function Header() {
         <div className="flex items-center gap-2">
           {!isSearchPage && !isAdminSection && (
             <button
+              type="button"
               onClick={() => {
                 if (searchOpen && query) setQuery("");
                 setSearchOpen(!searchOpen);
               }}
               className="md:hidden p-2 rounded-full hover:bg-muted transition-colors"
+              aria-expanded={searchOpen}
+              aria-controls="header-mobile-search"
+              aria-label={searchOpen ? "Cerrar búsqueda" : "Abrir búsqueda"}
             >
-              {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
             </button>
           )}
 
@@ -299,8 +305,13 @@ export function Header() {
           {!isAdminSection && (
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
-                <button className="lg:hidden p-2 rounded-full hover:bg-muted transition-colors">
-                  <Menu className="h-5 w-5" />
+                <button
+                  type="button"
+                  className="lg:hidden p-2 rounded-full hover:bg-muted transition-colors"
+                  aria-expanded={menuOpen}
+                  aria-label="Abrir menú de navegación"
+                >
+                  <Menu className="h-5 w-5" aria-hidden />
                 </button>
               </SheetTrigger>
               <SheetContent side="right" className="w-72 pt-12">
@@ -382,7 +393,10 @@ export function Header() {
       </Dialog>
 
       {searchOpen && !isSearchPage && !isAdminSection && (
-        <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top-2 duration-200">
+        <div
+          id="header-mobile-search"
+          className="md:hidden px-4 pb-3 animate-in slide-in-from-top-2 duration-200"
+        >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input

@@ -99,7 +99,10 @@ export default function SellWithUsPage() {
         </div>
       </section>
 
-      <section className="py-12 px-4 md:px-8">
+      <section className="py-12 px-4 md:px-8" aria-labelledby="vende-beneficios-heading">
+        <h2 id="vende-beneficios-heading" className="sr-only">
+          Beneficios de vender con FENI
+        </h2>
         <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-6">
           {benefits.map((b, i) => (
             <div key={i} className="text-center space-y-3 p-6 rounded-2xl bg-card border">

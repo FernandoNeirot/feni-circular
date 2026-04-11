@@ -307,8 +307,8 @@ export default function AdminProductFormPage() {
         <div className="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/admin">
-                <ArrowLeft className="h-5 w-5" />
+              <Link href="/admin" aria-label="Volver al panel de administración">
+                <ArrowLeft className="h-5 w-5" aria-hidden />
               </Link>
             </Button>
             <h1 className="text-xl font-bold">

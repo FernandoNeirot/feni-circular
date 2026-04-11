@@ -152,7 +152,7 @@ export default function FAQPage() {
       <section className="py-16 px-4 text-center">
         <div className="max-w-md mx-auto space-y-4 p-8 rounded-2xl bg-card border">
           <MessageCircle className="h-10 w-10 text-primary mx-auto" />
-          <h3 className="text-xl font-bold text-foreground">¿No encontraste tu respuesta?</h3>
+          <h2 className="text-xl font-bold text-foreground">¿No encontraste tu respuesta?</h2>
           <p className="text-sm text-muted-foreground">
             Escribinos por WhatsApp y te respondemos en minutos.
           </p>

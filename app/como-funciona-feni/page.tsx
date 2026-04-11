@@ -102,8 +102,11 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 md:px-8">
+      <section className="py-16 px-4 md:px-8" aria-labelledby="como-proceso-heading">
         <div className="max-w-4xl mx-auto space-y-8">
+          <h2 id="como-proceso-heading" className="text-2xl font-bold text-foreground text-center">
+            Así cuidamos cada prenda
+          </h2>
           {steps.map((step, i) => (
             <div key={i} className="flex gap-6 items-start group">
               <div className="flex flex-col items-center gap-2 shrink-0">

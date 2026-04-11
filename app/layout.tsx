@@ -11,10 +11,13 @@ import { WhatsAppVisibilityProvider } from "@/shared/components/WhatsAppVisibili
 import { ScrollToTop } from "@/shared/components/ScrollToTop";
 import { Analytics } from "@vercel/analytics/next"
 
+/** Una sola fuente variable (menos solicitudes bloqueantes que 4 pesos estáticos). */
 const quicksand = Quicksand({
   variable: "--font-quicksand",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "variable",
+  display: "swap",
+  adjustFontFallback: true,
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com";
@@ -89,8 +92,14 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Feni Circular" />
         <meta name="google-site-verification" content="agregar-tu-google-verification" />
         <link rel="manifest" href="/manifest.json" />
-
-        {/* JSON-LD Schema */}
+        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://firebasestorage.googleapis.com"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body className={`${quicksand.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -114,8 +123,6 @@ export default function RootLayout({
             }),
           }}
         />
-
-        {/* ecommerce Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -135,8 +142,6 @@ export default function RootLayout({
             }),
           }}
         />
-      </head>
-      <body className={`${quicksand.variable} font-sans antialiased`}>
         <Analytics />
         <Providers>
           <ScrollToTop />

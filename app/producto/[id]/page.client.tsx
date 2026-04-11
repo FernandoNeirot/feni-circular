@@ -171,16 +171,18 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                     size="icon"
                     className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background shadow-md"
                     onClick={prevImage}
+                    aria-label="Imagen anterior"
                   >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="h-5 w-5" aria-hidden />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background shadow-md"
                     onClick={nextImage}
+                    aria-label="Imagen siguiente"
                   >
-                    <ChevronRight className="h-5 w-5" />
+                    <ChevronRight className="h-5 w-5" aria-hidden />
                   </Button>
                 </>
               )}
@@ -261,7 +263,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <Ruler className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold text-lg">Medidas Reales de la Prenda</h3>
+                    <h2 className="font-semibold text-lg">Medidas Reales de la Prenda</h2>
                   </div>
                   <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
                     <Info className="h-3.5 w-3.5" />
@@ -340,7 +342,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
             <Separator />
 
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg">Descripción</h3>
+              <h2 className="font-semibold text-lg">Descripción</h2>
               <p className="text-muted-foreground leading-relaxed">{product.description}</p>
             </div>
 

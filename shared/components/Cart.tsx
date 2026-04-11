@@ -133,8 +133,13 @@ export function Cart() {
           size="icon"
           variant="outline"
           className="relative rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary transition-all"
+          aria-label={
+            totalItems > 0
+              ? `Abrir carrito, ${totalItems} productos`
+              : "Abrir carrito de compras"
+          }
         >
-          <ShoppingCart className="h-5 w-5 text-primary" />
+          <ShoppingCart className="h-5 w-5 text-primary" aria-hidden />
           {totalItems > 0 && (
             <Badge className="absolute -top-2 -right-2 h-5 min-w-5 flex items-center justify-center p-0 px-1 text-xs bg-accent text-accent-foreground border-0 animate-in zoom-in-50">
               {totalItems}
@@ -307,8 +312,10 @@ export function Cart() {
             <div className="grid grid-cols-2 gap-4 py-6">
               {/* Opción Retirar */}
               <button
+                type="button"
                 onClick={() => setShippingMode("pickup")}
                 className="flex flex-col items-center justify-center p-6 rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all"
+                aria-label="Elegir retiro en persona"
               >
                 <Store className="h-10 w-10 text-primary mb-3" />
                 <span className="font-semibold text-lg">Retirar</span>
@@ -319,8 +326,10 @@ export function Cart() {
 
               {/* Opción Envío */}
               <button
+                type="button"
                 onClick={() => setShippingMode("shipping")}
                 className="flex flex-col items-center justify-center p-6 rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all"
+                aria-label="Elegir envío a domicilio"
               >
                 <Truck className="h-10 w-10 text-primary mb-3" />
                 <span className="font-semibold text-lg">Envío</span>

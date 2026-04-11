@@ -106,7 +106,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
             <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Leaf className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="font-semibold text-lg">Sostenible</h3>
+            <h2 className="font-semibold text-lg">Sostenible</h2>
             <p className="text-sm text-muted-foreground">
               Dale una segunda vida a la ropa infantil
             </p>
@@ -115,7 +115,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
             <div className="mx-auto w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center">
               <Recycle className="h-8 w-8 text-secondary" />
             </div>
-            <h3 className="font-semibold text-lg">Calidad Garantizada</h3>
+            <h2 className="font-semibold text-lg">Calidad Garantizada</h2>
             <p className="text-sm text-muted-foreground">
               Todas las prendas están en excelente estado
             </p>
@@ -124,7 +124,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
             <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
               <Heart className="h-8 w-8 text-accent" />
             </div>
-            <h3 className="font-semibold text-lg">Con Amor</h3>
+            <h2 className="font-semibold text-lg">Con Amor</h2>
             <p className="text-sm text-muted-foreground">Cada prenda tiene su propia historia</p>
           </div>
         </div>
@@ -169,7 +169,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
       <section className="py-12 px-4 md:px-8">
         <div className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
           <Droplets className="h-10 w-10 text-info mx-auto" />
-          <h3 className="text-2xl font-bold text-foreground">Tu compra tiene impacto 🌍</h3>
+          <h2 className="text-2xl font-bold text-foreground">Tu compra tiene impacto 🌍</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             La industria textil es la segunda más contaminante del mundo. Al elegir ropa circular,
             cada prenda ahorra en promedio{" "}
@@ -218,7 +218,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
       <section className="py-16 px-4 md:px-8 text-center">
         <div className="max-w-md mx-auto space-y-4">
           <Instagram className="h-10 w-10 text-accent mx-auto" />
-          <h3 className="text-2xl font-bold text-foreground">Seguinos en Instagram</h3>
+          <h2 className="text-2xl font-bold text-foreground">Seguinos en Instagram</h2>
           <p className="text-muted-foreground text-sm">
             Mirá las últimas prendas, tips de moda circular y más ✨
           </p>

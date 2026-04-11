@@ -35,7 +35,7 @@ export function WhatsAppFloatButton() {
       className="fixed right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bottom-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] bg-[#25D366] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#25D366]/50"
       aria-label="Contactar por WhatsApp"
     >
-      <MessageCircle className="h-7 w-7" strokeWidth={2} />
+      <MessageCircle className="h-7 w-7" strokeWidth={2} aria-hidden />
     </a>
   );
 }

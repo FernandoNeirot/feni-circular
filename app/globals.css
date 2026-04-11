@@ -10,23 +10,23 @@
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(270 30% 25%);
 
-  /* Lavanda del logo */
-  --primary: hsl(270 45% 65%);
+  /* Lavanda: un poco más oscura para texto blanco (contraste AA en botones y badges). */
+  --primary: hsl(270 46% 44%);
   --primary-foreground: hsl(0 0% 100%);
 
   /* Durazno/Naranja del logo */
   --secondary: hsl(30 85% 70%);
-  --secondary-foreground: hsl(270 30% 25%);
+  --secondary-foreground: hsl(270 30% 22%);
 
   --muted: hsl(270 20% 95%);
-  --muted-foreground: hsl(270 15% 50%);
+  --muted-foreground: hsl(270 18% 36%);
 
-  /* Rosa del logo */
-  --accent: hsl(330 70% 65%);
+  /* Rosa: tono más profundo para contraste con texto claro */
+  --accent: hsl(330 62% 46%);
   --accent-foreground: hsl(0 0% 100%);
 
-  /* Celeste del logo */
-  --info: hsl(195 60% 70%);
+  /* Celeste: mismo criterio para badges y chips */
+  --info: hsl(195 52% 40%);
   --info-foreground: hsl(0 0% 100%);
 
   --destructive: hsl(0 84.2% 60.2%);
@@ -80,7 +80,7 @@
   --secondary-foreground: hsl(270 30% 10%);
 
   --muted: hsl(270 20% 20%);
-  --muted-foreground: hsl(270 15% 60%);
+  --muted-foreground: hsl(270 15% 68%);
 
   --accent: hsl(330 70% 65%);
   --accent-foreground: hsl(0 0% 100%);

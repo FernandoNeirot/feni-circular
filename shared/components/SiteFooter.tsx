@@ -10,13 +10,13 @@ export function SiteFooter({ whatsappHref }: SiteFooterProps) {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-xl font-bold mb-3">FENI</h3>
+            <p className="text-xl font-bold mb-3 text-foreground">FENI</p>
             <p className="text-sm text-muted-foreground">
               Ropa infantil circular de excelente calidad.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">Navegación</h4>
+            <p className="font-semibold mb-3 text-foreground">Navegación</p>
             <div className="flex flex-col gap-2">
               {[
                 { label: "Productos", href: "/buscar" },
@@ -35,7 +35,7 @@ export function SiteFooter({ whatsappHref }: SiteFooterProps) {
             </div>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">Contacto</h4>
+            <p className="font-semibold mb-3 text-foreground">Contacto</p>
             <p className="text-sm text-muted-foreground">
               WhatsApp:{" "}
               <a
