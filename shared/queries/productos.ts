@@ -12,7 +12,10 @@ function getProductsApiUrl(): string {
 }
 
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch(getProductsApiUrl());
+  const isServer = typeof window === "undefined";
+  const res = await fetch(getProductsApiUrl(), {
+    ...(isServer ? { next: { revalidate: 3600 } } : {}),
+  });
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];

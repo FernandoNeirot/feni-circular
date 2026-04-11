@@ -50,12 +50,12 @@ export function ProductGrid({
             "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
           ].join(" ")}
         >
-          {productsOrdered.map((product) => (
+          {productsOrdered.map((product, index) => (
             <li
               key={product.id}
               className="snap-start shrink-0 w-[min(calc(100vw-6rem),17.5rem)] sm:w-auto sm:min-w-0 sm:shrink sm:snap-none"
             >
-              <ProductCard product={product} />
+              <ProductCard product={product} imagePriority={index < 4} />
             </li>
           ))}
         </ul>

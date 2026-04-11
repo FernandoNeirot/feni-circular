@@ -15,9 +15,17 @@ import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
+  /** Primeras tarjetas visibles: prioriza la imagen para LCP (listados grandes como /buscar). */
+  imagePriority?: boolean;
+  /** Por defecto false: evita decenas de prefetch de RSC en grillas con muchos productos. */
+  linkPrefetch?: boolean;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({
+  product,
+  imagePriority = false,
+  linkPrefetch = false,
+}: ProductCardProps) {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { share } = useShare(
@@ -53,7 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/producto/${product.slug || product.id}`}>
+    <Link href={`/producto/${product.slug || product.id}`} prefetch={linkPrefetch}>
       <Card
         className={`group overflow-hidden border-2 border-b-fuchsia-100 hover:border-primary transition-all duration-300 hover:shadow-lg cursor-pointer ${isSoldOut ? "opacity-70" : ""}`}
       >
@@ -73,6 +81,8 @@ export function ProductCard({ product }: ProductCardProps) {
               width={400}
               height={400}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              priority={imagePriority}
+              fetchPriority={imagePriority ? "high" : "low"}
               className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isSoldOut ? "grayscale" : ""}`}
             />
             {isSoldOut ? null : (
