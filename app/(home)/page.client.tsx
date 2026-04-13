@@ -150,7 +150,11 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
           </div>
         </div>
       </section> */}
-      <ProductGrid title="📦 Recién Llegados" products={recentlyArrivedProducts} />
+      <ProductGrid
+        title="📦 Recién Llegados"
+        products={recentlyArrivedProducts}
+        priorityImageCount={2}
+      />
       <ProductGrid
         title="🧒 Productos para 1-3 años"
         products={productsByAge}
@@ -167,7 +171,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
         seeAllHref={buscarAgeRange("6+ años")}
       />
       <section className="py-12 px-4 md:px-8">
-        <div className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
+        <div className="max-w-4xl mx-auto bg-linear-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
           <Droplets className="h-10 w-10 text-info mx-auto" />
           <h2 className="text-2xl font-bold text-foreground">Tu compra tiene impacto 🌍</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">

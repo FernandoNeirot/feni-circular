@@ -55,13 +55,6 @@ export const metadata: Metadata = {
   },
 };
 
-const ageFilters = [
-  // { label: "0-12m", emoji: "👶", filter: "0-12m" },
-  { label: "1-3 años", emoji: "🧒", filter: "1-3 años" },
-  { label: "3-6 años", emoji: "👦", filter: "3-6 años" },
-  { label: "6+ años", emoji: "🎒", filter: "6+ años" },
-];
-
 const testimonials = [
   {
     name: "Carolina M.",
@@ -88,7 +81,7 @@ export default async function Home() {
     <div className="min-h-screen bg-linear-to-b from-background via-muted/30 to-background">
       <main>
         <HydrationBoundary state={dehydrate(queryClient)}>
-          <Pageclient ageFilters={ageFilters} testimonials={testimonials} />
+          <Pageclient testimonials={testimonials} />
         </HydrationBoundary>
       </main>
     </div>

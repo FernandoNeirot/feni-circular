@@ -13,6 +13,8 @@ interface ProductGridProps {
   seeAllHref?: string;
   /** Solo para grids donde quieras mandar vendidos al final (p. ej. favoritos). El resto mantiene el orden recibido. */
   sortSoldLast?: boolean;
+  /** Cantidad de cards a priorizar para carga de imagen en el viewport inicial. */
+  priorityImageCount?: number;
 }
 
 export function ProductGrid({
@@ -20,6 +22,7 @@ export function ProductGrid({
   products,
   seeAllHref = "/buscar",
   sortSoldLast = false,
+  priorityImageCount = 0,
 }: ProductGridProps) {
   if (products.length === 0) return null;
   const productsOrdered = sortSoldLast
@@ -55,7 +58,7 @@ export function ProductGrid({
               key={product.id}
               className="snap-start shrink-0 w-[min(calc(100vw-6rem),17.5rem)] sm:w-auto sm:min-w-0 sm:shrink sm:snap-none"
             >
-              <ProductCard product={product} imagePriority={index < 4} />
+              <ProductCard product={product} imagePriority={index < priorityImageCount} />
             </li>
           ))}
         </ul>

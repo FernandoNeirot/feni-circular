@@ -29,24 +29,17 @@ export function HeroCarousel() {
   return (
     <div className="relative h-[60vh] md:h-[70vh] overflow-hidden rounded-3xl mx-4 md:mx-8 mt-6">
       <div className="relative h-full">
-        {images.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Image
-              src={image}
-              alt={`Slide ${index + 1}`}
-              fill
-              className="object-cover"
-              sizes="100vw"
-              priority={index === 0}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          </div>
-        ))}
+        <Image
+          key={images[currentIndex]}
+          src={images[currentIndex]}
+          alt={`Slide ${currentIndex + 1}`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 90vw"
+          priority={currentIndex === 0}
+          quality={70}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/25 to-transparent" />
       </div>
 
       <div className="absolute inset-0 flex items-end justify-center pb-16 md:pb-20">
