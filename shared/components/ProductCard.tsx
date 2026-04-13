@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { ShoppingCart, Heart, Share2 } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Trash2 } from "lucide-react";
 import type { Product } from "@/shared/types/product";
 import { useCart } from "@/shared/components/cart-provider";
 import { useFavorites } from "@/shared/components/favorites-provider";
@@ -26,7 +26,7 @@ export function ProductCard({
   imagePriority = false,
   linkPrefetch = false,
 }: ProductCardProps) {
-  const { addToCart } = useCart();
+  const { cartItems, addToCart, removeItem } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { share } = useShare(
     {},
@@ -36,6 +36,7 @@ export function ProductCard({
     }
   );
   const isSoldOut = product.soldOut;
+  const isInCart = product.id != null && cartItems.some((item) => item.id === product.id);
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -69,7 +70,7 @@ export function ProductCard({
           <div className="relative overflow-hidden aspect-square bg-muted">
             {isSoldOut && (
               <div
-                className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-gradient-to-br from-destructive to-destructive/90 px-10 py-2 text-center text-sm font-bold uppercase tracking-[0.2em] text-white shadow-lg ring-2 ring-white/30"
+                className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-linear-to-br from-destructive to-destructive/90 px-10 py-2 text-center text-sm font-bold uppercase tracking-[0.2em] text-white shadow-lg ring-2 ring-white/30"
                 aria-hidden
               >
                 <span className="drop-shadow-sm">Vendido</span>
@@ -152,12 +153,17 @@ export function ProductCard({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    if (isInCart) {
+                      removeItem(product.id);
+                      return;
+                    }
                     addToCart(product);
                   }}
+                  variant={isInCart ? "outline" : "default"}
                   className="gap-2"
                 >
-                  <ShoppingCart className="h-4 w-4" />
-                  Agregar
+                  {isInCart ? <Trash2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+                  {isInCart ? "Quitar" : "Agregar"}
                 </Button>
               )}
             </div>
