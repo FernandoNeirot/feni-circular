@@ -30,9 +30,9 @@ const mainNavLinks = [
 ];
 
 export const metadata: Metadata = {
-  title: "Feni Circular - Ropa Infantil Usada de Calidad | Compra y Vende",
+  title: "Ropa Infantil Circular | Feni Circular - Compra y Vende",
   description:
-    "Ropa infantil usada de excelente calidad. Compra ropa de segunda mano para niñas y niños. Vende o consigna ropa infantil en Feni Circular. Envíos con Correo Argentino.",
+    "Ropa Infantil Circular de excelente calidad. Compra ropa de segunda mano para niñas y niños. Vende o consigna ropa infantil en Feni Circular. Envíos con Correo Argentino.",
   keywords: [
     "ropa infantil usada",
     "ropa infantil segunda mano",
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_AR",
     url: baseUrl,
-    title: "Feni Circular - Ropa Infantil Usada de Calidad",
+    title: "Ropa Infantil Circular | Feni Circular",
     description:
-      "Plataforma de venta de ropa infantil usada. Segunda vida, calidad excepcional. Compra y vende con nosotros.",
+      "Plataforma de Ropa Infantil Circular. Segunda vida, calidad excepcional. Compra y vende con nosotros.",
     siteName: "Feni Circular",
     images: [
       {
@@ -69,8 +69,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Feni Circular - Ropa Infantil Usada",
-    description: "Ropa infantil circular de excelente calidad.",
+    title: "Ropa Infantil Circular | Feni Circular",
+    description: "Ropa Infantil Circular de excelente calidad en Argentina.",
     images: [`${baseUrl}/images/feni-logo.png`],
   },
   robots: {
@@ -117,7 +117,7 @@ export default function RootLayout({
               name: "Feni Circular",
               url: baseUrl,
               logo: `${baseUrl}/images/feni-logo.png`,
-              description: "Plataforma de venta de ropa infantil usada de excelente calidad.",
+              description: "Plataforma de Ropa Infantil Circular de excelente calidad.",
               sameAs: ["https://wa.me/541133150864"],
               contactPoint: {
                 "@type": "ContactPoint",
@@ -137,7 +137,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org/",
               "@type": "WebSite",
-              name: "Feni Circular",
+              name: "Ropa Infantil Circular | Feni Circular",
               url: baseUrl,
               potentialAction: {
                 "@type": "SearchAction",
