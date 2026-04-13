@@ -21,6 +21,13 @@ const quicksand = Quicksand({
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com";
+const mainNavLinks = [
+  { name: "Inicio", url: `${baseUrl}/` },
+  { name: "Productos", url: `${baseUrl}/buscar` },
+  { name: "Cómo funciona", url: `${baseUrl}/como-funciona-feni` },
+  { name: "Vendé con nosotros", url: `${baseUrl}/vende-con-nosotros` },
+  { name: "Preguntas frecuentes", url: `${baseUrl}/preguntas-frecuentes` },
+];
 
 export const metadata: Metadata = {
   title: "Feni Circular - Ropa Infantil Usada de Calidad | Compra y Vende",
@@ -140,6 +147,21 @@ export default function RootLayout({
                 },
                 query_input: "required name=search_term_string",
               },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              itemListElement: mainNavLinks.map((item, index) => ({
+                "@type": "SiteNavigationElement",
+                position: index + 1,
+                name: item.name,
+                url: item.url,
+              })),
             }),
           }}
         />
