@@ -1,7 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
 import type { Product } from "@/shared/types/product";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { HeroCarousel } from "@/shared/components/HeroCarousel";
 import { ProductGrid } from "@/shared/components/ProductGrid";
@@ -14,11 +13,6 @@ import { SiteFooter } from "@/shared/components/SiteFooter";
 import { whatsappNumber } from "@/shared/configs/whatsapp";
 
 interface PageclientProps {
-  ageFilters: {
-    label: string;
-    emoji: string;
-    filter: string;
-  }[];
   testimonials: {
     name: string;
     text: string;
@@ -62,7 +56,7 @@ function createdAtMs(p: Product): number {
   return Number.isFinite(t) ? t : 0;
 }
 
-const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
+const Pageclient = ({ testimonials }: PageclientProps) => {
   const { favoriteIds } = useFavorites();
   const { data: products = [] } = useQuery(productsQueryOptions);
 
@@ -107,7 +101,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
               <Leaf className="h-8 w-8 text-primary" />
             </div>
             <h2 className="font-semibold text-lg">Sostenible</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
               Dale una segunda vida a la ropa infantil
             </p>
           </div>
@@ -116,7 +110,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
               <Recycle className="h-8 w-8 text-secondary" />
             </div>
             <h2 className="font-semibold text-lg">Calidad Garantizada</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
               Todas las prendas están en excelente estado
             </p>
           </div>
@@ -125,7 +119,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
               <Heart className="h-8 w-8 text-accent" />
             </div>
             <h2 className="font-semibold text-lg">Con Amor</h2>
-            <p className="text-sm text-muted-foreground">Cada prenda tiene su propia historia</p>
+            <p className="text-sm text-foreground">Cada prenda tiene su propia historia</p>
           </div>
         </div>
       </section>
@@ -172,9 +166,9 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
       />
       <section className="py-12 px-4 md:px-8">
         <div className="max-w-4xl mx-auto bg-linear-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
-          <Droplets className="h-10 w-10 text-info mx-auto" />
+          <Droplets className="h-10 w-10 text-foreground mx-auto" />
           <h2 className="text-2xl font-bold text-foreground">Tu compra tiene impacto 🌍</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-foreground max-w-xl mx-auto">
             La industria textil es la segunda más contaminante del mundo. Al elegir ropa circular,
             cada prenda ahorra en promedio{" "}
             <strong className="text-foreground">2.700 litros de agua</strong> y{" "}
@@ -208,7 +202,7 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
                   ))}
                 </div>
                 <p className="text-foreground italic">&quot;{t.text}&quot;</p>
-                <p className="text-sm font-semibold text-muted-foreground">— {t.name}</p>
+                <p className="text-sm font-semibold text-foreground">— {t.name}</p>
               </div>
             ))}
           </div>
@@ -221,14 +215,14 @@ const Pageclient = ({ ageFilters, testimonials }: PageclientProps) => {
 
       <section className="py-16 px-4 md:px-8 text-center">
         <div className="max-w-md mx-auto space-y-4">
-          <Instagram className="h-10 w-10 text-accent mx-auto" />
+          <Instagram className="h-10 w-10 text-foreground mx-auto" />
           <h2 className="text-2xl font-bold text-foreground">Seguinos en Instagram</h2>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground text-sm">
             Mirá las últimas prendas, tips de moda circular y más ✨
           </p>
           <Button
             variant="outline"
-            className="rounded-full gap-2 border-accent/40 text-accent hover:bg-accent/10"
+            className="rounded-full gap-2 border-border text-foreground hover:bg-accent/10"
             onClick={() => window.open("https://www.instagram.com/fenicircular/", "_blank")}
           >
             <Instagram className="h-4 w-4" />
