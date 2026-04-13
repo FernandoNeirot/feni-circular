@@ -37,7 +37,9 @@ export function HeroCarousel() {
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 90vw"
           priority={currentIndex === 0}
-          quality={70}
+          fetchPriority={currentIndex === 0 ? "high" : "auto"}
+          loading={currentIndex === 0 ? "eager" : "lazy"}
+          quality={60}
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/25 to-transparent" />
       </div>
