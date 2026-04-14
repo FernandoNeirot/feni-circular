@@ -13,7 +13,7 @@ const BASE_URL =
 
 export const SITE_NAME = "FENI Circular";
 export const SITE_DESCRIPTION =
-  "Ropa Infantil Circular de excelente calidad en Argentina. Dale una segunda vida a la ropa de tus hijos con moda circular, sostenible y con impacto real. Compra, vende y consigna ropa infantil. Envíos con Correo Argentino.";
+  "Descubrí ropa infantil circular en excelente estado, con precios accesibles y prendas únicas. Comprá fácil por WhatsApp en FENI Circular y recibí en todo Argentina.";
 export const SITE_KEYWORDS = [
   "Ropa Infantil Circular",
   "ropa infantil usada",

@@ -6,7 +6,7 @@ type SiteFooterProps = {
 
 export function SiteFooter({ whatsappHref }: SiteFooterProps) {
   return (
-    <footer className="bg-muted/50 py-12 px-4 md:px-8">
+    <footer className="bg-muted/50 py-12 px-4 md:px-8" data-nosnippet>
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
