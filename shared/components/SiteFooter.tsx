@@ -52,7 +52,19 @@ export function SiteFooter({ whatsappHref }: SiteFooterProps) {
         </div>
         <div className="border-t pt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 FENI. Todos los derechos reservados.
+            © 2025 FENI. Todos los derechos reservados.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Desarrollado por{" "}
+            <a
+              href="https://www.linkedin.com/in/fernando-neirot/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              Fernando Neirot
+            </a>
+            .
           </p>
         </div>
       </div>

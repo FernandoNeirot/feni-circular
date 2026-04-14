@@ -123,27 +123,6 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
           </div>
         </div>
       </section>
-      {/* <section className="py-8 px-4 md:px-8">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-6">Buscá por edad</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {ageFilters.map((af) => (
-              <Link
-                key={af.filter}
-                href={`/buscar?ageRange=${encodeURIComponent(af.filter)}`}
-                className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-card border-2 border-transparent hover:border-primary/40 hover:shadow-md transition-all group"
-              >
-                <span className="text-3xl" suppressHydrationWarning>
-                  {af.emoji}
-                </span>
-                <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {af.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section> */}
       <ProductGrid
         title="📦 Recién Llegados"
         products={recentlyArrivedProducts}
