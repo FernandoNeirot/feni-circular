@@ -31,7 +31,7 @@ import { useWhatsAppVisibility } from "@/shared/components/WhatsAppVisibilityCon
 
 const navLinks = [
   { label: "Inicio", href: "/" },
-  { label: "Productos", href: "/buscar" },
+  { label: "Productos", href: "/productos" },
   { label: "¿Cómo funciona?", href: "/como-funciona-feni" },
   { label: "Vendé con nosotros", href: "/vende-con-nosotros" },
   { label: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
@@ -108,7 +108,7 @@ export function Header() {
     }
   };
 
-  const isSearchPage = pathname === "/buscar";
+  const isSearchPage = pathname === "/productos" || pathname === "/buscar";
   const isAdminSection = pathname?.startsWith("/admin") ?? false;
   const navLinksToShow = isAdminSection ? navLinks.filter((l) => l.href === "/") : navLinks;
 
@@ -131,7 +131,7 @@ export function Header() {
       : [];
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
@@ -175,7 +175,7 @@ export function Header() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && query.length >= 3) {
-                  window.location.href = `/buscar?q=${encodeURIComponent(query)}`;
+                  window.location.href = `/productos?q=${encodeURIComponent(query)}`;
                 }
                 if (e.key === "Escape") {
                   setSearchOpen(false);
@@ -220,7 +220,7 @@ export function Header() {
                   </Link>
                 ))}
                 <Link
-                  href={`/buscar?q=${encodeURIComponent(query)}`}
+                  href={`/productos?q=${encodeURIComponent(query)}`}
                   onClick={() => setQuery("")}
                   className="w-full p-3 text-sm text-primary font-medium hover:bg-muted/50 border-t block"
                 >
@@ -405,7 +405,7 @@ export function Header() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && query.length >= 3) {
-                  window.location.href = `/buscar?q=${encodeURIComponent(query)}`;
+                  window.location.href = `/productos?q=${encodeURIComponent(query)}`;
                 }
                 if (e.key === "Escape") {
                   setSearchOpen(false);

@@ -1,5 +1,5 @@
+import type { Metadata } from "next";
 import {
-  Search as SearchIcon,
   CheckCircle,
   Sparkles,
   Camera,
@@ -15,6 +15,50 @@ import { Button } from "@/shared/components/ui/button";
 import Link from "next/link";
 import { SiteFooter } from "@/shared/components/SiteFooter";
 import { whatsappNumber } from "@/shared/configs/whatsapp";
+import { canonicalUrl, ogImageUrl, SITE_NAME } from "@/shared/configs/seo";
+
+export const metadata: Metadata = {
+  title: `Cómo Funciona FENI | ${SITE_NAME}`,
+  description:
+    "Conocé cómo funciona FENI Circular: inspección, higienización, medición real y publicación de ropa infantil circular de calidad.",
+  keywords: [
+    "feni circular",
+    "como funciona feni",
+    "ropa infantil circular",
+    "ropa infantil usada argentina",
+    "compra ropa infantil usada",
+  ],
+  alternates: {
+    canonical: canonicalUrl("/como-funciona-feni"),
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: canonicalUrl("/como-funciona-feni"),
+    title: `Cómo Funciona FENI | ${SITE_NAME}`,
+    description:
+      "Descubrí el proceso de calidad de FENI Circular para comprar ropa infantil con confianza.",
+    images: [
+      {
+        url: ogImageUrl("/images/feni-logo.png"),
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} - Cómo Funciona`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Cómo Funciona FENI | ${SITE_NAME}`,
+    description:
+      "Proceso de inspección, higienización y control de calidad en ropa infantil circular.",
+    images: [ogImageUrl("/images/feni-logo.png")],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const steps = [
   {
@@ -83,10 +127,28 @@ export default function HowItWorksPage() {
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     "hola, te queria consultar por la ropa de FENI"
   )}`;
+  const howToJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "Cómo funciona FENI Circular",
+    description:
+      "Proceso de inspección, higienización, medición y publicación de ropa infantil circular.",
+    totalTime: "P2D",
+    step: steps.map((step, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: step.title,
+      text: step.description,
+    })),
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <section className="relative py-20 px-4 text-center bg-gradient-to-b from-primary/5 via-background to-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+      />
+      <section className="relative py-20 px-4 text-center bg-linear-to-b from-primary/5 via-background to-background">
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Sparkles className="h-4 w-4" />
@@ -165,7 +227,7 @@ export default function HowItWorksPage() {
             justos.
           </p>
           <Button size="lg" className="rounded-full gap-2" asChild>
-            <Link href="/buscar">
+            <Link href="/productos">
               Ver productos
               <ArrowRight className="h-4 w-4" />
             </Link>

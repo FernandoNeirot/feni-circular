@@ -15,7 +15,7 @@ import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
-  /** Primeras tarjetas visibles: prioriza la imagen para LCP (listados grandes como /buscar). */
+  /** Primeras tarjetas visibles: prioriza la imagen para LCP (listados grandes como /productos). */
   imagePriority?: boolean;
   /** Por defecto false: evita decenas de prefetch de RSC en grillas con muchos productos. */
   linkPrefetch?: boolean;

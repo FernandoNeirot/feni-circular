@@ -23,7 +23,7 @@ const quicksand = Quicksand({
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com";
 const mainNavLinks = [
   { name: "Inicio", url: `${baseUrl}/` },
-  { name: "Productos", url: `${baseUrl}/buscar` },
+  { name: "Productos", url: `${baseUrl}/productos` },
   { name: "Cómo funciona", url: `${baseUrl}/como-funciona-feni` },
   { name: "Vendé con nosotros", url: `${baseUrl}/vende-con-nosotros` },
   { name: "Preguntas frecuentes", url: `${baseUrl}/preguntas-frecuentes` },
@@ -143,7 +143,7 @@ export default function RootLayout({
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
-                  urlTemplate: `${baseUrl}/buscar?q={search_term_string}`,
+                  urlTemplate: `${baseUrl}/productos?q={search_term_string}`,
                 },
                 query_input: "required name=search_term_string",
               },

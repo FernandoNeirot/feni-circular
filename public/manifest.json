@@ -28,7 +28,7 @@
       "name": "Buscar Ropa",
       "short_name": "Buscar",
       "description": "Busca ropa infantil usada",
-      "url": "/buscar?utm_source=pwa",
+      "url": "/productos?utm_source=pwa",
       "icons": [
         {
           "src": "/images/feni-logo.png",

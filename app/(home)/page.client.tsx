@@ -47,7 +47,7 @@ function poolIdentity(products: Product[]): string {
 }
 
 function buscarAgeRange(ageRange: string): string {
-  return `/buscar?ageRange=${encodeURIComponent(ageRange)}`;
+  return `/productos?ageRange=${encodeURIComponent(ageRange)}`;
 }
 
 function createdAtMs(p: Product): number {

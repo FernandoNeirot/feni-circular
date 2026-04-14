@@ -19,7 +19,7 @@ export function SiteFooter({ whatsappHref }: SiteFooterProps) {
             <p className="font-semibold mb-3 text-foreground">Navegación</p>
             <div className="flex flex-col gap-2">
               {[
-                { label: "Productos", href: "/buscar" },
+                { label: "Productos", href: "/productos" },
                 { label: "¿Cómo funciona?", href: "/como-funciona-feni" },
                 { label: "Vendé con nosotros", href: "/vende-con-nosotros" },
                 { label: "Preguntas frecuentes", href: "/preguntas-frecuentes" },

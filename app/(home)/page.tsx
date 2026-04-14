@@ -72,8 +72,19 @@ const testimonials = [
 ];
 
 export default async function Home() {
+  const homeUrl = canonicalUrl("/");
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: `${SITE_NAME} - Ropa Infantil Circular`,
+    description: SITE_DESCRIPTION,
+    url: homeUrl,
+    inLanguage: LOCALE,
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-b from-background via-muted/30 to-background">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
       <main>
         <Pageclient testimonials={testimonials} />
       </main>

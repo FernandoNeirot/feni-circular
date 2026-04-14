@@ -34,7 +34,7 @@
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://fenicircular.com/buscar?q={search_term_string}"
+          "urlTemplate": "https://fenicircular.com/productos?q={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }
@@ -79,8 +79,8 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Buscar",
-          "item": "https://fenicircular.com/buscar"
+          "name": "Productos",
+          "item": "https://fenicircular.com/productos"
         },
         {
           "@type": "ListItem",

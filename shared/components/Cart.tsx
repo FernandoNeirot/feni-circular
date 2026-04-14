@@ -148,7 +148,7 @@ export function Cart() {
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0 border-l-primary/20">
-        <div className="p-6 pb-4 bg-gradient-to-b from-primary/5 to-transparent">
+        <div className="p-6 pb-4 bg-linear-to-b from-primary/5 to-transparent">
           <SheetHeader>
             <SheetTitle className="text-2xl flex items-center gap-2 text-foreground">
               <ShoppingBag className="h-6 w-6 text-primary" />
@@ -180,7 +180,7 @@ export function Cart() {
                 onClick={() => setIsOpen(false)}
                 asChild
               >
-                <Link href="/buscar">Ver productos</Link>
+                <Link href="/productos">Ver productos</Link>
               </Button>
             </div>
           </div>
@@ -198,7 +198,7 @@ export function Cart() {
                       onClick={() => setIsOpen(false)}
                       className="flex flex-1 min-w-0 gap-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2"
                     >
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-muted">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={item.image}
@@ -265,7 +265,7 @@ export function Cart() {
               </div>
             </ScrollArea>
 
-            <div className="border-t border-border/60 bg-gradient-to-t from-primary/5 to-transparent p-6 space-y-4">
+            <div className="border-t border-border/60 bg-linear-to-t from-primary/5 to-transparent p-6 space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>

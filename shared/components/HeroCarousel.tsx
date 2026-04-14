@@ -53,7 +53,7 @@ export function HeroCarousel() {
             Segunda vida, calidad excepcional
           </p>
           <Button size="lg" variant="secondary" className="shadow-lg" asChild>
-            <Link href="/buscar">Ver Productos</Link>
+            <Link href="/productos">Ver Productos</Link>
           </Button>
         </div>
       </div>

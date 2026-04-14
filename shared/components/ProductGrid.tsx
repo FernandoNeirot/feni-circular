@@ -9,7 +9,7 @@ import type { Product } from "@/shared/types/product";
 interface ProductGridProps {
   title: string;
   products: Product[];
-  /** Destino del botón «Ver todo» (ej. `/buscar?ageRange=...`). Por defecto `/buscar`. */
+  /** Destino del botón «Ver todo» (ej. `/productos?ageRange=...`). Por defecto `/productos`. */
   seeAllHref?: string;
   /** Solo para grids donde quieras mandar vendidos al final (p. ej. favoritos). El resto mantiene el orden recibido. */
   sortSoldLast?: boolean;
@@ -20,7 +20,7 @@ interface ProductGridProps {
 export function ProductGrid({
   title,
   products,
-  seeAllHref = "/buscar",
+  seeAllHref = "/productos",
   sortSoldLast = false,
   priorityImageCount = 0,
 }: ProductGridProps) {

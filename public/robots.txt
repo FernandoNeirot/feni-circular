@@ -4,7 +4,7 @@
 # General rules for all bots
 User-agent: *
 Allow: /
-Allow: /buscar
+Allow: /productos
 Allow: /producto/
 Disallow: /admin/
 Disallow: /api/

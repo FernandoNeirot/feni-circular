@@ -19,7 +19,7 @@
     },
     {
       "title": "Buscar Productos",
-      "url": "/buscar",
+      "url": "/productos",
       "priority": "high"
     },
     {

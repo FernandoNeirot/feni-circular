@@ -7,8 +7,16 @@ const SITE_NAME = "FENI - Ropa Infantil Circular";
 const DEFAULT_DESCRIPTION =
   "Ropa infantil circular de excelente calidad. Segunda vida, calidad excepcional.";
 
+function ensureUrlWithScheme(url: string): string {
+  const trimmed = url.replace(/\/$/, "");
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
 function getBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  return ensureUrlWithScheme(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000");
 }
 
 function getProductBySlug(
@@ -43,6 +51,13 @@ export async function generateMetadata({
       : firstImage
         ? `${getBaseUrl()}${firstImage.startsWith("/") ? "" : "/"}${firstImage}`
         : `${getBaseUrl()}/images/feni-logo.png`;
+  const otherMeta: Record<string, string> = {
+    "product:price:currency": "ARS",
+    "product:availability": product?.soldOut ? "out of stock" : "in stock",
+  };
+  if (product?.price != null) {
+    otherMeta["product:price:amount"] = String(product.price);
+  }
 
   return {
     title,
@@ -72,6 +87,7 @@ export async function generateMetadata({
       description,
       images: [imageUrl],
     },
+    other: otherMeta,
     robots: {
       index: true,
       follow: true,
@@ -88,6 +104,76 @@ export default async function ProductDetailPage({
   const products = await getAllProducts();
   const list = Array.isArray(products) ? (products as (Product & { id: string })[]) : [];
   const initialProduct = getProductBySlug(list, slug);
+  const canonicalUrl = `${getBaseUrl()}/producto/${slug}`;
+  const firstImage = initialProduct?.image ?? initialProduct?.images?.[0] ?? "/images/feni-logo.png";
+  const imageUrl =
+    firstImage.startsWith("http")
+      ? firstImage
+      : `${getBaseUrl()}${firstImage.startsWith("/") ? "" : "/"}${firstImage}`;
+  const productJsonLd = initialProduct
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: initialProduct.name,
+        description: initialProduct.description || DEFAULT_DESCRIPTION,
+        image: [imageUrl],
+        sku: String(initialProduct.id ?? slug),
+        brand: initialProduct.brand
+          ? {
+              "@type": "Brand",
+              name: initialProduct.brand,
+            }
+          : undefined,
+        offers: {
+          "@type": "Offer",
+          url: canonicalUrl,
+          priceCurrency: "ARS",
+          price: String(initialProduct.price),
+          availability: initialProduct.soldOut
+            ? "https://schema.org/OutOfStock"
+            : "https://schema.org/InStock",
+          itemCondition: "https://schema.org/UsedCondition",
+        },
+      }
+    : null;
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Inicio",
+        item: `${getBaseUrl()}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Productos",
+        item: `${getBaseUrl()}/productos`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: initialProduct?.name ?? "Producto",
+        item: canonicalUrl,
+      },
+    ],
+  };
 
-  return <ProductDetailClient slug={slug} initialProduct={initialProduct} />;
+  return (
+    <>
+      {productJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <ProductDetailClient slug={slug} initialProduct={initialProduct} />
+    </>
+  );
 }

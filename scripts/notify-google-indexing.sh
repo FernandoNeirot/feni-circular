@@ -6,7 +6,7 @@
 # URLs a indexar
 URLS=(
   "https://fenicircular.com"
-  "https://fenicircular.com/buscar"
+  "https://fenicircular.com/productos"
   "https://fenicircular.com/como-funciona-feni"
   "https://fenicircular.com/vende-con-nosotros"
   "https://fenicircular.com/preguntas-frecuentes"
