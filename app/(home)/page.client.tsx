@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { Product } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
 import { HeroCarousel } from "@/shared/components/HeroCarousel";
@@ -18,6 +18,56 @@ interface PageclientProps {
     text: string;
     rating: number;
   }[];
+}
+
+interface RevealOnScrollProps {
+  children: React.ReactNode;
+  className?: string;
+  delayMs?: number;
+  as?: React.ElementType;
+}
+
+function RevealOnScroll({
+  children,
+  className = "",
+  delayMs = 0,
+  as: Component = "div",
+}: RevealOnScrollProps) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (!entry?.isIntersecting) return;
+        setIsVisible(true);
+        observer.unobserve(entry.target);
+      },
+      { threshold: 0.18, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <Component
+      ref={ref}
+      className={`${className} reveal-on-scroll ${isVisible ? "is-visible" : ""}`.trim()}
+      style={{ animationDelay: `${delayMs}ms` }}
+    >
+      {children}
+    </Component>
+  );
 }
 
 function seededShuffle<T>(items: T[], seedKey: string): T[] {
@@ -94,9 +144,9 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
   return (
     <>
       <HeroCarousel />
-      <section className="py-16 px-4 md:px-8">
+      <RevealOnScroll as="section" className="py-16 px-4 md:px-8" delayMs={80}>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center space-y-3">
+          <RevealOnScroll className="text-center space-y-3" delayMs={120}>
             <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Leaf className="h-8 w-8 text-primary" />
             </div>
@@ -104,8 +154,8 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
             <p className="text-sm text-foreground">
               Dale una segunda vida a la ropa infantil
             </p>
-          </div>
-          <div className="text-center space-y-3">
+          </RevealOnScroll>
+          <RevealOnScroll className="text-center space-y-3" delayMs={180}>
             <div className="mx-auto w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center">
               <Recycle className="h-8 w-8 text-secondary" />
             </div>
@@ -113,16 +163,16 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
             <p className="text-sm text-foreground">
               Todas las prendas están en excelente estado
             </p>
-          </div>
-          <div className="text-center space-y-3">
+          </RevealOnScroll>
+          <RevealOnScroll className="text-center space-y-3" delayMs={240}>
             <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
               <Heart className="h-8 w-8 text-accent" />
             </div>
             <h2 className="font-semibold text-lg">Con Amor</h2>
             <p className="text-sm text-foreground">Cada prenda tiene su propia historia</p>
-          </div>
+          </RevealOnScroll>
         </div>
-      </section>
+      </RevealOnScroll>
       <ProductGrid
         title="📦 Recién Llegados"
         products={recentlyArrivedProducts}
@@ -143,7 +193,7 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
         products={productsByAge6A}
         seeAllHref={buscarAgeRange("6+ años")}
       />
-      <section className="py-12 px-4 md:px-8">
+      <RevealOnScroll as="section" className="py-12 px-4 md:px-8" delayMs={120}>
         <div className="max-w-4xl mx-auto bg-linear-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">
           <Droplets className="h-10 w-10 text-foreground mx-auto" />
           <h2 className="text-2xl font-bold text-foreground">Tu compra tiene impacto 🌍</h2>
@@ -165,16 +215,20 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
             </Badge>
           </div>
         </div>
-      </section>
+      </RevealOnScroll>
       <ProductGrid title="✨ Productos Destacados" products={featuredProducts} />
-      <section className="py-16 px-4 md:px-8 bg-muted/30">
+      <RevealOnScroll as="section" className="py-16 px-4 md:px-8 bg-muted/30" delayMs={140}>
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-10">
             Lo que dicen nuestras clientas 💬
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <div key={i} className="bg-card border rounded-2xl p-6 space-y-3">
+              <RevealOnScroll
+                key={i}
+                className="bg-card border rounded-2xl p-6 space-y-3"
+                delayMs={180 + i * 80}
+              >
                 <div className="flex gap-0.5">
                   {Array.from({ length: t.rating }).map((_, j) => (
                     <Star key={j} className="h-4 w-4 fill-secondary text-secondary" />
@@ -182,17 +236,17 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
                 </div>
                 <p className="text-foreground italic">&quot;{t.text}&quot;</p>
                 <p className="text-sm font-semibold text-foreground">— {t.name}</p>
-              </div>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
-      </section>
+      </RevealOnScroll>
       <ProductGrid title="🔥 Favoritos de Mamá y Papá" products={trendingProducts} />
       {favoriteProducts.length >= 1 && (
         <ProductGrid title="❤️ Mis favoritos" products={favoriteProducts} />
       )}
 
-      <section className="py-16 px-4 md:px-8 text-center">
+      <RevealOnScroll as="section" className="py-16 px-4 md:px-8 text-center" delayMs={160}>
         <div className="max-w-md mx-auto space-y-4">
           <Instagram className="h-10 w-10 text-foreground mx-auto" />
           <h2 className="text-2xl font-bold text-foreground">Seguinos en Instagram</h2>
@@ -208,7 +262,7 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
             @fenicircular
           </Button>
         </div>
-      </section>
+      </RevealOnScroll>
       <SiteFooter whatsappHref={whatsappHref} />
     </>
   );

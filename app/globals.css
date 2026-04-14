@@ -136,3 +136,35 @@ h6 {
 .animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
 }
+
+@keyframes fade-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(14px);
+  will-change: auto;
+}
+
+.reveal-on-scroll.is-visible {
+  animation: fade-up-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  .reveal-on-scroll.is-visible {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}
