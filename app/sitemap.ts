@@ -55,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const images = (product.images?.length ? product.images : [product.image])
       .filter((img): img is string => typeof img === "string" && img.length > 0)
       .slice(0, 5)
-      .map((img) => ({ url: toAbsoluteImageUrl(img) }));
+      .map((img) => toAbsoluteImageUrl(img));
     productEntries.push({
       url,
       lastModified: new Date(),
