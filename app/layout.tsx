@@ -115,10 +115,12 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Feni Circular",
+              alternateName: "FENI",
               url: baseUrl,
               logo: `${baseUrl}/images/feni-logo.png`,
               description: "Plataforma de Ropa Infantil Circular de excelente calidad.",
-              sameAs: ["https://wa.me/541133150864"],
+              sameAs: ["https://www.instagram.com/fenicircular/", "https://wa.me/541133150864"],
+              slogan: "Ropa infantil circular de excelente calidad",
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "Customer Service",
@@ -138,7 +140,10 @@ export default function RootLayout({
               "@context": "https://schema.org/",
               "@type": "WebSite",
               name: "Ropa Infantil Circular | Feni Circular",
+              alternateName: "Feni Circular",
               url: baseUrl,
+              description:
+                "Emprendimiento argentino de ropa infantil circular: comprá y vendé prendas en excelente estado.",
               potentialAction: {
                 "@type": "SearchAction",
                 target: {

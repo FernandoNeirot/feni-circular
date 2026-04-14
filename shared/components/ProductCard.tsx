@@ -78,7 +78,7 @@ export function ProductCard({
             )}
             <Image
               src={product.image}
-              alt={product.name}
+              alt={`${product.name} de ${product.brand || "FENI Circular"} en talle ${product.size}`}
               width={400}
               height={400}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"

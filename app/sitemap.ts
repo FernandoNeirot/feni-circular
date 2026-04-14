@@ -1,29 +1,12 @@
 import { MetadataRoute } from "next";
-import { getProductoLinks } from "@/shared/serverActions/productos";
+import { getAllProducts } from "@/shared/serverActions/productos";
+import type { Product } from "@/shared/types/product";
 
 const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com").replace(/\/$/, "");
 
-/** Normaliza cada string de Firestore a URL canónica `${base}/producto/...`. */
-function productPageUrl(raw: string): string {
-  const s = raw.trim();
-  if (!s) return baseUrl;
-  if (s.startsWith("http://") || s.startsWith("https://")) {
-    try {
-      const u = new URL(s);
-      const path = u.pathname.replace(/^\/+|\/+$/g, "");
-      if (path.startsWith("producto/")) {
-        return `${baseUrl}/${path}`;
-      }
-      return path ? `${baseUrl}/producto/${path}` : baseUrl;
-    } catch {
-      return `${baseUrl}/producto/${encodeURIComponent(s)}`;
-    }
-  }
-  const path = s.replace(/^\/+/, "");
-  if (path.startsWith("producto/")) {
-    return `${baseUrl}/${path}`;
-  }
-  return `${baseUrl}/producto/${path}`;
+function toAbsoluteImageUrl(src: string): string {
+  if (src.startsWith("http://") || src.startsWith("https://")) return src;
+  return `${baseUrl}${src.startsWith("/") ? "" : "/"}${src}`;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -60,18 +43,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const links = await getProductoLinks();
+  const products = (await getAllProducts()) as (Product & { id?: string | number })[] | null;
   const seen = new Set<string>();
   const productEntries: MetadataRoute.Sitemap = [];
-  for (const raw of links ?? []) {
-    const url = productPageUrl(raw);
+  for (const product of products ?? []) {
+    const slug = product.slug ?? String(product.id ?? "").trim();
+    if (!slug) continue;
+    const url = `${baseUrl}/producto/${slug}`;
     if (seen.has(url)) continue;
     seen.add(url);
+    const images = (product.images?.length ? product.images : [product.image])
+      .filter((img): img is string => typeof img === "string" && img.length > 0)
+      .slice(0, 5)
+      .map((img) => ({ url: toAbsoluteImageUrl(img) }));
     productEntries.push({
       url,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.85,
+      images,
     });
   }
 

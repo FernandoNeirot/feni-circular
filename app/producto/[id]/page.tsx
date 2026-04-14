@@ -116,8 +116,15 @@ export default async function ProductDetailPage({
         "@type": "Product",
         name: initialProduct.name,
         description: initialProduct.description || DEFAULT_DESCRIPTION,
-        image: [imageUrl],
+        image: (initialProduct.images?.length ? initialProduct.images : [initialProduct.image])
+          .filter((img): img is string => typeof img === "string" && img.length > 0)
+          .map((img) =>
+            img.startsWith("http")
+              ? img
+              : `${getBaseUrl()}${img.startsWith("/") ? "" : "/"}${img}`
+          ),
         sku: String(initialProduct.id ?? slug),
+        category: initialProduct.category,
         brand: initialProduct.brand
           ? {
               "@type": "Brand",

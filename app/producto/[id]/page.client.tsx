@@ -136,7 +136,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   )}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background pb-20 lg:pb-0">
+    <div className="min-h-screen bg-linear-to-b from-background via-muted/30 to-background pb-20 lg:pb-0">
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-10">
         <Link
           href="/"
@@ -151,7 +151,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
               {product.soldOut && (
                 <div
-                  className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-gradient-to-br from-destructive to-destructive/90 px-10 py-2 text-center text-sm font-bold uppercase tracking-[0.2em] text-white shadow-lg ring-2 ring-white/30"
+                  className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-linear-to-br from-destructive to-destructive/90 px-10 py-2 text-center text-sm font-bold uppercase tracking-[0.2em] text-white shadow-lg ring-2 ring-white/30"
                   aria-hidden
                 >
                   <span className="drop-shadow-sm">Vendido</span>
@@ -159,7 +159,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
               )}
               <Image
                 src={images[currentImageIndex]}
-                alt={product.name}
+                alt={`${product.name} - ${product.brand} - ${product.category}`}
                 fill
                 className={`object-cover ${product.soldOut ? "grayscale" : ""}`}
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -212,7 +212,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                   >
                     <Image
                       src={img}
-                      alt=""
+                      alt={`${product.name} - foto ${index + 1}`}
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
