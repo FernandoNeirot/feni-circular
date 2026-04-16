@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: canonicalUrl("/productos"),
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     type: "website",
     url: canonicalUrl("/productos"),
