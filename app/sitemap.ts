@@ -4,6 +4,10 @@ import type { Product } from "@/shared/types/product";
 
 const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com").replace(/\/$/, "");
 
+function toXmlSafeUrl(url: string): string {
+  return url.replace(/&/g, "&amp;");
+}
+
 function toAbsoluteImageUrl(src: string): string {
   if (src.startsWith("http://") || src.startsWith("https://")) return src;
   return `${baseUrl}${src.startsWith("/") ? "" : "/"}${src}`;
@@ -49,13 +53,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const product of products ?? []) {
     const slug = product.slug ?? String(product.id ?? "").trim();
     if (!slug) continue;
-    const url = `${baseUrl}/producto/${slug}`;
+    const url = toXmlSafeUrl(`${baseUrl}/producto/${encodeURIComponent(slug)}`);
     if (seen.has(url)) continue;
     seen.add(url);
     const images = (product.images?.length ? product.images : [product.image])
       .filter((img): img is string => typeof img === "string" && img.length > 0)
       .slice(0, 5)
-      .map((img) => toAbsoluteImageUrl(img));
+      .map((img) => toXmlSafeUrl(toAbsoluteImageUrl(img)));
     productEntries.push({
       url,
       lastModified: new Date(),
