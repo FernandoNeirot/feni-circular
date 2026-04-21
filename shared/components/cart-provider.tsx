@@ -141,8 +141,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         : (process.env.NEXT_PUBLIC_BASE_URL ?? "");
     const message = `¡Hola! Me interesa realizar un pedido:\n\n${cartItems
       .map(
-        (item) =>
-          `• ${item.name} (Talle: ${item.size})\n  Cantidad: ${item.quantity} - $${item.price * item.quantity}`
+        (item) => {
+          const productSlug = item.slug ?? String(item.id ?? "");
+          const productLink = productSlug ? `${homeUrl}/producto/${encodeURIComponent(productSlug)}` : homeUrl;
+
+          return `• ${item.name} (Talle: ${item.size})\n  Cantidad: ${item.quantity} - $${
+            item.price * item.quantity
+          }\n  Link: ${productLink}`;
+        }
       )
       .join("\n\n")}\n\n*Total: $${total}*\n\n_Pedido desde:_ ${homeUrl}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");

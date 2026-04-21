@@ -63,12 +63,14 @@ export function Cart() {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const disabledEnvio = true;
 
   const cartIds = new Set(items.map((i) => i.id));
   const upsellProduct = products.find((p) => !cartIds.has(p.id) && !p.soldOut && p.price <= 15000);
 
   const handleCheckoutClick = () => {
-    setShowShippingOptions(true);
+    // setShowShippingOptions(true);
+    handlePickupCheckout();
   };
 
   const handlePickupCheckout = () => {
@@ -134,9 +136,7 @@ export function Cart() {
           variant="outline"
           className="relative rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary transition-all"
           aria-label={
-            totalItems > 0
-              ? `Abrir carrito, ${totalItems} productos`
-              : "Abrir carrito de compras"
+            totalItems > 0 ? `Abrir carrito, ${totalItems} productos` : "Abrir carrito de compras"
           }
         >
           <ShoppingCart className="h-5 w-5 text-primary" aria-hidden />
@@ -327,14 +327,20 @@ export function Cart() {
               {/* Opción Envío */}
               <button
                 type="button"
+                disabled={disabledEnvio}
                 onClick={() => setShippingMode("shipping")}
-                className="flex flex-col items-center justify-center p-6 rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all"
+                className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-all ${
+                  disabledEnvio
+                    ? "border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none opacity-60"
+                    : "border-gray-200 hover:border-primary hover:bg-primary/5"
+                }`}
                 aria-label="Elegir envío a domicilio"
               >
                 <Truck className="h-10 w-10 text-primary mb-3" />
                 <span className="font-semibold text-lg">Envío</span>
                 <span className="text-xs text-muted-foreground text-center mt-2">
                   Con Correo Argentino
+                  <br /> (Próximamente disponible en la web)
                 </span>
               </button>
             </div>
@@ -342,9 +348,10 @@ export function Cart() {
             <div className="space-y-4 py-6">
               <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
                 <p className="text-sm text-blue-900">
-                  ✓ Te enviaremos un mensaje por WhatsApp con los detalles para coordinar el retiro
+                  ✓ Podras coordinar retiro o envio a domicilio por WhatsApp
                 </p>
               </div>
+
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => setShippingMode(null)} className="flex-1">
                   Volver
