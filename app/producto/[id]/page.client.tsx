@@ -157,12 +157,13 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                   <span className="drop-shadow-sm">Vendido</span>
                 </div>
               )}
-              <Image
+              <ZoomableImage
                 src={images[currentImageIndex]}
                 alt={`${product.name} - ${product.brand} - ${product.category}`}
-                fill
-                className={`object-cover ${product.soldOut ? "grayscale" : ""}`}
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                modalTitle={product.name}
+                wrapperClassName="absolute inset-0 block w-full h-full text-left overflow-hidden"
+                className={`w-full h-full object-cover ${product.soldOut ? "grayscale" : ""}`}
+                showZoomHint
               />
               {images.length > 1 && (
                 <>
@@ -316,7 +317,9 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                   className={
                     isFavorite(product.id) ? "px-4 text-destructive border-destructive/50" : "px-4"
                   }
-                  aria-label={isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                  aria-label={
+                    isFavorite(product.id) ? "Quitar de favoritos" : "Agregar a favoritos"
+                  }
                   onClick={handleToggleFavorite}
                 >
                   <Heart className={`h-5 w-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />

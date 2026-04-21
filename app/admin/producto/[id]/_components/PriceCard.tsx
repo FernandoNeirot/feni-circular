@@ -139,9 +139,7 @@ export function PriceCard({ form }: PriceCardProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="boughtFrom">
-                {isConsigned ? "Consignado de" : "Comprado a"}
-              </Label>
+              <Label htmlFor="boughtFrom">{isConsigned ? "Consignado de" : "Comprado a"}</Label>
               <Select
                 value={boughtFrom ?? ""}
                 onValueChange={(value) => form.setValue("boughtFrom", value)}
@@ -232,7 +230,9 @@ export function PriceCard({ form }: PriceCardProps) {
                 <DialogContent className="w-[95vw] max-w-[420px] p-0 overflow-hidden">
                   <DialogHeader>
                     <DialogTitle className="px-5 pt-5">
-                      {isConsigned ? "Seleccionar fecha de consignación" : "Seleccionar fecha de compra"}
+                      {isConsigned
+                        ? "Seleccionar fecha de consignación"
+                        : "Seleccionar fecha de compra"}
                     </DialogTitle>
                     <DialogDescription className="px-5">
                       Elegí la fecha en que se compró o consignó esta prenda.
@@ -262,11 +262,11 @@ export function PriceCard({ form }: PriceCardProps) {
                       }}
                       className="mx-auto rounded-lg border bg-card p-3"
                       classNames={{
-                        months: "flex justify-center",
+                        // months: "flex justify-center",
                         month: "space-y-3",
-                        caption: "flex items-center justify-between px-1",
+                        caption: "flex flex-col items-center gap-2 px-1",
                         caption_label: "text-sm font-semibold",
-                        nav: "flex items-center gap-1",
+                        // nav: "flex items-center justify-center gap-2",
                         button_previous:
                           "h-8 w-8 rounded-md border border-input bg-background hover:bg-accent",
                         button_next:
@@ -308,7 +308,10 @@ export function PriceCard({ form }: PriceCardProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="soldTo">Vendido a</Label>
-              <Select value={soldTo ?? ""} onValueChange={(value) => form.setValue("soldTo", value)}>
+              <Select
+                value={soldTo ?? ""}
+                onValueChange={(value) => form.setValue("soldTo", value)}
+              >
                 <SelectTrigger id="soldTo">
                   <SelectValue placeholder="Seleccioná un cliente" />
                 </SelectTrigger>
@@ -375,8 +378,8 @@ export function PriceCard({ form }: PriceCardProps) {
                 </p>
               )}
               <p className="text-[11px] text-muted-foreground">
-                Precio como nuevo. Debe ser <strong>mayor</strong> al precio de venta para mostrar el
-                descuento.
+                Precio como nuevo. Debe ser <strong>mayor</strong> al precio de venta para mostrar
+                el descuento.
               </p>
             </div>
 
@@ -454,9 +457,7 @@ export function PriceCard({ form }: PriceCardProps) {
               </Dialog>
 
               {form.formState.errors.saleDate && (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.saleDate.message}
-                </p>
+                <p className="text-sm text-destructive">{form.formState.errors.saleDate.message}</p>
               )}
             </div>
 
