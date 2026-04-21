@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     description: "Miles de prendas de ropa infantil de segunda mano con filtros avanzados",
     images: [
       {
-        url: ogImageUrl("/images/feni-logo.png"),
+        url: ogImageUrl("/opengraph-image"),
         width: 1200,
         height: 630,
         alt: "Feni Circular - Productos",

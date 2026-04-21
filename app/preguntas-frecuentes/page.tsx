@@ -25,7 +25,7 @@ export const metadata: Metadata = {
       "Todo lo que necesitás saber antes de comprar o vender en FENI Circular.",
     images: [
       {
-        url: ogImageUrl("/images/feni-logo.png"),
+        url: ogImageUrl("/opengraph-image"),
         width: 1200,
         height: 630,
         alt: `${SITE_NAME} - Preguntas Frecuentes`,
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: `Preguntas Frecuentes | ${SITE_NAME}`,
     description:
       "Consultá envíos, pagos, cambios, calidad de prendas y más en FENI Circular.",
-    images: [ogImageUrl("/images/feni-logo.png")],
+    images: [ogImageUrl("/opengraph-image")],
   },
   robots: {
     index: true,

@@ -10,6 +10,7 @@ import { WhatsAppFloatButton } from "@/shared/components/WhatsAppFloatButton";
 import { WhatsAppVisibilityProvider } from "@/shared/components/WhatsAppVisibilityContext";
 import { ScrollToTop } from "@/shared/components/ScrollToTop";
 import { Analytics } from "@vercel/analytics/next"
+import { ogImageUrl } from "@/shared/configs/seo";
 
 /** Una sola fuente variable (menos solicitudes bloqueantes que 4 pesos estáticos). */
 const quicksand = Quicksand({
@@ -64,10 +65,10 @@ export const metadata: Metadata = {
     siteName: "Feni Circular",
     images: [
       {
-        url: `${baseUrl}/images/feni-logo.png`,
+        url: ogImageUrl("/opengraph-image"),
         width: 1200,
         height: 630,
-        alt: "Feni Circular - Ropa Infantil",
+        alt: "FENI Circular - Ropa infantil circular",
       },
     ],
   },
@@ -75,7 +76,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ropa Infantil Circular | Feni Circular",
     description: "Ropa Infantil Circular de excelente calidad en Argentina.",
-    images: [`${baseUrl}/images/feni-logo.png`],
+    images: [ogImageUrl("/opengraph-image")],
   },
   robots: {
     index: true,
@@ -124,6 +125,7 @@ export default function RootLayout({
               alternateName: "FENI",
               url: baseUrl,
               logo: `${baseUrl}/images/feni-logo.png`,
+              image: ogImageUrl("/opengraph-image"),
               description: "Plataforma de Ropa Infantil Circular de excelente calidad.",
               sameAs: ["https://www.instagram.com/fenicircular/", "https://wa.me/541133150864"],
               slogan: "Ropa infantil circular de excelente calidad",

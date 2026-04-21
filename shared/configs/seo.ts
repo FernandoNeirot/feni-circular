@@ -50,7 +50,7 @@ export function canonicalUrl(path: string): string {
   return `${base}${p}`;
 }
 
-export const DEFAULT_OG_IMAGE = "/og-default.png";
+export const DEFAULT_OG_IMAGE = "/opengraph-image";
 
 export function ogImageUrl(pathOrUrl: string): string {
   if (pathOrUrl.startsWith("http")) return pathOrUrl;

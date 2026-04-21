@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Dale una segunda vida a la ropa infantil y ganá dinero vendiendo con FENI Circular.",
     images: [
       {
-        url: ogImageUrl("/images/feni-logo.png"),
+        url: ogImageUrl("/opengraph-image"),
         width: 1200,
         height: 630,
         alt: `${SITE_NAME} - Vendé con nosotros`,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Vendé con Nosotros | ${SITE_NAME}`,
     description: "Vendé o consigná ropa infantil en FENI Circular.",
-    images: [ogImageUrl("/images/feni-logo.png")],
+    images: [ogImageUrl("/opengraph-image")],
   },
   robots: {
     index: true,

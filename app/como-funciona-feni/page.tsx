@@ -40,7 +40,7 @@ export const metadata: Metadata = {
       "Descubrí el proceso de calidad de FENI Circular para comprar ropa infantil con confianza.",
     images: [
       {
-        url: ogImageUrl("/images/feni-logo.png"),
+        url: ogImageUrl("/opengraph-image"),
         width: 1200,
         height: 630,
         alt: `${SITE_NAME} - Cómo Funciona`,
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: `Cómo Funciona FENI | ${SITE_NAME}`,
     description:
       "Proceso de inspección, higienización y control de calidad en ropa infantil circular.",
-    images: [ogImageUrl("/images/feni-logo.png")],
+    images: [ogImageUrl("/opengraph-image")],
   },
   robots: {
     index: true,

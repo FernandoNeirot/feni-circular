@@ -10,7 +10,7 @@ import {
   ogImageUrl,
 } from "@/shared/configs/seo";
 
-const OG_IMAGE = "/images/feni-logo.png";
+const OG_IMAGE = "/opengraph-image";
 
 export const metadata: Metadata = {
   title: {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
         url: ogImageUrl(OG_IMAGE),
         width: 1200,
         height: 630,
-        alt: `${SITE_NAME} - Logo`,
+        alt: `${SITE_NAME} - Ropa infantil circular`,
       },
     ],
   },

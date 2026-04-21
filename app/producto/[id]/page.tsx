@@ -54,7 +54,7 @@ export async function generateMetadata({
       ? firstImage
       : firstImage
         ? `${getBaseUrl()}${firstImage.startsWith("/") ? "" : "/"}${firstImage}`
-        : `${getBaseUrl()}/images/feni-logo.png`;
+        : `${getBaseUrl()}/opengraph-image`;
   const otherMeta: Record<string, string> = {
     "product:price:currency": "ARS",
     "product:availability": product?.soldOut ? "out of stock" : "in stock",
@@ -109,7 +109,7 @@ export default async function ProductDetailPage({
   const list = Array.isArray(products) ? (products as (Product & { id: string })[]) : [];
   const initialProduct = getProductBySlug(list, slug);
   const canonicalUrl = `${getBaseUrl()}/producto/${slug}`;
-  const firstImage = initialProduct?.image ?? initialProduct?.images?.[0] ?? "/images/feni-logo.png";
+  const firstImage = initialProduct?.image ?? initialProduct?.images?.[0] ?? "/opengraph-image";
   const imageUrl =
     firstImage.startsWith("http")
       ? firstImage
