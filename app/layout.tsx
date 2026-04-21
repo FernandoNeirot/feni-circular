@@ -21,6 +21,7 @@ const quicksand = Quicksand({
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fenicircular.com";
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
 const mainNavLinks = [
   { name: "Inicio", url: `${baseUrl}/` },
   { name: "Productos", url: `${baseUrl}/productos` },
@@ -30,7 +31,10 @@ const mainNavLinks = [
 ];
 
 export const metadata: Metadata = {
-  title: "Ropa Infantil Circular | Feni Circular - Compra y Vende",
+  title: {
+    default: "FENI Circular - Ropa Infantil Circular",
+    template: "%s | FENI Circular",
+  },
   description:
     "Ropa Infantil Circular de excelente calidad. Compra ropa de segunda mano para niñas y niños. Vende o consigna ropa infantil en Feni Circular. Envíos con Correo Argentino.",
   keywords: [
@@ -98,7 +102,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Feni Circular" />
-        <meta name="google-site-verification" content="agregar-tu-google-verification" />
+        {googleSiteVerification ? (
+          <meta name="google-site-verification" content={googleSiteVerification} />
+        ) : null}
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
         <link
