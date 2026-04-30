@@ -56,7 +56,13 @@ export function ProductGrid({
           {productsOrdered.map((product, index) => (
             <li
               key={product.id}
-              className="snap-start shrink-0 w-[min(calc(100vw-6rem),17.5rem)] sm:w-auto sm:min-w-0 sm:shrink sm:snap-none"
+              className={[
+                "snap-start shrink-0 w-[min(calc(100vw-6rem),17.5rem)] sm:w-auto sm:min-w-0 sm:shrink sm:snap-none",
+                /* En lg son 3 columnas: solo la primera fila; desde xl (4 col) se muestran el resto. */
+                index >= 3 ? "lg:hidden xl:block" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               <ProductCard product={product} imagePriority={index < priorityImageCount} />
             </li>

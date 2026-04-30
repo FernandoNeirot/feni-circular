@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Product } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
 import { HeroCarousel } from "@/shared/components/HeroCarousel";
@@ -20,11 +20,23 @@ interface PageclientProps {
   }[];
 }
 
+function subscribePrefersReducedMotion(onChange: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function getPrefersReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 interface RevealOnScrollProps {
   children: React.ReactNode;
   className?: string;
   delayMs?: number;
   as?: React.ElementType;
+  /** Sin esperar scroll: anima al montar (p. ej. bloque bajo el hero). */
+  revealOnMount?: boolean;
 }
 
 function RevealOnScroll({
@@ -32,24 +44,28 @@ function RevealOnScroll({
   className = "",
   delayMs = 0,
   as: Component = "div",
+  revealOnMount = false,
 }: RevealOnScrollProps) {
   const ref = useRef<HTMLElement | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const reducedMotion = useSyncExternalStore(
+    subscribePrefersReducedMotion,
+    getPrefersReducedMotionSnapshot,
+    () => false
+  );
+  const [seenByScroll, setSeenByScroll] = useState(false);
+  const isVisible = revealOnMount || reducedMotion || seenByScroll;
 
   useEffect(() => {
+    if (revealOnMount || reducedMotion) return;
+
     const element = ref.current;
     if (!element) return;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) {
-      setIsVisible(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
         if (!entry?.isIntersecting) return;
-        setIsVisible(true);
+        setSeenByScroll(true);
         observer.unobserve(entry.target);
       },
       { threshold: 0.18, rootMargin: "0px 0px -10% 0px" }
@@ -57,7 +73,7 @@ function RevealOnScroll({
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [revealOnMount, reducedMotion]);
 
   return (
     <Component
@@ -126,15 +142,15 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
   }, [products]);
 
   const productsByAge = useMemo(() => {
-    return products.filter((p) => p.ageRange === "1-3 años").slice(0, 4);
+    return products.filter((p) => ["2-6 años"].includes(p.ageRange)).slice(0, 4);
   }, [products]);
 
   const productsByAge36A = useMemo(() => {
-    return products.filter((p) => p.ageRange === "3-6 años").slice(0, 4);
+    return products.filter((p) => ["7-12 años"].includes(p.ageRange)).slice(0, 4);
   }, [products]);
 
   const productsByAge6A = useMemo(() => {
-    return products.filter((p) => p.ageRange === "6+ años").slice(0, 4);
+    return products.filter((p) => ["13-16 años"].includes(p.ageRange)).slice(0, 4);
   }, [products]);
 
   const favoriteProducts = products.filter((p) => favoriteIds.includes(String(p.id)) && !p.soldOut);
@@ -144,27 +160,23 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
   return (
     <>
       <HeroCarousel />
-      <RevealOnScroll as="section" className="py-16 px-4 md:px-8" delayMs={80}>
+      <RevealOnScroll as="section" className="py-16 px-4 md:px-8" delayMs={80} revealOnMount>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <RevealOnScroll className="text-center space-y-3" delayMs={120}>
+          <RevealOnScroll className="text-center space-y-3" delayMs={320} revealOnMount>
             <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Leaf className="h-8 w-8 text-primary" />
             </div>
             <h2 className="font-semibold text-lg">Sostenible</h2>
-            <p className="text-sm text-foreground">
-              Dale una segunda vida a la ropa infantil
-            </p>
+            <p className="text-sm text-foreground">Dale una segunda vida a la ropa infantil</p>
           </RevealOnScroll>
-          <RevealOnScroll className="text-center space-y-3" delayMs={180}>
+          <RevealOnScroll className="text-center space-y-3" delayMs={600} revealOnMount>
             <div className="mx-auto w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center">
               <Recycle className="h-8 w-8 text-secondary" />
             </div>
             <h2 className="font-semibold text-lg">Calidad Garantizada</h2>
-            <p className="text-sm text-foreground">
-              Todas las prendas están en excelente estado
-            </p>
+            <p className="text-sm text-foreground">Todas las prendas están en excelente estado</p>
           </RevealOnScroll>
-          <RevealOnScroll className="text-center space-y-3" delayMs={240}>
+          <RevealOnScroll className="text-center space-y-3" delayMs={1000} revealOnMount>
             <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
               <Heart className="h-8 w-8 text-accent" />
             </div>
@@ -179,19 +191,19 @@ const Pageclient = ({ testimonials }: PageclientProps) => {
         priorityImageCount={2}
       />
       <ProductGrid
-        title="🧒 Productos para 1-3 años"
+        title="🧒 Productos para 2-6 años"
         products={productsByAge}
-        seeAllHref={buscarAgeRange("1-3 años")}
+        seeAllHref={buscarAgeRange("2-6 años")}
       />
       <ProductGrid
-        title="👦 Productos para 3-6 años"
+        title="👦 Productos para 7-12 años"
         products={productsByAge36A}
-        seeAllHref={buscarAgeRange("3-6 años")}
+        seeAllHref={buscarAgeRange("7-12 años")}
       />
       <ProductGrid
-        title="🎒 Productos para 6+ años"
+        title="🎒 Productos para 13-16 años"
         products={productsByAge6A}
-        seeAllHref={buscarAgeRange("6+ años")}
+        seeAllHref={buscarAgeRange("13-16 años")}
       />
       <RevealOnScroll as="section" className="py-12 px-4 md:px-8" delayMs={120}>
         <div className="max-w-4xl mx-auto bg-linear-to-r from-primary/10 via-info/10 to-secondary/10 rounded-3xl p-8 md:p-12 text-center space-y-4">

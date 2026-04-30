@@ -207,9 +207,9 @@ export default function SellWithUsPageClient() {
                     <SelectValue placeholder="Seleccioná" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1-3 años">1-3 años</SelectItem>
-                    <SelectItem value="3-6 años">3-6 años</SelectItem>
-                    <SelectItem value="6-10 años">6-10 años</SelectItem>
+                    <SelectItem value="2-6 años">🧒 2-6 años</SelectItem>
+                    <SelectItem value="7-12 años">👦 7-12 años</SelectItem>
+                    <SelectItem value="13-16 años">🎒 13-16 años</SelectItem>
                     <SelectItem value="Varios">Varios rangos</SelectItem>
                   </SelectContent>
                 </Select>
@@ -250,9 +250,9 @@ export default function SellWithUsPageClient() {
             <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 text-sm text-muted-foreground">
               <Camera className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
               <p>
-                <strong className="text-foreground">Tip:</strong> Al enviarnos el mensaje por WhatsApp,
-                adjuntá fotos de las prendas. Con 2-3 fotos por prenda alcanza (frente, espalda y
-                etiqueta).
+                <strong className="text-foreground">Tip:</strong> Al enviarnos el mensaje por
+                WhatsApp, adjuntá fotos de las prendas. Con 2-3 fotos por prenda alcanza (frente,
+                espalda y etiqueta).
               </p>
             </div>
 

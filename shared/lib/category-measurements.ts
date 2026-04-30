@@ -4,7 +4,7 @@ import type { Product } from "@/shared/types/product";
 export const categories = [
   "Abrigos",
   "Accesorios",
-  "Bolsos",
+  "Camisas",
   "Calzados",
   "Enteritos",
   "Pantalones",
@@ -32,7 +32,8 @@ export const categoryMeasurementFields: Record<
     { key: "anchoCintura", label: "D - Ancho cintura" },
   ],
   Accesorios: [],
-  Bolsos: [
+  Camisas: [
+    { key: "manga", label: "A - Largo manga" },
     { key: "ancho", label: "B - Ancho" },
     { key: "largo", label: "C - Alto" },
   ],
@@ -86,7 +87,9 @@ export function categorySkipsMeasurements(category: string | undefined): boolean
 }
 
 /** Entradas para mostrar en ficha pública; respeta etiquetas por categoría. */
-export function getProductMeasurementEntries(product: Product): Array<{ label: string; value: number }> {
+export function getProductMeasurementEntries(
+  product: Product
+): Array<{ label: string; value: number }> {
   const m = product.measurements;
   const cat = product.category as CategoryId | string;
   const defs = (categories as readonly string[]).includes(cat)

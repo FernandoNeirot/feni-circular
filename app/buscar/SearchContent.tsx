@@ -21,18 +21,21 @@ import { whatsappNumber } from "@/shared/configs/whatsapp";
 export function SearchContent() {
   const searchParams = useSearchParams();
   const { data: products = [], isPending } = useQuery(productsQueryOptions);
-  const initialQuery = searchParams.get("q") || "";
-  const initialAgeRange = searchParams.get("ageRange") || "all";
-  const [query, setQuery] = useState(initialQuery);
+  const paramsKey = searchParams.toString();
+  const qFromUrl = searchParams.get("q") || "";
+  const ageFromUrl = searchParams.get("ageRange") || "all";
+  const [query, setQuery] = useState(qFromUrl);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
-  const [selectedAgeRange, setSelectedAgeRange] = useState(initialAgeRange);
+  const [selectedAgeRange, setSelectedAgeRange] = useState(ageFromUrl);
+  const [prevParamsKey, setPrevParamsKey] = useState(paramsKey);
 
-  /** Entrada desde home u otra página con query inicial (ej. `?ageRange=1-3 años`). */
-  useEffect(() => {
-    setQuery(searchParams.get("q") || "");
-    setSelectedAgeRange(searchParams.get("ageRange") || "all");
-  }, [searchParams]);
+  /** Sincronizar con la URL al navegar (ej. `?ageRange=…` desde home) sin efecto en cascada. */
+  if (paramsKey !== prevParamsKey) {
+    setPrevParamsKey(paramsKey);
+    setQuery(qFromUrl);
+    setSelectedAgeRange(ageFromUrl);
+  }
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -117,9 +120,9 @@ export function SearchContent() {
   const ageRangeOptions = [
     { value: "all", label: "Todas las edades" },
     // { value: "0-12m", label: "0-12m" },
-    { value: "1-3 años", label: "1-3 años" },
-    { value: "3-6 años", label: "3-6 años" },
-    { value: "6+ años", label: "6+ años" },
+    { value: "2-6 años", label: "🧒 2-6 años" },
+    { value: "7-12 años", label: "👦 7-12 años" },
+    { value: "13-16 años", label: "🎒 13-16 años" },
   ];
 
   useEffect(() => {
@@ -247,7 +250,9 @@ export function SearchContent() {
             aria-live="polite"
             aria-atomic="true"
           >
-            {isPending ? "Cargando…" : `${filteredProducts.length} producto${filteredProducts.length !== 1 ? "s" : ""}`}
+            {isPending
+              ? "Cargando…"
+              : `${filteredProducts.length} producto${filteredProducts.length !== 1 ? "s" : ""}`}
           </p>
         </div>
 
@@ -260,77 +265,77 @@ export function SearchContent() {
         >
           {showFilters ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-xl bg-card border shadow-sm">
-            <div>
-              <label htmlFor="filter-age-range" className="text-sm font-medium mb-1.5 block">
-                Rango de edad
-              </label>
-              <Select value={selectedAgeRange} onValueChange={setSelectedAgeRange}>
-                <SelectTrigger id="filter-age-range" className="rounded-lg">
-                  <SelectValue placeholder="Todas las edades" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ageRangeOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <label htmlFor="filter-age-range" className="text-sm font-medium mb-1.5 block">
+                  Rango de edad
+                </label>
+                <Select value={selectedAgeRange} onValueChange={setSelectedAgeRange}>
+                  <SelectTrigger id="filter-age-range" className="rounded-lg">
+                    <SelectValue placeholder="Todas las edades" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ageRangeOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <label htmlFor="filter-category" className="text-sm font-medium mb-1.5 block">
-                Categoría
-              </label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger id="filter-category" className="rounded-lg">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <label htmlFor="filter-category" className="text-sm font-medium mb-1.5 block">
+                  Categoría
+                </label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger id="filter-category" className="rounded-lg">
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <label htmlFor="filter-gender" className="text-sm font-medium mb-1.5 block">
-                Género
-              </label>
-              <Select value={selectedGender} onValueChange={setSelectedGender}>
-                <SelectTrigger id="filter-gender" className="rounded-lg">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="niña">Niña</SelectItem>
-                  <SelectItem value="niño">Niño</SelectItem>
-                  <SelectItem value="unisex">Unisex</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <label htmlFor="filter-gender" className="text-sm font-medium mb-1.5 block">
+                  Género
+                </label>
+                <Select value={selectedGender} onValueChange={setSelectedGender}>
+                  <SelectTrigger id="filter-gender" className="rounded-lg">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="niña">Niña</SelectItem>
+                    <SelectItem value="niño">Niño</SelectItem>
+                    <SelectItem value="unisex">Unisex</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <label htmlFor="filter-sort" className="text-sm font-medium mb-1.5 block">
-                Ordenar por
-              </label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger id="filter-sort" className="rounded-lg">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevancia</SelectItem>
-                  <SelectItem value="price-asc">Menor precio</SelectItem>
-                  <SelectItem value="price-desc">Mayor precio</SelectItem>
-                  <SelectItem value="discount">Mayor descuento</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <label htmlFor="filter-sort" className="text-sm font-medium mb-1.5 block">
+                  Ordenar por
+                </label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger id="filter-sort" className="rounded-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Relevancia</SelectItem>
+                    <SelectItem value="price-asc">Menor precio</SelectItem>
+                    <SelectItem value="price-desc">Mayor precio</SelectItem>
+                    <SelectItem value="discount">Mayor descuento</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
           ) : null}
         </div>
 
@@ -359,11 +364,7 @@ export function SearchContent() {
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  imagePriority={index < 8}
-                />
+                <ProductCard key={product.id} product={product} imagePriority={index < 8} />
               ))}
             </div>
           ) : (

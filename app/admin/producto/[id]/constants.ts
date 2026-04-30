@@ -12,9 +12,9 @@ export const genders: Array<{ value: "niña" | "niño" | "unisex"; label: string
 
 export const ageRanges = [
   // { value: "0-12m", label: "👶 0-12m" },
-  { value: "1-3 años", label: "🧒 1-3 años" },
-  { value: "3-6 años", label: "👦 3-6 años" },
-  { value: "6+ años", label: "🎒 6+ años" },
+  { value: "2-6 años", label: "🧒 2-6 años" },
+  { value: "7-12 años", label: "👦 7-12 años" },
+  { value: "13-16 años", label: "🎒 13-16 años" },
 ] as const;
 
 export const emptyMeasurements: ProductMeasurements = {
