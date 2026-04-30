@@ -84,9 +84,12 @@ export const metadata: Metadata = {
     nocache: false,
   },
   icons: {
-    icon: [{ url: "/icon", type: "image/png", sizes: "48x48" }],
+    icon: [
+      { url: "/images/feni-logo.png", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.ico", sizes: "48x48" },
+    ],
     shortcut: "/favicon.ico",
-    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+    apple: [{ url: "/images/feni-logo.png", type: "image/png", sizes: "180x180" }],
   },
   manifest: "/manifest.json",
 };
