@@ -37,8 +37,10 @@ export const metadata: Metadata = {
     template: "%s | FENI Circular",
   },
   description:
-    "Ropa Infantil Circular de excelente calidad. Compra ropa de segunda mano para niñas y niños. Vende o consigna ropa infantil en Feni Circular. Envíos con Correo Argentino.",
+    "Ropa Infantil Circular de excelente calidad. Compra ropa de segunda mano para niñas y niños. Vende o consigna ropa infantil en FENI Circular. Envíos con Correo Argentino.",
   keywords: [
+    "FENI Circular",
+    "feni circular",
     "ropa infantil usada",
     "ropa infantil segunda mano",
     "ropa niños usado",
@@ -49,7 +51,6 @@ export const metadata: Metadata = {
     "vender ropa infantil",
     "ropa usada Argentina",
     "CABA",
-    "feni circular",
   ],
   metadataBase: new URL(baseUrl),
   alternates: {
@@ -59,10 +60,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_AR",
     url: baseUrl,
-    title: "Ropa Infantil Circular | Feni Circular",
+    title: "Ropa Infantil Circular | FENI Circular",
     description:
       "Plataforma de Ropa Infantil Circular. Segunda vida, calidad excepcional. Compra y vende con nosotros.",
-    siteName: "Feni Circular",
+    siteName: "FENI Circular",
     images: [
       {
         url: ogImageUrl("/opengraph-image"),
@@ -74,7 +75,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ropa Infantil Circular | Feni Circular",
+    title: "Ropa Infantil Circular | FENI Circular",
     description: "Ropa Infantil Circular de excelente calidad en Argentina.",
     images: [ogImageUrl("/opengraph-image")],
   },
@@ -105,7 +106,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#1e40af" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Feni Circular" />
+        <meta name="apple-mobile-web-app-title" content="FENI Circular" />
         {googleSiteVerification ? (
           <meta name="google-site-verification" content={googleSiteVerification} />
         ) : null}
@@ -124,8 +125,8 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "Feni Circular",
-              alternateName: "FENI",
+              name: "FENI Circular",
+              alternateName: ["Feni Circular", "feni circular", "fenicircular.com"],
               url: baseUrl,
               logo: `${baseUrl}/images/feni-logo.png`,
               image: ogImageUrl("/opengraph-image"),
@@ -150,8 +151,8 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org/",
               "@type": "WebSite",
-              name: "Ropa Infantil Circular | Feni Circular",
-              alternateName: "Feni Circular",
+              name: "FENI Circular",
+              alternateName: ["Feni Circular", "feni circular", "fenicircular"],
               url: baseUrl,
               description:
                 "Emprendimiento argentino de ropa infantil circular: comprá y vendé prendas en excelente estado.",
