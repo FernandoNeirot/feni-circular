@@ -56,8 +56,10 @@ export async function generateMetadata({
         ? `${getBaseUrl()}${firstImage.startsWith("/") ? "" : "/"}${firstImage}`
         : `${getBaseUrl()}/opengraph-image`;
   const otherMeta: Record<string, string> = {
+    /* Open Graph product: moneda ISO explícita (evita que Google asuma USD) */
     "product:price:currency": "ARS",
     "product:availability": product?.soldOut ? "out of stock" : "in stock",
+    "product:condition": "used",
   };
   if (product?.price != null) {
     otherMeta["product:price:amount"] = String(product.price);
@@ -139,11 +141,27 @@ export default async function ProductDetailPage({
           "@type": "Offer",
           url: canonicalUrl,
           priceCurrency: "ARS",
-          price: String(initialProduct.price),
+          price: initialProduct.price,
+          priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10),
           availability: initialProduct.soldOut
             ? "https://schema.org/OutOfStock"
             : "https://schema.org/InStock",
           itemCondition: "https://schema.org/UsedCondition",
+          eligibleRegion: {
+            "@type": "Country",
+            name: "AR",
+          },
+          seller: {
+            "@type": "Organization",
+            name: "FENI Circular",
+            url: getBaseUrl(),
+            address: {
+              "@type": "PostalAddress",
+              addressCountry: "AR",
+            },
+          },
         },
         aggregateRating: {
           "@type": "AggregateRating",

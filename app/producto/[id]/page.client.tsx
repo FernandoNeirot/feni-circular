@@ -115,6 +115,14 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
 
+  const formatArs = (amount: number) =>
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+
   const measurementEntries = getProductMeasurementEntries(product);
   const showRealMeasurementsCard =
     !categorySkipsMeasurements(product.category) && measurementEntries.length > 0;
@@ -233,10 +241,10 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
               </div>
               <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-primary">${product.price}</span>
-                {product.originalPrice && (
+                <span className="text-3xl font-bold text-primary">{formatArs(product.price)}</span>
+                {product.originalPrice != null && (
                   <span className="text-lg text-muted-foreground line-through">
-                    ${product.originalPrice}
+                    {formatArs(product.originalPrice)}
                   </span>
                 )}
               </div>
