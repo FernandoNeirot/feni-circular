@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -28,6 +28,9 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useWhatsAppVisibility } from "@/shared/components/WhatsAppVisibilityContext";
+import type { Product } from "@/shared/types/product";
+
+const SUGGESTION_LIMIT = 4;
 
 const navLinks = [
   { label: "Inicio", href: "/" },
@@ -36,6 +39,54 @@ const navLinks = [
   { label: "Vendé con nosotros", href: "/vende-con-nosotros" },
   { label: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
 ];
+
+function SearchSuggestions({
+  suggestions,
+  hasMoreResults,
+  query,
+  onNavigate,
+}: {
+  suggestions: Product[];
+  hasMoreResults: boolean;
+  query: string;
+  onNavigate: () => void;
+}) {
+  return (
+    <>
+      {suggestions.map((p) => (
+        <Link
+          key={p.id}
+          href={`/producto/${p.slug || p.id}`}
+          onClick={onNavigate}
+          className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
+        >
+          <Image
+            src={p.image}
+            alt={p.name}
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-lg object-cover"
+          />
+          <div>
+            <p className="text-sm font-medium line-clamp-1">{p.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {p.brand} · ${p.price}
+            </p>
+          </div>
+        </Link>
+      ))}
+      {hasMoreResults && (
+        <Link
+          href={`/productos?q=${encodeURIComponent(query)}`}
+          onClick={onNavigate}
+          className="w-full p-3 text-sm text-primary font-medium hover:bg-muted/50 border-t block"
+        >
+          Ver más resultados →
+        </Link>
+      )}
+    </>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -51,6 +102,7 @@ export function Header() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const { data: products = [] } = useQuery(productsQueryOptions);
   const { setSearchOpen: setVisibilitySearch, setMenuOpen: setVisibilityMenu } =
     useWhatsAppVisibility();
@@ -118,20 +170,50 @@ export function Header() {
     }
   }, [searchOpen]);
 
-  const suggestions =
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false);
+    setQuery("");
+  }, []);
+
+  useEffect(() => {
+    const isSearchActive =
+      searchOpen || (query.length >= 2 && !isSearchPage && !isAdminSection);
+
+    if (!isSearchActive) return;
+
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (headerRef.current?.contains(target)) return;
+      closeSearch();
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+    };
+  }, [searchOpen, query, isSearchPage, isAdminSection, closeSearch]);
+
+  const matchedProducts =
     query.length >= 2
-      ? products
-          .filter(
-            (p) =>
-              p.name.toLowerCase().includes(query.toLowerCase()) ||
-              p.category.toLowerCase().includes(query.toLowerCase()) ||
-              p.brand.toLowerCase().includes(query.toLowerCase())
-          )
-          .slice(0, 4)
+      ? products.filter(
+          (p) =>
+            p.name.toLowerCase().includes(query.toLowerCase()) ||
+            p.category.toLowerCase().includes(query.toLowerCase()) ||
+            p.brand.toLowerCase().includes(query.toLowerCase())
+        )
       : [];
 
+  const suggestions = matchedProducts.slice(0, SUGGESTION_LIMIT);
+  const hasMoreSuggestions = matchedProducts.length > SUGGESTION_LIMIT;
+
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 border-b">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 border-b"
+    >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
@@ -178,8 +260,7 @@ export function Header() {
                   window.location.href = `/productos?q=${encodeURIComponent(query)}`;
                 }
                 if (e.key === "Escape") {
-                  setSearchOpen(false);
-                  setQuery("");
+                  closeSearch();
                 }
               }}
               placeholder="Buscar..."
@@ -197,35 +278,12 @@ export function Header() {
             )}
             {suggestions.length > 0 && query.length >= 2 && (
               <div className="absolute top-full mt-2 left-0 right-0 bg-card border rounded-xl shadow-lg overflow-hidden z-50">
-                {suggestions.map((p) => (
-                  <Link
-                    key={p.id}
-                    href={`/producto/${p.slug || p.id}`}
-                    onClick={() => setQuery("")}
-                    className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
-                  >
-                    <Image
-                      src={p.image}
-                      alt={p.name}
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-lg object-cover"
-                    />
-                    <div>
-                      <p className="text-sm font-medium line-clamp-1">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {p.brand} · ${p.price}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-                <Link
-                  href={`/productos?q=${encodeURIComponent(query)}`}
-                  onClick={() => setQuery("")}
-                  className="w-full p-3 text-sm text-primary font-medium hover:bg-muted/50 border-t block"
-                >
-                  Ver todos los resultados →
-                </Link>
+                <SearchSuggestions
+                  suggestions={suggestions}
+                  hasMoreResults={hasMoreSuggestions}
+                  query={query}
+                  onNavigate={() => setQuery("")}
+                />
               </div>
             )}
           </div>
@@ -395,7 +453,7 @@ export function Header() {
       {searchOpen && !isSearchPage && !isAdminSection && (
         <div
           id="header-mobile-search"
-          className="md:hidden px-4 pb-3 animate-in slide-in-from-top-2 duration-200"
+          className="md:hidden absolute top-full left-0 right-0 z-50 px-4 pb-3 pt-2 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 border-b shadow-md animate-in slide-in-from-top-2 duration-200"
         >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -408,8 +466,7 @@ export function Header() {
                   window.location.href = `/productos?q=${encodeURIComponent(query)}`;
                 }
                 if (e.key === "Escape") {
-                  setSearchOpen(false);
-                  setQuery("");
+                  closeSearch();
                 }
               }}
               placeholder="Buscar productos..."
@@ -418,31 +475,12 @@ export function Header() {
           </div>
           {suggestions.length > 0 && query.length >= 2 && (
             <div className="mt-2 bg-card border rounded-xl shadow-lg overflow-hidden">
-              {suggestions.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/producto/${p.slug || p.id}`}
-                  onClick={() => {
-                    setQuery("");
-                    setSearchOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
-                >
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-lg object-cover"
-                  />
-                  <div>
-                    <p className="text-sm font-medium line-clamp-1">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {p.brand} · ${p.price}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              <SearchSuggestions
+                suggestions={suggestions}
+                hasMoreResults={hasMoreSuggestions}
+                query={query}
+                onNavigate={closeSearch}
+              />
             </div>
           )}
         </div>

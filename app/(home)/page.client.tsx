@@ -35,7 +35,6 @@ interface RevealOnScrollProps {
   className?: string;
   delayMs?: number;
   as?: React.ElementType;
-  /** Sin esperar scroll: anima al montar (p. ej. bloque bajo el hero). */
   revealOnMount?: boolean;
 }
 

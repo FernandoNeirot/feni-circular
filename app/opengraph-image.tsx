@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 export const size = {
   width: 1200,
@@ -7,57 +9,43 @@ export const size = {
 
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
+  const heroImage = await readFile(join(process.cwd(), "public/images/hero-1.jpg"));
+  const heroSrc = `data:image/jpeg;base64,${heroImage.toString("base64")}`;
+
   return new ImageResponse(
-    (
-      <div
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        position: "relative",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={heroSrc}
+        alt=""
+        width={1200}
+        height={630}
         style={{
+          position: "absolute",
+          inset: 0,
           width: "100%",
           height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          background:
-            "linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #1d4ed8 100%)",
-          color: "white",
-          padding: "56px 64px",
-          fontFamily: "Arial, sans-serif",
+          objectFit: "cover",
         }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 9999,
-              background: "rgba(255,255,255,0.15)",
-              border: "2px solid rgba(255,255,255,0.45)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              fontWeight: 700,
-            }}
-          >
-            F
-          </div>
-          <div style={{ fontSize: 38, fontWeight: 700, letterSpacing: 0.2 }}>
-            FENI Circular
-          </div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 14, maxWidth: 900 }}>
-          <div style={{ fontSize: 56, fontWeight: 800, lineHeight: 1.05 }}>
-            Ropa infantil circular
-          </div>
-          <div style={{ fontSize: 30, opacity: 0.92, lineHeight: 1.25 }}>
-            Comprá y vendé prendas en excelente estado.
-          </div>
-        </div>
-
-        <div style={{ fontSize: 26, opacity: 0.9 }}>fenicircular.com</div>
-      </div>
-    ),
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(76,29,149,0.45) 42%, rgba(0,0,0,0.12) 100%)",
+        }}
+      />
+    </div>,
     {
       ...size,
     }
